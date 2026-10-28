@@ -161,6 +161,7 @@ typedef struct {
     uint32_t         current_time_epoch;  /* Timestamp Epoch UNIX / waktu RTC sesaat */
     bool             relay_ready_on;      /* Flag state relai READY ON (SPLN Tabel 5 No 12) */
     bool             asymmetry_warning;   /* Flag peringatan asimetri beban (SPLN Tabel 5 No 11) */
+    bool             is_modem_active;     /* Flag meter sedang berkomunikasi dengan modem (SPLN Gambar 6) */
 } display_context_t;
 
 bool display_init(display_context_t *ctx, const char *customer_id, uint32_t carousel_interval_ms);
@@ -172,6 +173,7 @@ void display_render_frame(const display_context_t *ctx, char *out_line1, char *o
 void display_set_time(display_context_t *ctx, uint32_t epoch_sec);
 void display_set_relay_ready_on(display_context_t *ctx, bool ready_on);
 void display_set_asymmetry_warning(display_context_t *ctx, bool warning);
+void display_set_modem_status(display_context_t *ctx, bool active);
 
 /**
  * @brief Helper pengaturan dan pembacaan teks / kode error resmi SPLN D3.006:2021
@@ -219,6 +221,7 @@ typedef struct {
     bool is_relay_closed;         /* Status fisik relai kontaktor (true: Terhubung/Closed, false: Trip/Buka) */
     bool is_relay_ready_on;       /* Status relai READY ON (siap sambung kembali dengan tombol ▲+▼) */
     bool is_tamper_active;        /* Status sabotase terdeteksi (case open, terminal open, magnet, dll) */
+    bool is_modem_active;         /* Simbol komunikasi modem aktif (SPLN D3.006:2021 Butir 6.11 Gambar 6) */
     uint8_t active_tariff_zone;   /* Zona tarif aktif (0: WBP, 1: LWBP1, 2: LWBP2) */
     bool show_reg_alt;            /* True: fase tampilan reg_info (UR, US, UT), False: fase obis_code (32.07) */
 } display_spln_frame_t;

@@ -24,36 +24,80 @@ static void bsp_oled_show_boot_screen(const char *title, const char *subtitle) {
 }
 
 /**
- * @brief Gambar ikon status fisik relai kontaktor (X: 0..7, Y: 1..8)
- * - Tertutup/Normal: [o---o] (Kontak nyambung)
- * - Trip/Buka:       [o/  o] (Kontak terangkat)
- * - READY ON:        [o/  o] berkedip 1 Hz
+ * @brief Gambar ikon status fisik relai kontaktor (X: 0..8, Y: 1..7)
+ *        Sesuai SPLN D3.006:2021 Butir 6.11 Gambar 6 (Simbol Sakelar Terbuka/Tertutup)
+ * - Tertutup/Normal: [--o---o--] (Terminal lingkaran tersambung kontak horizontal)
+ * - Trip/Buka:       [--o / o--] (Bilah sakelar terangkat miring ke atas)
+ * - READY ON:        Bilah sakelar berkedip 1 Hz
  */
 static void oled_draw_relay_icon(uint8_t x, uint8_t y, bool closed, bool ready_on, bool blink) {
-    /* Terminal kontak kiri (2x2 piksel) */
-    ssd1306_DrawPixel(x, y + 3, White);
-    ssd1306_DrawPixel(x + 1, y + 3, White);
-    ssd1306_DrawPixel(x, y + 4, White);
-    ssd1306_DrawPixel(x + 1, y + 4, White);
+    /* Terminal lingkaran kiri berlubang di (x+1, y+5) */
+    ssd1306_DrawPixel(x, y + 5, White);         /* Ekor kiri */
+    ssd1306_DrawPixel(x + 1, y + 4, White);     /* Busur atas */
+    ssd1306_DrawPixel(x + 1, y + 6, White);     /* Busur bawah */
+    ssd1306_DrawPixel(x + 2, y + 5, White);     /* Busur kanan */
 
-    /* Terminal kontak kanan (2x2 piksel) */
-    ssd1306_DrawPixel(x + 6, y + 3, White);
-    ssd1306_DrawPixel(x + 7, y + 3, White);
-    ssd1306_DrawPixel(x + 6, y + 4, White);
-    ssd1306_DrawPixel(x + 7, y + 4, White);
+    /* Terminal lingkaran kanan berlubang di (x+7, y+5) */
+    ssd1306_DrawPixel(x + 6, y + 5, White);     /* Busur kiri */
+    ssd1306_DrawPixel(x + 7, y + 4, White);     /* Busur atas */
+    ssd1306_DrawPixel(x + 7, y + 6, White);     /* Busur bawah */
+    ssd1306_DrawPixel(x + 8, y + 5, White);     /* Ekor kanan */
 
     if (closed && !ready_on) {
-        /* Kontak tertutup menyambungkan terminal */
-        ssd1306_Line(x + 2, y + 3, x + 5, y + 3, White);
-        ssd1306_Line(x + 2, y + 4, x + 5, y + 4, White);
+        /* Kontak tertutup menyambungkan kedua terminal */
+        ssd1306_Line(x + 2, y + 5, x + 6, y + 5, White);
     } else if (ready_on) {
-        /* READY ON: berkedip */
+        /* READY ON: bilah sakelar berkedip */
         if (blink) {
-            ssd1306_Line(x + 2, y + 3, x + 5, y + 1, White);
+            ssd1306_Line(x + 7, y + 4, x + 3, y + 1, White);
         }
     } else {
-        /* Kontak terbuka / trip */
-        ssd1306_Line(x + 2, y + 3, x + 5, y + 1, White);
+        /* Kontak terbuka / trip: bilah sakelar terangkat miring ke kiri atas */
+        ssd1306_Line(x + 7, y + 4, x + 3, y + 1, White);
+    }
+}
+
+/**
+ * @brief Gambar ikon modem seluler / komunikasi (X: 10..16, Y: 1..7)
+ *        Sesuai SPLN D3.006:2021 Butir 6.11 Gambar 6 (Gagang Telepon dalam Lingkaran)
+ * - Aktif: Siluet gagang telepon (earpiece, handle, mouthpiece) menyala di dalam lingkaran
+ * - Idle: Lingkaran luar standby
+ */
+static void oled_draw_modem_icon(uint8_t x, uint8_t y, bool active, bool blink) {
+    /* 1. Lingkaran luar diameter 7 piksel */
+    ssd1306_DrawPixel(x + 2, y + 0, White);
+    ssd1306_DrawPixel(x + 3, y + 0, White);
+    ssd1306_DrawPixel(x + 4, y + 0, White);
+
+    ssd1306_DrawPixel(x + 1, y + 1, White);
+    ssd1306_DrawPixel(x + 5, y + 1, White);
+
+    ssd1306_DrawPixel(x + 0, y + 2, White);
+    ssd1306_DrawPixel(x + 6, y + 2, White);
+    ssd1306_DrawPixel(x + 0, y + 3, White);
+    ssd1306_DrawPixel(x + 6, y + 3, White);
+    ssd1306_DrawPixel(x + 0, y + 4, White);
+    ssd1306_DrawPixel(x + 6, y + 4, White);
+
+    ssd1306_DrawPixel(x + 1, y + 5, White);
+    ssd1306_DrawPixel(x + 5, y + 5, White);
+
+    ssd1306_DrawPixel(x + 2, y + 6, White);
+    ssd1306_DrawPixel(x + 3, y + 6, White);
+    ssd1306_DrawPixel(x + 4, y + 6, White);
+
+    /* 2. Siluet gagang telepon klasik di dalam lingkaran */
+    if (active && blink) {
+        /* Earpiece atas */
+        ssd1306_DrawPixel(x + 2, y + 1, White);
+        ssd1306_DrawPixel(x + 3, y + 1, White);
+        /* Gagang lengkung */
+        ssd1306_DrawPixel(x + 3, y + 2, White);
+        ssd1306_DrawPixel(x + 3, y + 3, White);
+        ssd1306_DrawPixel(x + 3, y + 4, White);
+        /* Mouthpiece bawah */
+        ssd1306_DrawPixel(x + 2, y + 5, White);
+        ssd1306_DrawPixel(x + 3, y + 5, White);
     }
 }
 
@@ -189,23 +233,42 @@ static void oled_draw_quadrant_icon(uint8_t x, uint8_t y, uint8_t quadrant) {
 }
 
 /**
- * @brief Gambar badge tarif ToU aktif (X: 38..56, Y: 0..8)
- * - WBP (Tarif 1): Kotak solid putih dengan teks hitam "WBP"
- * - LWBP1 (Tarif 2): Teks putih "LW1"
- * - LWBP2 (Tarif 3): Teks putih "LW2"
+ * @brief Gambar badge tarif ToU aktif (X: 49..54, Y: 1..7)
+ * - WBP (Tarif 1): Kotak solid putih dengan angka '1' hitam (prominen WBP)
+ * - LWBP1 (Tarif 2): Kotak outline dengan angka '2' putih
+ * - LWBP2 (Tarif 3): Kotak outline dengan angka '3' putih
  */
 static void oled_draw_tariff_badge(uint8_t x, uint8_t y, uint8_t zone) {
     if (zone == 0) {
-        /* WBP Prominen Inverted Badge */
-        ssd1306_FillRectangle(x, y, x + 18, y + 7, White);
-        ssd1306_SetCursor(x + 1, y);
-        ssd1306_WriteString("WBP", Font_6x8, Black);
+        /* WBP Prominen Inverted Badge (Kotak solid putih dengan angka '1' hitam) */
+        ssd1306_FillRectangle(x, y, x + 5, y + 6, White);
+        /* Angka '1' hitam */
+        ssd1306_DrawPixel(x + 2, y + 2, Black);
+        for (uint8_t row = 1; row <= 5; row++) {
+            ssd1306_DrawPixel(x + 3, y + row, Black);
+        }
+        for (uint8_t col = 2; col <= 4; col++) {
+            ssd1306_DrawPixel(x + col, y + 5, Black);
+        }
     } else if (zone == 1) {
-        ssd1306_SetCursor(x, y);
-        ssd1306_WriteString("LW1", Font_6x8, White);
+        /* LWBP1 (Tarif 2): Kotak outline dengan angka '2' */
+        ssd1306_DrawRectangle(x, y, x + 5, y + 6, White);
+        ssd1306_DrawPixel(x + 2, y + 2, White);
+        ssd1306_DrawPixel(x + 3, y + 2, White);
+        ssd1306_DrawPixel(x + 3, y + 3, White);
+        ssd1306_DrawPixel(x + 2, y + 4, White);
+        for (uint8_t col = 2; col <= 4; col++) {
+            ssd1306_DrawPixel(x + col, y + 5, White);
+        }
     } else {
-        ssd1306_SetCursor(x, y);
-        ssd1306_WriteString("LW2", Font_6x8, White);
+        /* LWBP2 (Tarif 3): Kotak outline dengan angka '3' */
+        ssd1306_DrawRectangle(x, y, x + 5, y + 6, White);
+        for (uint8_t col = 2; col <= 4; col++) {
+            ssd1306_DrawPixel(x + col, y + 2, White);
+            ssd1306_DrawPixel(x + col, y + 4, White);
+            ssd1306_DrawPixel(x + col, y + 5, White);
+        }
+        ssd1306_DrawPixel(x + 3, y + 3, White);
     }
 }
 
@@ -215,22 +278,24 @@ static void bsp_oled_render_frame(const display_spln_frame_t *spln_frame) {
     ssd1306_Fill(Black);
 
     /* BARIS 1 STATUS BAR (SPLN D3.006:2021 Butir 6.11 Gambar 6):
-     * 1. Ikon Relai Kontaktor (X=0..7)
-     * 2. Ikon Alarm / Tamper (X=8..14)
-     * 3. Ikon Baterai Grafis (X=16..23)
-     * 4. Ikon Panah Arah Energi Aktif (X=25..29) [►] Maju / [◄] Terbalik
-     * 5. Ikon Kuadran Aliran Daya (X=31..37) [⊕] 4-Kuadran
-     * 6. Badge Tarif ToU WBP/LW1/LW2 (X=39..54)
-     * 7. Fasa Tegangan URST (SPLN Gambar 6) (X=56..79)
-     * 8. Fasa Arus IRST (SPLN Gambar 6) (X=81..104)
-     * 9. Kode Register SPLN (UR/US/UT) / OBIS (X=106..127)
+     * 1. Ikon Relai Kontaktor (X=0..8) [--o / o--]
+     * 2. Ikon Modem Komunikasi (X=10..16) [(☎)]
+     * 3. Ikon Alarm / Tamper (X=18..24) [▲!]
+     * 4. Ikon Baterai Grafis (X=26..33) [B]
+     * 5. Ikon Panah Arah Energi Aktif (X=35..39) [►] Maju / [◄] Terbalik
+     * 6. Ikon Kuadran Aliran Daya (X=41..47) [⊕] 4-Kuadran
+     * 7. Badge Tarif ToU T1/T2/T3 (X=49..54)
+     * 8. Fasa Tegangan URST (SPLN Gambar 6) (X=56..79)
+     * 9. Fasa Arus IRST (SPLN Gambar 6) (X=81..104)
+     * 10. Kode Register SPLN (UR/US/UT) / OBIS (X=106..127)
      */
     oled_draw_relay_icon(0, 1, spln_frame->is_relay_closed, spln_frame->is_relay_ready_on, spln_frame->is_battery_blink_on);
-    oled_draw_tamper_alarm_icon(8, 0, spln_frame->is_alarm_active || spln_frame->is_tamper_active);
-    oled_draw_battery_gauge(16, 1, spln_frame->is_battery_low, spln_frame->is_battery_blink_on);
-    oled_draw_power_direction_arrow(25, 1, spln_frame->is_reverse_power, spln_frame->is_battery_blink_on);
-    oled_draw_quadrant_icon(31, 1, spln_frame->power_quadrant);
-    oled_draw_tariff_badge(39, 0, spln_frame->active_tariff_zone);
+    oled_draw_modem_icon(10, 1, spln_frame->is_modem_active, spln_frame->is_battery_blink_on);
+    oled_draw_tamper_alarm_icon(18, 0, spln_frame->is_alarm_active || spln_frame->is_tamper_active);
+    oled_draw_battery_gauge(26, 1, spln_frame->is_battery_low, spln_frame->is_battery_blink_on);
+    oled_draw_power_direction_arrow(35, 1, spln_frame->is_reverse_power, spln_frame->is_battery_blink_on);
+    oled_draw_quadrant_icon(41, 1, spln_frame->power_quadrant);
+    oled_draw_tariff_badge(49, 1, spln_frame->active_tariff_zone);
 
     /* Indikator Fasa Tegangan URST (SPLN D3.006:2021 Butir 6.11 Gambar 6) di X = 56 */
     char v_str[5] = "U---";

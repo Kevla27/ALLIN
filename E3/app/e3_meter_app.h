@@ -117,6 +117,12 @@ uint32_t e3_meter_app_get_internal_alarm(void);
  */
 const tamper_context_t* e3_meter_app_get_tamper_context(void);
 
+/**
+ * @brief Notifikasi aktivitas komunikasi modem seluler (DLMS/HDLC USART2)
+ *        Membuat ikon modem (gagang telepon) di layar OLED menyala/berkedip aktif
+ */
+void e3_meter_app_notify_modem_activity(void);
+
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
 #include "console_io.h"
 

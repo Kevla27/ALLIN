@@ -159,16 +159,20 @@ Layar OLED SSD1306 128x32 dibagi menjadi 2 area vertikal:
 ```
     0                    Lebar Layar = 128 Pixel                   127
   0 ┌────────────────────────────────────────────────────────────────┐
-    │ [K] [!] [B] ► ⊕ [WBP] URST IRST  UR / 32.07                    │ <- Baris 1: Simbol Grafis & Reg/OBIS
+    │ -o/o- ☎ [!] [B] ► ⊕ [WBP] URST IRST  UR / 32.07                │ <- Baris 1: Simbol Grafis & Reg/OBIS
  10 ├ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  ┤ <- Garis pemisah titik-titik (Y=10)
     │                                                                │
     │ 02               2 3 0 . 0                                   V │ <- Baris 2: zz (Font 6x8), Nilai (Font 11x18),
  31 └────────────────────────────────────────────────────────────────┘             Satuan (Font 6x8)
 ```
-*Catatan Sesuai SPLN D3.006:2021 Butir 6.11 & Lampiran A:*
-* **Ikon Baterai Grafis ([B], X: 16..23):** Bodi persegi panjang dengan kutub positif. Menampilkan level isi normal, dan berkedip otomatis saat tegangan baterai $< 2,7\text{ V}$ (`ERR03`).
-* **Ikon Panah Arah Energi Aktif (► / ◄, X: 25..29):** Menginformasikan arah aliran energi aktif. Normal (impor dari grid PLN) berupa panah solid menghadap kanan $[\blacktriangleright]$, dan saat energi terbalik (ekspor PLTS Atap salah satu/lebih fase) berubah menjadi panah menghadap kiri $[\blacktriangleleft]$ dan berkedip.
-* **Ikon Kuadran Daya ($\bigoplus$, X: 31..37):** Lingkaran $7\times 7$ piksel dengan sumbu silang ($+$). Menginformasikan arah aliran daya aktif ($P$) dan reaktif ($Q$) 4-kuadran secara real-time (Kuadran I: Kanan Atas, Kuadran II: Kiri Atas, Kuadran III: Kiri Bawah, Kuadran IV: Kanan Bawah, atau kosong saat tanpa beban).
+*Catatan Sesuai SPLN D3.006:2021 Butir 6.11 (Gambar 6) & Lampiran A/E:*
+* **Ikon Sakelar / Kontaktor Terbuka (`--o / o--`, X: 0..8):** Menginformasikan status relai/kontaktor atau output shunt trip. Dirender realistis dengan dua terminal lingkaran berlubang (`o`) dan bilah sakelar terangkat miring (`/`) saat relai terbuka (trip), serta garis tersambung lurus saat relai tertutup. Berkedip saat meter dalam status SIAP SAMBUNG (READY ON).
+* **Ikon Modem Telepon Lingkaran (☎, X: 10..16):** Menginformasikan meter sedang berkomunikasi dengan modem seluler (DLMS/COSEM HDLC via port modem). Dirender berupa lingkaran $7\times 7$ piksel dengan siluet gagang telepon (earpiece, gagang melengkung, dan mouthpiece) di dalamnya. Aktif/berkedip saat transmisi frame DLMS berlangsung.
+* **Ikon Segitiga Sabotase / Tamper ([!], X: 18..24):** Simbol segitiga peringatan berisi tanda seru $[\blacktriangle!]$ saat terjadi sabotase (cover open, terminal open, magnet, netral hilang, arus balik).
+* **Ikon Baterai Grafis ([B], X: 26..33):** Bodi persegi panjang dengan kutub positif. Menampilkan level isi normal, dan berkedip otomatis saat tegangan baterai $< 2,7\text{ V}$ (`ERR03`).
+* **Ikon Panah Arah Energi Aktif (► / ◄, X: 35..39):** Menginformasikan arah aliran energi aktif. Normal (impor dari grid PLN) berupa panah solid menghadap kanan $[\blacktriangleright]$, dan saat energi terbalik (ekspor PLTS Atap salah satu/lebih fase) berubah menjadi panah menghadap kiri $[\blacktriangleleft]$ dan berkedip.
+* **Ikon Kuadran Daya ($\bigoplus$, X: 41..47):** Lingkaran $7\times 7$ piksel dengan sumbu silang ($+$). Menginformasikan arah aliran daya aktif ($P$) dan reaktif ($Q$) 4-kuadran secara real-time (Kuadran I: Kanan Atas, Kuadran II: Kiri Atas, Kuadran III: Kiri Bawah, Kuadran IV: Kanan Bawah, atau kosong saat tanpa beban).
+* **Badge Tarif ToU ([WBP] / [LWBP], X: 49..54):** Indikator tarif Waktu Beban Puncak (`W`) atau Luar Waktu Beban Puncak (`L`).
 * Tegangan fasa dilambangkan dengan **`UR, US, UT`** (format status bar `URST` / `U-ST`), bukan notasi Eropa `L1, L2, L3`.
 * Arus fasa dilambangkan dengan **`IR, IS, IT`** (format status bar `IRST` / `I-ST`), bukan `I1, I2, I3`.
 * Area kanan atas (Baris 1) menampilkan **Informasi Register sebanyak 7 karakter** (Lampiran E: `UR`, `US`, `UT`, `IR`, `P_EXP`, `EA_EXP1`, `S_MAX`, dll.) bergantian setiap 2,5 detik dengan kode OBIS numerik (`32.07`, `01.08.1`, dll.).

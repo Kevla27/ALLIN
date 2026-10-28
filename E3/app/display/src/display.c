@@ -80,6 +80,12 @@ void display_set_asymmetry_warning(display_context_t *ctx, bool warning) {
     }
 }
 
+void display_set_modem_status(display_context_t *ctx, bool active) {
+    if (ctx != NULL) {
+        ctx->is_modem_active = active;
+    }
+}
+
 void display_update_measurements(display_context_t *ctx, const meter_measurements_t *meas) {
     if (ctx != NULL && meas != NULL) {
         uint32_t saved_power_limit = ctx->meas_buffer.power_limit_w;
@@ -1220,12 +1226,13 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         frame->power_quadrant = 4; /* Kuadran 4 (+P, -Q): Kanan Bawah (Beban Kapasitif) */
     }
 
-    /* Status Relai & Tamper untuk Grafis Layar OLED */
+    /* Status Relai, Tamper, dan Modem untuk Grafis Layar OLED */
     frame->is_relay_ready_on = ctx->relay_ready_on;
     frame->is_relay_closed = !ctx->relay_ready_on &&
                              ((ctx->active_tamper_mask & TAMPER_MASK_RELAY_TRIP) == 0U) &&
                              ((ctx->active_alarm_mask & SPLN_ALARM_MASK_RELAY_TRIP) == 0U);
     frame->is_tamper_active = (ctx->active_tamper_mask != 0);
+    frame->is_modem_active = ctx->is_modem_active;
 
     /* Evaluasi Zona Tarif ToU untuk Tampilan OLED */
     uint32_t hour_of_day = (ctx->current_time_epoch / 3600U) % 24U;

@@ -49,6 +49,7 @@ static uint8_t  s_active_tariff_zone = 1U; /* Default: Zona 1 (LWBP) */
 /* Counter Zero-Crossing (PE8) & Status Kontrol Bantu (PD10/PD14 -> PD8) */
 static volatile uint32_t s_zero_crossing_count  = 0U;
 static volatile uint8_t  s_aux_input_state_mask = 0U;
+static volatile uint32_t s_modem_active_timer_ms = 0U;
 
 static bool evaluate_is_relay_closed(void)
 {
@@ -585,6 +586,18 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
 
     display_set_tamper_status(&s_disp_ctx, tamper_get_active_mask(&s_tamper_ctx));
 
+    /* Update status komunikasi modem seluler (Gagang Telepon Lingkaran pada OLED) */
+    if (s_modem_active_timer_ms > 0U)
+    {
+        uint32_t step_elapsed = (delta_ms > 0U) ? delta_ms : 100U;
+        s_modem_active_timer_ms = (s_modem_active_timer_ms > step_elapsed) ? (s_modem_active_timer_ms - step_elapsed) : 0U;
+        display_set_modem_status(&s_disp_ctx, true);
+    }
+    else
+    {
+        display_set_modem_status(&s_disp_ctx, false);
+    }
+
     /* 3. Periksa Ketidakseimbangan Fasa (Asymmetry) */
     bool is_asym = power_relay_check_asymmetry(&s_relay_ctx, meas->current_r_mamps, meas->current_s_mamps, meas->current_t_mamps);
     display_set_asymmetry_warning(&s_disp_ctx, is_asym);
@@ -1090,4 +1103,9 @@ uint32_t e3_meter_app_get_internal_alarm(void)
 const tamper_context_t* e3_meter_app_get_tamper_context(void)
 {
     return &s_tamper_ctx;
+}
+
+void e3_meter_app_notify_modem_activity(void)
+{
+    s_modem_active_timer_ms = 3000U; /* Ikon telepon menyala selama 3 detik saat bertransaksi modem */
 }

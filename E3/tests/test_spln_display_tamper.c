@@ -900,6 +900,34 @@ int main(void) {
     assert(frame.power_quadrant == 4);
     printf("  > Kuadran 4 (+P, -Q): power_quadrant = %d (Sektor Kanan-Bawah Aktif) [PASS]\n\n", frame.power_quadrant);
 
+    /* --------------------------------------------------------------------- */
+    /* UJI 14: VERIFIKASI IKON MODEM TELEPON & RELAI SAKELAR (SPLN GAMBAR 6) */
+    /* --------------------------------------------------------------------- */
+    printf("[UJI 14] Verifikasi Ikon Modem & Sakelar Relai (SPLN Butir 6.11 Gambar 6)...\n");
+    /* 1. Kondisi Modem Idle (Default) */
+    display_set_modem_status(&ctx, false);
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.is_modem_active == false);
+    printf("  > Modem Idle: is_modem_active = false [PASS]\n");
+
+    /* 2. Kondisi Modem Berkomunikasi Aktif (Gagang Telepon Menyala) */
+    display_set_modem_status(&ctx, true);
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.is_modem_active == true);
+    printf("  > Modem Aktif: is_modem_active = true (Simbol Telepon Menyala) [PASS]\n");
+
+    /* 3. Verifikasi Status Sakelar Terbuka / Trip */
+    ctx.active_tamper_mask = TAMPER_VECTOR_CASE_OPEN; /* Memicu trip relai */
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.is_relay_closed == false);
+    printf("  > Relai Trip (Case Open): is_relay_closed = false (Simbol Sakelar Terbuka Menyala) [PASS]\n");
+
+    /* 4. Verifikasi Status Sakelar Tertutup / Normal */
+    ctx.active_tamper_mask = 0;
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.is_relay_closed == true);
+    printf("  > Relai Normal: is_relay_closed = true (Simbol Sakelar Menghubungkan Terminal) [PASS]\n\n");
+
     printf("====================================================================\n");
     printf("  HASIL: 100%% SELURUH KODE ERROR SPLN D3.006 TABEL 4 & 6 LULUS!      \n");
     printf("====================================================================\n");
