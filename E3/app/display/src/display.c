@@ -1202,17 +1202,22 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
     if (ctx->meas_buffer.current_s_mamps < 20U) frame->current_phases &= ~0x02;
     if (ctx->meas_buffer.current_t_mamps < 20U) frame->current_phases &= ~0x04;
 
-    /* Evaluasi Kuadran Daya (P vs Q) */
+    /* Evaluasi Kuadran Daya (P vs Q) sesuai SPLN D3.006:2021 Butir 6.11 & Lampiran A */
     int32_t p = ctx->meas_buffer.active_power_w;
     int32_t q = ctx->meas_buffer.reactive_power_var;
-    if (p >= 0 && q >= 0) {
-        frame->power_quadrant = 1;
+    if (ctx->meas_buffer.current_r_mamps < 20U &&
+        ctx->meas_buffer.current_s_mamps < 20U &&
+        ctx->meas_buffer.current_t_mamps < 20U &&
+        p == 0 && q == 0) {
+        frame->power_quadrant = 0; /* Kondisi idle / tanpa beban: lingkaran silang kosong */
+    } else if (p >= 0 && q >= 0) {
+        frame->power_quadrant = 1; /* Kuadran 1 (+P, +Q): Kanan Atas (Beban Induktif) */
     } else if (p < 0 && q >= 0) {
-        frame->power_quadrant = 2;
+        frame->power_quadrant = 2; /* Kuadran 2 (-P, +Q): Kiri Atas (Ekspor PLTS Lagging) */
     } else if (p < 0 && q < 0) {
-        frame->power_quadrant = 3;
+        frame->power_quadrant = 3; /* Kuadran 3 (-P, -Q): Kiri Bawah (Ekspor PLTS Leading) */
     } else {
-        frame->power_quadrant = 4;
+        frame->power_quadrant = 4; /* Kuadran 4 (+P, -Q): Kanan Bawah (Beban Kapasitif) */
     }
 
     /* Status Relai & Tamper untuk Grafis Layar OLED */

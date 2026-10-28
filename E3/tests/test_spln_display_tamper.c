@@ -857,6 +857,49 @@ int main(void) {
     printf("  > Pemulihan Normal (230V): main_value='%s' | alarm='%s' [PASS]\n\n",
            frame.main_value, frame.alarm_code);
 
+    /* --------------------------------------------------------------------- */
+    /* UJI 13: VERIFIKASI KUADRAN DAYA LISTRIK 4-KUADRAN (SPLN GAMBAR 6)     */
+    /* --------------------------------------------------------------------- */
+    printf("[UJI 13] Verifikasi Aliran Daya 4-Kuadran (SPLN Butir 6.11 Gambar 6 & Lampiran A)...\n");
+    /* 1. Kondisi Idle / Tanpa Beban (Arus 0, P=0, Q=0) -> Kuadran 0 (Simbol silang kosong) */
+    ctx.meas_buffer.current_r_mamps = 0;
+    ctx.meas_buffer.current_s_mamps = 0;
+    ctx.meas_buffer.current_t_mamps = 0;
+    ctx.meas_buffer.active_power_w = 0;
+    ctx.meas_buffer.reactive_power_var = 0;
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.power_quadrant == 0);
+    printf("  > Idle / No Load (P=0, Q=0): power_quadrant = %d (Lingkaran Silang Kosong) [PASS]\n", frame.power_quadrant);
+
+    /* 2. Kuadran 1 (+P, +Q): Beban Induktif Normal (Konsumsi / Impor dari Grid) */
+    ctx.meas_buffer.current_r_mamps = 10000;
+    ctx.meas_buffer.active_power_w = 6900;
+    ctx.meas_buffer.reactive_power_var = 1500;
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.power_quadrant == 1);
+    printf("  > Kuadran 1 (+P, +Q): power_quadrant = %d (Sektor Kanan-Atas Aktif) [PASS]\n", frame.power_quadrant);
+
+    /* 3. Kuadran 2 (-P, +Q): Ekspor PLTS Lagging (Injeksi Daya Balik ke Grid) */
+    ctx.meas_buffer.active_power_w = -5000;
+    ctx.meas_buffer.reactive_power_var = 1200;
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.power_quadrant == 2);
+    printf("  > Kuadran 2 (-P, +Q): power_quadrant = %d (Sektor Kiri-Atas Aktif) [PASS]\n", frame.power_quadrant);
+
+    /* 4. Kuadran 3 (-P, -Q): Ekspor PLTS Leading (Injeksi Daya Balik Kapasitif) */
+    ctx.meas_buffer.active_power_w = -5000;
+    ctx.meas_buffer.reactive_power_var = -1200;
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.power_quadrant == 3);
+    printf("  > Kuadran 3 (-P, -Q): power_quadrant = %d (Sektor Kiri-Bawah Aktif) [PASS]\n", frame.power_quadrant);
+
+    /* 5. Kuadran 4 (+P, -Q): Beban Kapasitif (Kapasitor Bank Konsumsi) */
+    ctx.meas_buffer.active_power_w = 6900;
+    ctx.meas_buffer.reactive_power_var = -1500;
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.power_quadrant == 4);
+    printf("  > Kuadran 4 (+P, -Q): power_quadrant = %d (Sektor Kanan-Bawah Aktif) [PASS]\n\n", frame.power_quadrant);
+
     printf("====================================================================\n");
     printf("  HASIL: 100%% SELURUH KODE ERROR SPLN D3.006 TABEL 4 & 6 LULUS!      \n");
     printf("====================================================================\n");

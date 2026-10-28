@@ -116,3 +116,4 @@ Memory region         Used Size  Region Size  %age Used
              ROM:      174632 B         1 MB     16.65%
 ```
 * Kompilasi berhasil 100% tanpa error maupun warning baru.
+
