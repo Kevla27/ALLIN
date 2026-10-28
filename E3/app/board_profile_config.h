@@ -93,6 +93,11 @@ extern "C" {
 #define BOARD_CFG_ADC4_BATT_LOW_MV      3000U      /**< Ambang batas alarm baterai lemah ERR03 (<3.0V) */
 #define BOARD_CFG_ADC4_SUPERCAP_LOW_MV  2500U      /**< Ambang batas alarm superkapasitor lemah ERR06 (<2.5V) */
 
+/* --- H. Power Saving & Ultra-Low-Power Stop 2 Mode --- */
+#define BOARD_CFG_ENABLE_STOP2_MODE        1          /**< 1 = Masuk Stop 2 Mode saat listrik padam & layar padam (~4.5 uA) */
+#define BOARD_CFG_STOP2_WAKEUP_CLOCK_MSI   1          /**< 1 = Berjalan di MSIS 4MHz saat bangun di mode baterai */
+#define BOARD_CFG_RTC_WAKEUP_PERIOD_SEC    60U        /**< Interval periodik RTC Wakeup Timer (opsional, 60 detik) */
+
 /* ====================================================================
  * 3. PROFIL 2: PAPAN PRODUKSI MASSAL (PRODUCTION - CUSTOM SEGMENT LCD)
  * ==================================================================== */
@@ -155,6 +160,11 @@ extern "C" {
 #define BOARD_CFG_ADC4_BATT_LOW_MV      3000U
 #define BOARD_CFG_ADC4_SUPERCAP_LOW_MV  2500U
 
+/* --- H. Power Saving & Ultra-Low-Power Stop 2 Mode --- */
+#define BOARD_CFG_ENABLE_STOP2_MODE        1
+#define BOARD_CFG_STOP2_WAKEUP_CLOCK_MSI   1
+#define BOARD_CFG_RTC_WAKEUP_PERIOD_SEC    60U
+
 /* ====================================================================
  * 4. PROFIL 3: MODE TEST BENCH / CI HEADLESS (TANPA DISPLAY FISIK)
  * ==================================================================== */
@@ -210,6 +220,11 @@ extern "C" {
 #define BOARD_CFG_ADC4_BATT_LOW_MV      3000U
 #define BOARD_CFG_ADC4_SUPERCAP_LOW_MV  2500U
 
+/* --- H. Power Saving & Ultra-Low-Power Stop 2 Mode --- */
+#define BOARD_CFG_ENABLE_STOP2_MODE        0
+#define BOARD_CFG_STOP2_WAKEUP_CLOCK_MSI   1
+#define BOARD_CFG_RTC_WAKEUP_PERIOD_SEC    60U
+
 #endif
 
 /* ====================================================================
@@ -249,6 +264,28 @@ static inline const char* board_cfg_get_board_name(void) {
  */
 static inline bool board_cfg_is_synthetic_load_enabled(void) {
     return (BOARD_CFG_ENABLE_SYNTHETIC_LOAD != 0);
+}
+
+/* ====================================================================
+ * 7. SAKELAR MANAJEMEN DAYA EKSTREM STM32U5 (STOP 2 MODE)
+ * ==================================================================== */
+#ifndef BOARD_CFG_ENABLE_STOP2_MODE
+#define BOARD_CFG_ENABLE_STOP2_MODE      1  /**< 1 = Masuk Stop 2 Mode saat listrik padam & layar padam (~4.5 uA), 0 = Run biasa */
+#endif
+
+#ifndef BOARD_CFG_STOP2_WAKEUP_CLOCK_MSI
+#define BOARD_CFG_STOP2_WAKEUP_CLOCK_MSI 1  /**< 1 = Berjalan di MSIS 4MHz saat bangun di mode baterai */
+#endif
+
+#ifndef BOARD_CFG_RTC_WAKEUP_PERIOD_SEC
+#define BOARD_CFG_RTC_WAKEUP_PERIOD_SEC  60U /**< Interval periodik RTC Wakeup Timer (60 detik) */
+#endif
+
+/**
+ * @brief Memeriksa apakah fitur Stop 2 Mode hemat daya ekstrem diaktifkan
+ */
+static inline bool board_cfg_is_stop2_mode_enabled(void) {
+    return (BOARD_CFG_ENABLE_STOP2_MODE != 0);
 }
 
 #ifdef __cplusplus

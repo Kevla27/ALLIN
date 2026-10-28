@@ -57,6 +57,12 @@ static void test_default_board_profile_oled(void) {
     assert(BOARD_CFG_MODEM_BAUDRATE == 19200U);
     assert(BOARD_CFG_CLI_BAUDRATE == 115200U);
 
+    /* Verifikasi manajemen hemat daya Stop 2 */
+    assert(board_cfg_is_stop2_mode_enabled() == true);
+    assert(BOARD_CFG_ENABLE_STOP2_MODE == 1);
+    assert(BOARD_CFG_STOP2_WAKEUP_CLOCK_MSI == 1);
+    assert(BOARD_CFG_RTC_WAKEUP_PERIOD_SEC == 60U);
+
     printf("[PASS] Seluruh parameter Profil Papan Default terverifikasi 100%%!\n");
 }
 

@@ -40,6 +40,7 @@ Firmware ini dirancang dengan prinsip **Clean & Modular Decoupled Architecture**
    - **Power Relay Manager (Breaker FSM)**: Kontrol kontaktor latching bistabil dengan proteksi tegangan rendah (<110V), tegangan lebih (>280V), arus lebih, dan rekoneksi tombol simultan (▲ + ▼).
    - **Load Profiling & Billing**: Perekaman data profile 15-menitan non-volatile (Billing Profile & Load Profile 1 & 2) dengan format A-XDR.
    - **Board Profile Configuration (`board_profile_config.h`)**: Abstraksi fleksibilitas konfigurasi display, relai, NVRAM, dan buzzer tanpa merusak kode inti.
+   - **Power Saving Ekstrem STM32U5 (`bsp_power_mode`)**: Manajemen hemat energi Stop 2 Mode (~4.5 µA) saat listrik padam, retensi penuh register & SRAM1..SRAM4, wake-up interrupt adaptif (EXTI tombol/tamper/AC fail & RTC), serta pemulihan clock cerdas (PLL 160 MHz vs MSIS 4 MHz).
 
 4. **System Bridge (`meter_system_bridge`)**
    - Mengenkapsulasi seluruh callback interupsi hardware HAL STM32 (`HAL_UART_RxCpltCallback`, `HAL_GPIO_EXTI_Falling_Callback`, `HAL_GPIO_EXTI_Rising_Callback`).
@@ -61,7 +62,7 @@ ninja -C Secure/build
 ninja -C NonSecure/build
 ```
 
-### 2. Pengujian Host (CTest - 9 Test Suites)
+### 2. Pengujian Host (CTest - 10 Test Suites)
 
 Pengujian logika unit dan integrasi dapat dijalankan langsung di mesin host tanpa ketergantungan perangkat keras fisik:
 
@@ -79,11 +80,12 @@ Daftar suite pengujian terverifikasi:
 - `Stress_E3_Final_System_Audit`
 - `Unit_E3_Console_CLI`
 - `Unit_E3_Board_Profile`
+- `Unit_E3_Power_Mode_Stop2`
 
 ---
 
 ## 📚 Dokumentasi & Riwayat Perubahan
 
 - **Master Panduan File & Fundamental E3**: [E3/PANDUAN_ARSITEKTUR_DAN_FILE_E3.md](E3/PANDUAN_ARSITEKTUR_DAN_FILE_E3.md)
-- **Indeks Riwayat Perubahan Lengkap**: [Changelog/README.md](Changelog/README.md) (LOG-001 hingga LOG-035)
+- **Indeks Riwayat Perubahan Lengkap**: [Changelog/README.md](Changelog/README.md) (LOG-001 hingga LOG-036)
 

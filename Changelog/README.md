@@ -43,6 +43,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-033**](033_prosedur_listrik_padam_last_gasp_oled.md) | 28-10-2026 | Prosedur Listrik Padam (Last Gasp) Layar OLED, Emergency Flash Checkpoint, Off-Power Standby 10 Detik & CLI Simulasi (`acfail` & `button`) | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/app/profiling/*`, `E3/app/e3_meter_app.*`, `E3/app/console/*`, `E3/tests/*` | Selesai |
 | [**LOG-034**](034_arsitektur_sakelar_beban_tiruan_metrologi.md) | 28-10-2026 | Arsitektur Sakelar Diagnostik Metrologi Tiruan (Synthetic Load Generator) via CLI (`load`, `volt`, `curr`, `synth`) & Isolasi Bersih 0-Byte Produksi Massal | `E3/app/board_profile_config.h`, `E3/app/console/*`, `E3/app/e3_meter_app.*`, `NonSecure/Core/Src/meter_system_bridge.c`, `E3/tests/*` | Selesai |
 | [**LOG-035**](035_visualisasi_ikon_grafis_layar_oled.md) | 28-10-2026 | Visualisasi Ikon Grafis Status Bar Khusus Layar OLED (Relai Kontaktor, Baterai Gauge, Tamper Warning Triangle & Tarif ToU Badge) | `E3/app/display/*`, `E3/drivers/oled/*` | Selesai |
+| [**LOG-036**](036_manajemen_power_saving_stop2_mode.md) | 28-10-2026 | Manajemen Power Saving Ekstrem STM32U5 (Stop 2 Mode saat Listrik Padam, Wakeup EXTI/RTC & Restorasi Jam Adaptif) | `E3/drivers/power/*`, `E3/app/board_profile_config.h`, `E3/app/e3_meter_app.*`, `E3/app/console/*`, `E3/tests/*`, `NonSecure/CMakeLists.txt` | Selesai |
 
 ---
 

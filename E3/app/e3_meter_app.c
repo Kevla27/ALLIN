@@ -5,6 +5,7 @@
 
 #include "e3_meter_app.h"
 #include "bsp_alarm_buzzer.h"
+#include "bsp_power_mode.h"
 #include "nvram_storage.h"
 #include "e2_dlms_service.h"
 #include "console_io.h"
@@ -179,6 +180,18 @@ static bool cli_is_ac_failed(void) {
     return s_is_ac_failed;
 }
 
+static uint8_t cli_get_power_mode(void) {
+    return (uint8_t)bsp_power_mode_get_current();
+}
+
+static uint32_t cli_get_power_wakeup_count(void) {
+    return bsp_power_mode_get_wakeup_count();
+}
+
+static uint8_t cli_get_power_last_wakeup_reason(void) {
+    return (uint8_t)bsp_power_mode_get_last_wakeup_reason();
+}
+
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
 static synthetic_load_config_t s_synth_cfg = {
     .active = false,
@@ -272,6 +285,7 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
     max_demand_init(&s_md_tracker, LOAD_PROFILE_INTERVAL_SEC);
     billing_snapshot_init(&s_billing_ctx);
     bsp_alarm_buzzer_init();
+    bsp_power_mode_init();
 
     /* 3. Inisialisasi & Pendaftaran Hooks Interactive Serial CLI */
     console_meter_hooks_t cli_hooks = {
@@ -293,6 +307,9 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
         .button_press = cli_button_press,
         .set_ac_fail = cli_set_ac_fail,
         .is_ac_failed = cli_is_ac_failed,
+        .get_power_mode = cli_get_power_mode,
+        .get_power_wakeup_count = cli_get_power_wakeup_count,
+        .get_power_last_wakeup_reason = cli_get_power_last_wakeup_reason,
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
         .set_synthetic_load = cli_set_synthetic_load,
         .get_synthetic_load = cli_get_synthetic_load
@@ -341,6 +358,44 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         else
         {
             s_lcd_wakeup_timer_ms -= delta_ms;
+        }
+    }
+
+    /* 0c. Manajemen Power Saving Ekstrem STM32U5 (Stop 2 Mode saat Listrik Padam & Layar Padam) */
+    if (s_is_ac_failed && s_lcd_wakeup_timer_ms == 0U)
+    {
+        /* Masuk ke Stop 2 Mode hemat daya (~4.5 uA) - CPU deep sleep */
+        meter_wakeup_reason_t wakeup_reason = bsp_power_enter_stop2();
+        if (wakeup_reason == METER_WAKEUP_REASON_BUTTON_PRESS)
+        {
+            /* Tombol ditekan pada mode baterai: aktifkan OLED selama 10 detik */
+            bsp_power_set_battery_clock_msis();
+            HAL_GPIO_WritePin(LCD_PWR_EN_GPIO_Port, LCD_PWR_EN_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(LCD_BL_CTRL_GPIO_Port, LCD_BL_CTRL_Pin, GPIO_PIN_SET);
+#if defined(EMBEDDED_HARDWARE_TARGET)
+            const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
+            if (oled_drv != NULL && oled_drv->set_power_mode != NULL)
+            {
+                oled_drv->set_power_mode(false); /* Bangunkan SSD1306 0xAF */
+            }
+#endif
+            s_lcd_wakeup_timer_ms = BOARD_CFG_DISPLAY_WAKE_MS;
+
+            /* Render frame seketika agar pembacaan langsung muncul di layar */
+#if defined(EMBEDDED_HARDWARE_TARGET)
+            display_spln_frame_t spln_frame;
+            display_render_spln_frame(&s_disp_ctx, &spln_frame);
+            if (oled_drv != NULL && oled_drv->render_frame != NULL)
+            {
+                oled_drv->render_frame(&spln_frame);
+            }
+#endif
+        }
+        else if (wakeup_reason == METER_WAKEUP_REASON_AC_RESTORED)
+        {
+            /* Listrik PLN telah pulih kembali */
+            s_is_ac_failed = false;
+            s_lcd_wakeup_timer_ms = 0U;
         }
     }
 
@@ -659,6 +714,7 @@ void e3_meter_app_on_button(button_dir_t dir)
     /* 1. Jika PLN sedang padam (Off-Power), penekanan tombol menyalakan layar LCD selama 10 detik (Desain Sistem Hal. 37) */
     if (s_is_ac_failed)
     {
+        bsp_power_set_battery_clock_msis();
         HAL_GPIO_WritePin(LCD_PWR_EN_GPIO_Port, LCD_PWR_EN_Pin, GPIO_PIN_SET);
         HAL_GPIO_WritePin(LCD_BL_CTRL_GPIO_Port, LCD_BL_CTRL_Pin, GPIO_PIN_SET);
 #if defined(EMBEDDED_HARDWARE_TARGET)
@@ -710,6 +766,7 @@ void e3_meter_app_on_button(button_dir_t dir)
 
 void e3_meter_app_on_ac_fail(bool is_power_cut)
 {
+    bsp_power_mode_set_ac_failed(is_power_cut);
     if (is_power_cut)
     {
         s_is_ac_failed = true;
@@ -753,6 +810,7 @@ void e3_meter_app_on_ac_fail(bool is_power_cut)
     {
         s_is_ac_failed = false;
         s_lcd_wakeup_timer_ms = 0U;
+        bsp_power_restore_run_clock();
 
         /* Catat kejadian ke Event Log FIFO (SPLN Tabel 18 No. 10: Power supply up) */
         spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_POWER_UP, true, s_now_epoch_sec, 0);

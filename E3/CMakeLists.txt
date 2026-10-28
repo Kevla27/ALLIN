@@ -22,6 +22,7 @@ add_library(e3_core STATIC
     app/profiling/src/nvram_storage.c
     app/console/src/console_io.c
     drivers/buzzer/src/bsp_alarm_buzzer.c
+    drivers/power/src/bsp_power_mode.c
     tests/e3_mock_stubs.c
 )
 
@@ -35,6 +36,7 @@ target_include_directories(e3_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/app/console/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/oled/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/buzzer/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/drivers/power/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../E2/Inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../E1/Metrology
     ${CMAKE_CURRENT_SOURCE_DIR}/../E1/Mock
@@ -95,3 +97,8 @@ add_test(NAME Unit_E3_Console_CLI COMMAND test_console_cli)
 add_executable(test_board_profile tests/test_board_profile.c)
 target_link_libraries(test_board_profile PRIVATE e3_core)
 add_test(NAME Unit_E3_Board_Profile COMMAND test_board_profile)
+
+# 10. Unit Test: Manajemen Power Saving Ekstrem STM32U5 Stop 2 Mode
+add_executable(test_power_mode tests/test_power_mode.c)
+target_link_libraries(test_power_mode PRIVATE e3_core)
+add_test(NAME Unit_E3_Power_Mode_Stop2 COMMAND test_power_mode)

@@ -5,6 +5,7 @@
  */
 
 #include "console_io.h"
+#include "bsp_power_mode.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -41,6 +42,7 @@ static int cmd_time(int argc, char *argv[]);
 static int cmd_set_time(int argc, char *argv[]);
 static int cmd_acfail(int argc, char *argv[]);
 static int cmd_button(int argc, char *argv[]);
+static int cmd_power(int argc, char *argv[]);
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
 static int cmd_load(int argc, char *argv[]);
 static int cmd_volt(int argc, char *argv[]);
@@ -53,6 +55,8 @@ static const console_cmd_entry_t s_cmd_table[] = {
     {"help",     "Menampilkan daftar perintah dan sintaks", cmd_help},
     {"?",        "Alias untuk bantuan perintah",           cmd_help},
     {"status",   "Status umum meter, relai, alarm & tamper",cmd_status},
+    {"power",    "Status manajemen daya Stop 2 & baterai", cmd_power},
+    {"pwr",      "Alias untuk status manajemen daya",      cmd_power},
     {"meas",     "Pengukuran listrik 3-fasa instan",       cmd_meas},
     {"energy",   "Akumulasi energi Wh/varh & ToU",         cmd_energy},
     {"relay",    "Kontrol/inspeksi status relai kontaktor", cmd_relay},
@@ -258,6 +262,27 @@ static int cmd_status(int argc, char *argv[]) {
     /* Status Suplai Daya PLN (AC Power) */
     if (s_hooks_registered && s_hooks.is_ac_failed != NULL) {
         printf("  Suplai Daya PLN : %s\n", s_hooks.is_ac_failed() ? "PADAM / MATI LAMPU (AC FAIL - EMERGENCY STANDBY)" : "NORMAL (AC MAINS ACTIVE)");
+    }
+
+    /* Status Manajemen Daya Ekstrem STM32U5 */
+    if (s_hooks_registered && s_hooks.get_power_mode != NULL) {
+        meter_power_mode_t pmode = (meter_power_mode_t)s_hooks.get_power_mode();
+        printf("  Manajemen Daya  : %s\n", bsp_power_mode_get_name(pmode));
+        if (s_hooks.get_power_wakeup_count != NULL) {
+            printf("  Siklus Bangun   : %u kali (Pemicu: ", (unsigned int)s_hooks.get_power_wakeup_count());
+            if (s_hooks.get_power_last_wakeup_reason != NULL) {
+                meter_wakeup_reason_t r = (meter_wakeup_reason_t)s_hooks.get_power_last_wakeup_reason();
+                switch (r) {
+                    case METER_WAKEUP_REASON_AC_RESTORED:  printf("AC RESTORED / PLN PULIH)\n"); break;
+                    case METER_WAKEUP_REASON_BUTTON_PRESS: printf("BUTTON PRESS / TOMBOL DISPLAY)\n"); break;
+                    case METER_WAKEUP_REASON_TAMPER:       printf("TAMPER SENSOR PROTEKSI)\n"); break;
+                    case METER_WAKEUP_REASON_RTC_PERIODIC: printf("RTC PERIODIC WAKEUP)\n"); break;
+                    default: printf("NONE / INITIAL)\n"); break;
+                }
+            } else {
+                printf("UNKNOWN)\n");
+            }
+        }
     }
 
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
@@ -725,6 +750,39 @@ static int cmd_button(int argc, char *argv[]) {
     } else {
         printf("[CLI] Tombol '%s' ditekan -> Halaman UI OLED diperbarui.\n", argv[1]);
     }
+    return 0;
+}
+
+static int cmd_power(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+    printf("\n=== MANAJEMEN POWER SAVING EKSTREM STM32U5 ===\n");
+    bool is_fail = (s_hooks_registered && s_hooks.is_ac_failed != NULL) ? s_hooks.is_ac_failed() : false;
+    printf("  Status Suplai AC : %s\n", is_fail ? "PADAM (AC FAIL - STANDBY BATERAI)" : "NORMAL (AC MAINS AKTIF)");
+
+    meter_power_mode_t mode = METER_POWER_MODE_RUN;
+    if (s_hooks_registered && s_hooks.get_power_mode != NULL) {
+        mode = (meter_power_mode_t)s_hooks.get_power_mode();
+    }
+    printf("  Moda Konsumsi    : %s\n", bsp_power_mode_get_name(mode));
+    printf("  Target Arus      : %s\n", mode == METER_POWER_MODE_STOP2 ? "~4.5 uA (Stop 2 Deep Sleep)" :
+                                    mode == METER_POWER_MODE_BATTERY_ACTIVE ? "~1.5 mA (MSIS 4MHz, Layar 10s)" :
+                                    "~19 mA (Run 160MHz PLL)");
+
+    if (s_hooks_registered && s_hooks.get_power_wakeup_count != NULL) {
+        printf("  Total Siklus Wk  : %u kali\n", (unsigned int)s_hooks.get_power_wakeup_count());
+    }
+    if (s_hooks_registered && s_hooks.get_power_last_wakeup_reason != NULL) {
+        meter_wakeup_reason_t r = (meter_wakeup_reason_t)s_hooks.get_power_last_wakeup_reason();
+        const char *r_str = "NONE (Initial boot)";
+        if (r == METER_WAKEUP_REASON_AC_RESTORED)  r_str = "AC_RESTORED (PC3 EXTI3 Rising Edge)";
+        if (r == METER_WAKEUP_REASON_BUTTON_PRESS) r_str = "BUTTON_PRESS (PA0/PB6 EXTI Falling Edge)";
+        if (r == METER_WAKEUP_REASON_TAMPER)       r_str = "TAMPER_PROTECTION (PC13/PE6/PE4 EXTI)";
+        if (r == METER_WAKEUP_REASON_RTC_PERIODIC) r_str = "RTC_PERIODIC_WAKEUP (Timer Alarm)";
+        printf("  Pemicu Terakhir  : %s\n", r_str);
+    }
+    printf("  Profil Perangkat : Stop 2 %s, Wakeup Clock MSI 4MHz\n\n",
+           board_cfg_is_stop2_mode_enabled() ? "ENABLED (Aktif)" : "DISABLED (Mati)");
     return 0;
 }
 

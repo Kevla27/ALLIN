@@ -71,6 +71,9 @@ typedef struct {
     void                        (*button_press)(button_dir_t dir);
     void                        (*set_ac_fail)(bool is_fail);
     bool                        (*is_ac_failed)(void);
+    uint8_t                     (*get_power_mode)(void);
+    uint32_t                    (*get_power_wakeup_count)(void);
+    uint8_t                     (*get_power_last_wakeup_reason)(void);
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
     void                        (*set_synthetic_load)(const synthetic_load_config_t *cfg);
     void                        (*get_synthetic_load)(synthetic_load_config_t *out_cfg);

@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <string.h>
 #include "console_io.h"
+#include "bsp_power_mode.h"
 
 /* Variabel state tiruan untuk mock hooks */
 static meter_measurements_t s_mock_meas;
@@ -107,6 +108,18 @@ static bool mock_is_ac_failed(void) {
     return s_mock_ac_failed;
 }
 
+static uint8_t mock_get_power_mode(void) {
+    return (uint8_t)METER_POWER_MODE_RUN;
+}
+
+static uint32_t mock_get_power_wakeup_count(void) {
+    return 3U;
+}
+
+static uint8_t mock_get_power_last_wakeup_reason(void) {
+    return (uint8_t)METER_WAKEUP_REASON_BUTTON_PRESS;
+}
+
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
 static synthetic_load_config_t s_mock_synth_cfg;
 
@@ -201,6 +214,9 @@ void test_cli_core_commands(void) {
         .button_press = mock_button_press,
         .set_ac_fail = mock_set_ac_fail,
         .is_ac_failed = mock_is_ac_failed,
+        .get_power_mode = mock_get_power_mode,
+        .get_power_wakeup_count = mock_get_power_wakeup_count,
+        .get_power_last_wakeup_reason = mock_get_power_last_wakeup_reason,
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
         .set_synthetic_load = mock_set_synthetic_load,
         .get_synthetic_load = mock_get_synthetic_load
@@ -217,8 +233,14 @@ void test_cli_core_commands(void) {
     strcpy(cmd_buf, "?");
     assert(console_cli_execute_command(cmd_buf) == 0);
 
-    /* 2. Uji Status General */
+    /* 2. Uji Status General & Manajemen Daya */
     strcpy(cmd_buf, "status");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
+    strcpy(cmd_buf, "power");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
+    strcpy(cmd_buf, "pwr");
     assert(console_cli_execute_command(cmd_buf) == 0);
 
     /* 3. Uji Pengukuran Listrik & Telemetri */
@@ -404,6 +426,9 @@ void test_cli_rx_stream_and_editing(void) {
         .button_press = mock_button_press,
         .set_ac_fail = mock_set_ac_fail,
         .is_ac_failed = mock_is_ac_failed,
+        .get_power_mode = mock_get_power_mode,
+        .get_power_wakeup_count = mock_get_power_wakeup_count,
+        .get_power_last_wakeup_reason = mock_get_power_last_wakeup_reason,
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
         .set_synthetic_load = mock_set_synthetic_load,
         .get_synthetic_load = mock_get_synthetic_load
