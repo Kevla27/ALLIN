@@ -1,0 +1,55 @@
+=== TABLE 1 ===
+Pin | Sinyal Fungsional | Mode I/O & Speed | Fungsi & Peran Teknis Sistem (Kepatuhan SPLN & B200)
+NRST | RESET | Reset Input/Output (Internal Pull-Up) | Jalur Hardware Reset Sistem MCU.
+VBAT | VBAT_IN | Power Pin (VBAT = 1,65 V – 3,6 V) | Input Baterai Cadangan Lithium Li-SOCl2 3,6 V (Menyuplai domain VSW: RTC, LSE, TAMP, Backup Registers, dan 2 KB Backup SRAM saat VDD padam; jalur utama baterai pasca-switchover 2,7 V juga dicabangkan ke rail VDD sistem agar MCU dan LCD tetap bekerja di mode Stop 2 saat superkapasitor habis).
+PC14 | TCXO_32K_IN | OSC32_IN (LSE Bypass Mode, FT_o) | Input Clock Eksternal TCXO 32,768 kHz: Sinyal osilator aktif masuk ke OSC32_IN (0,3Vpp ≤ V ≤ VSW) dan dipantau oleh LSECSS untuk mendeteksi ERR02 (Clock loss). TCXO wajib disuplai dari rail cadangan (VSW/Superkapasitor + Baterai) agar RTC tetap aktif saat padam.
+PC15 | UNUSED_PC15 | GPIO Analog Input (FT_o) | Tidak Digunakan sebagai Kristal: Karena PC14 menggunakan mode LSE Bypass (TCXO 1-pin), PC15 otomatis menjadi GPIO biasa dan diatur sebagai Analog Input untuk meminimalkan konsumsi arus.
+PH0 | OSC_IN | Oscillator Pin (FT) | Input Kristal Utama HSE (8–16 MHz) (Titik simulasi pelepasan kristal untuk uji Watchdog).
+PH1 | OSC_OUT | Oscillator Pin (FT) | Output Kristal Utama HSE.
+PB2 | RTC_CAL_OUT | Additional Function: RTC_OUT2 (Push-Pull) | Pin Uji Keluaran Kalibrasi RTC Dedicated (1 Hz / 512 Hz): Pin khusus (tidak digabung dengan fungsi tombol/tamper) untuk pengukuran hanyutan waktu (time drift) dengan Frequency Counter sesuai prosedur.
+PC13 | TAMP_CASE_OPEN | Input TAMP_IN1 (FT) | Sabotase Tutup Meter: Beroperasi di domain VSW (VBAT), merekam timestamp ke Tamper Log, menampilkan teks "RUSAK", dan membuka relai (Tabel 6 No. 1 & Tabel 2.14).
+PE6 | TAMP_TERM_COVER | Input TAMP_IN3 (FT_ht) | Sabotase Tutup Terminal: Beroperasi di domain VSW (VBAT), merekam ERR20 ("PERIKSA"), dan membuka relai.
+PE4 | SENSOR_MAGNET | Input EXTI4 / TAMP_IN7 (FT_hat) | Deteksi Induksi Medan Magnet Luar ≤ 500mT: Input dari Sensor Hall, beroperasi di domain VSW (VBAT), merekam kejadian seketika ke Tamper Log & menampilkan PERIKSA / ERR25 tanpa memicu trip relai.
+PC3 | AC_FAIL_DET | Input EXTI3 Falling/Rising (FT_ha) | Deteksi Catu Daya Utama Padam/Menyala: Merekam Event 1 (Power supply failure) dan Event 2 (Power supply up), memicu pengiriman darurat Last-Gasp Data Push ke HES via superkapasitor, memutus catu 12V modem, lalu menurunkan MCU ke mode Stop 2.
+PD11 | VBAT_SENSE | Analog (ADC4_IN15) | Monitor Tegangan Baterai Cadangan: Terhubung ke ADC4 (tetap aktif secara otonom di mode Stop 2), memicu ERR03 dan simbol baterai berkedip terus-menerus bila tegangan ≤ 2,7V.
+PC2 | VCAP_SENSE | Analog (ADC1_IN3 / ADC4_IN3) | Monitor Tegangan Superkapasitor: Terhubung ke ADC4 (aktif di Stop 2), mendeteksi kerusakan/terlepasnya superkapasitor (ERR06 - Tabel 4 No. 6) dan memantau batas transisi ≤ 2,7V ke baterai.
+PC0 | LCD_I2C3_SCL | AF4 (I2C3_SCL, Open-Drain, High) | Clock Bus I2C3 untuk Driver Layar Matriks STN LCD 3-Baris (Mendukung operasi otonom di mode hemat daya Stop 2 saat catu daya padam).
+PC1 | LCD_I2C3_SDA | AF4 (I2C3_SDA, Open-Drain, High) | Data Bus I2C3 untuk Driver Layar Matriks STN LCD 3-Baris (Menampilkan Baris 1 Simbol ≥ 4,5 mm, Baris 2 Teks ≥ 4x8 mm, dan Baris 3 Kode ≥ 4,5 mm).
+PD2 | LCD_PWR_EN | Output Push-Pull, Low (LPGPIO1_P7) | Sakelar Catu Daya Layar LCD: Mengaktifkan layar tampilan selama 10 detik ketika tombol ditekan pada saat catu daya padam dengan suplai superkapasitor/baterai.
+PD3 | LCD_BL_CTRL | Output Push-Pull, Low | Kontrol Lampu Latar (Back-light) LCD: Menyala otomatis saat tombol navigasi ditekan, termasuk menyala selama 10 detik saat push-button wake-up pada kondisi padam sesuai.
+PA0 | BTN_SCROLL_UP | Input Pull-Up (EXTI0 / WKUP1) | Tombol Navigasi Naik (▲): Scrolling manual layar ke atas, membangunkan MCU (WKUP1) untuk menyalakan LCD 10 detik saat listrik padam, & kombinasi konfirmasi remote reconnect.
+PB6 | BTN_SCROLL_DN | Input Pull-Up (EXTI6 / WKUP3) | Tombol Navigasi Turun (▼): Scrolling manual layar ke bawah, membangunkan MCU (WKUP3) saat padam, & aksi konfirmasi remote reconnect (ditekan bersamaan dengan ▲).
+PB7 | LED_ALM | Output Push-Pull, Low | Driver Indikator LED Kuning (Super Bright) untuk peringatan penyalahgunaan (tamper) atau ketidaknormalan sistem (alarm).
+PA2 | MODEM_TX | AF7 (USART2_TX) / AF8 (LPUART1_TX) | Port Komunikasi Dua Arah RS-232 (TX): Jalur TX ke konektor RJ-45 Female Pin 5 (RS-232 pada 19.200 bps via Transceiver MAX3232).
+PA3 | MODEM_RX | AF7 (USART2_RX) / AF8 (LPUART1_RX) | Port Komunikasi Dua Arah RS-232 (RX): Jalur RX dari konektor RJ-45 Female Pin 4 (RS-232 pada 19.200 bps via Transceiver MAX3232 dan DMA; LPUART1 tetap aktif di mode Stop 2).
+PD4 | RS232_PWR_EN | Output Push-Pull, Low | Kontrol Daya Transceiver RS-232 (FORCEOFF): Mematikan charge pump IC MAX3232 setelah transmisi Last-Gasp Push selesai saat listrik padam agar superkapasitor tahan ≥ 48 jam.
+PD5 | MODEM_12V_EN | Output Push-Pull, Low | Kontrol Pemutus Catu Daya Modem 12 VDC (5 W): Memutus suplai konektor DC 12 V modem tepat setelah transmisi darurat Last-Gasp Data Push selesai saat listrik padam, guna menjaga ketahanan superkapasitor ≥ 4 jam.
+PC4 | OPTICAL_TX | AF7 (USART3_TX, Push-Pull, High) | Port Komunikasi Lokal (TX): Jalur Kirim Data Optical Probe depan meter berisolasi galvanis > 4 kV_RMS (9.600 bps).
+PC5 | OPTICAL_RX | AF7 (USART3_RX, Pull-Up, High, WKUP5) | Port Komunikasi Lokal (RX): Jalur Terima Data Optical Probe depan meter (9.600 bps).
+PC8 | RELAY_TRIP | Output Pull-Down, Low | Kontrol Pemutus Utama (Open / Shunt Trip): Menggerakkan Control Relay Output untuk shunt trip MCCB eksternal (maks 240 VAC, 2 A) via objek Disconnect control.
+PC9 | RELAY_CLOSE | Output Pull-Down, Low | Kontrol Penyambung Utama (Close / Tripping Release): Melepas perintah trip (tripping release) via objek Disconnect control setelah konfirmasi penekanan tombol ▲+▼ bersamaan.
+PC7 | RELAY_STATUS | Input Pull-Down (EXTI7) | Umpan Balik Kontak Relai Utama: Membaca status fisik relai untuk mendeteksi ERR07 (Relai/shunt trip gagal membuka/menutup).
+PD8 | AUX_CTRL_OUT1 | Output Push-Pull, Low | Kontrol Bantu - Control Output 1: Menggerakkan Opto-SSR/Relai Bantu 1 (Rating maks 288 VAC / 300 VDC, 50 mA) via objek Control I/O Digital Script.
+PD10 | AUX_CTRL_IN1 | Input Pull-Up (EXTI10) | Kontrol Bantu - Control Input 1: Membaca sinyal eksternal 1 (60–288 VAC / 300 VDC, maks 3 mA via Optocoupler).
+PD14 | AUX_CTRL_IN2 | Input Pull-Up (EXTI14) | Kontrol Bantu - Control Input 2: Membaca sinyal eksternal 2 (60–288 VAC / 300 VDC, maks 3 mA via Optocoupler).
+PD12 | EXT_WDI_PULSE | Output Push-Pull, Low | Watchdog Heartbeat Output: Mengirimkan sinyal detak ke IC External Watchdog Unit. Jika MCU hang atau kristal dilepas, IC Watchdog akan membuka relai dam merekam ERR04.
+PA4 | ADE_SS | Output Push-Pull, VHigh | SPI1 Chip Select (CS) ke AFE Metrologi 3-Fasa ADE9000.
+PA5 | ADE_SCK | AF5 (SPI1_SCK, VHigh) | Serial Clock SPI1 ke ADE9000.
+PA6 | ADE_MISO | AF5 (SPI1_MISO, VHigh) | Master-In Slave-Out SPI1 dari ADE9000 (Membaca sampel gelombang 24-bit, RMS, Daya, Energi, THD, & TDD).
+PA7 | ADE_MOSI | AF5 (SPI1_MOSI, VHigh) | Master-Out Slave-In SPI1 ke ADE9000.
+PB5 | ADE_IRQ0 | Input EXTI5 Falling (FT_havd) | Interupsi HW 0 ADE9000: Deteksi Urutan Fase Terbalik (ERR21), Arus & Tegangan Tidak Sefase (ERR22), Reverse Power (ERR26), & Kuadran 4 PF < 0,85 (ERR27) (Dipindah ke PB5 agar EXTI0 dipakai tombol PA0).
+PB1 | ADE_IRQ1 | Input EXTI1 Falling | Interupsi HW 1 ADE9000: Deteksi Kawat Netral Putus (ERR23), Hilang Tegangan 1/2 Fase (ERR24), Kedip Tegangan (Dip/Sag), & Swell (Butir 10.4).
+PE11 | ADE_EVENT | Input EXTI11 Falling (FT_ha) | Interupsi Kejadian Mutu Daya (Power Quality Event): Menerima sinyal EVENT dari Pin 36 ADE9000 (CF4/EVENT/DREADY) saat terdeteksi anomali kelistrikan seperti tegangan kedip (Dip/Sag), lonjakan tegangan (Swell), arus lebih (Overcurrent), atau ketidakseimbangan fasa untuk pencatatan Power Quality Log (SPLN D3.006:2021).
+PE7 | ADE_RESET | Output Push-Pull, High | Hardware Reset ADE9000: Mereset IC metrologi jika terjadi anomali atau berhentinya sampling ADC.
+PE10 | ADE_PM1 | Output Push-Pull, Low | Kontrol Power Mode ADE9000: Menurunkan mode daya ADE9000 saat listrik PLN padam agar superkapasitor sanggup bertahan ≥ 48 jam.
+PE8 | ADE_CF3_ZX | Input EXTI8 (FT_ha, Dual-Edge Trigger) | Pendeteksi Perlintasan Titik Nol AC (Zero-Crossing): Menerima sinyal pulsa ZX dari Pin 35 ADE9000 (CF3/ZX) untuk sinkronisasi pemutusan/penyambungan kontak relai beban (PC8 RELAY_TRIP & PC9 RELAY_CLOSE) tepat pada titik perlintasan nol arus (Zero-Current Switching) guna meminimalkan busur api (arcing) dan mencegah kontak relai aus/terbakar.
+PE9 | ADE_PM0 | Output Push-Pull, Low | Kontrol Power Mode 0 ADE9000: Bekerja bersama PE10 (PM1) untuk mengendalikan mode daya penuh AFE metrologi ADE9000 saat pemadaman listrik PLN (PSM0 Run / PSM2 Tamper Mode / PSM3 Total Sleep ~2 µA) guna menjamin masa operasional superkapasitor/baterai.
+PE12 | ADE_CF1 | Input EXTI12 (FT, Pull-Up, Falling-Edge) | Input Pencacah Pulsa Kalibrasi Energi Aktif: Menerima pulsa frekuensi tinggi energi aktif (Imp/kWh) dari Pin 33 ADE9000 (CF1) secara paralel dengan LED kalibrasi depan meter. Digunakan oleh Secure World MCU sebagai independent hardware energy counter & validasi silang (cross-check) integritas data akumulasi Wh di register SPI (SPLN D3.006:2021 & IEC 62053-22).
+PE13 | ADE_CF2 | Input EXTI13 (FT, Pull-Up, Falling-Edge) | Input Pencacah Pulsa Kalibrasi Energi Reaktif: Menerima pulsa frekuensi energi reaktif (Imp/kvarh) dari Pin 34 ADE9000 (CF2). Digunakan oleh Secure World MCU sebagai independent hardware pulse counter untuk validasi energi reaktif 4-kuadran terhadap register VARh di AFE.
+PB12 | FLASH_SPI2_CS | Output Push-Pull, VHigh | Chip Select (CS) untuk IC Memori Non-Volatile Eksternal (SPI NOR Flash / FRAM kapasitas 4 MByte / 4.096 kByte, memenuhi syarat minimal ≥ 1.024 kByte).
+PB13 | FLASH_SPI2_SCK | AF5 (SPI2_SCK, VHigh) | Serial Clock SPI2 Memori Non-Volatile Eksternal (Menyimpan Load Profile 3 bulan, Data Historikal 12 bulan, & Log FIFO; diakses pada mode Run).
+PB14 | FLASH_SPI2_MISO | AF5 (SPI2_MISO, VHigh) | Master-In Slave-Out SPI2 Memori Non-Volatile Eksternal (Deteksi kegagalan memori memicu ERR00 sesuai.
+PB15 | FLASH_SPI2_MOSI | AF5 (SPI2_MOSI, VHigh) | Master-Out Slave-In SPI2 Memori Non-Volatile Eksternal.
+PA13 | SWDIO | AF0 (JTMS-SWDIO) | Jalur Data Serial Wire Debugging (SWD) ST-LINK (Wajib dikunci via TrustZone & RDP Level 2 dengan password regression key pada firmware produksi.
+PA14 | SWCLK | AF0 (JTCK-SWCLK) | Jalur Clock Serial Wire Debugging (SWD) ST-LINK.
+Rail DC Utama | LED_POWER_ON | Terhubung ke Regulator Catu Daya Utama | Indikator LED Hijau (Super Bright) penanda ketersediaan tegangan catu daya fasa.

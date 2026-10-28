@@ -1,0 +1,29 @@
+# Build directories
+build/
+**/build/
+mx.scratch
+
+# Object and artifact files
+*.o
+*.obj
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+*.su
+*.cyclo
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Temporary/scratch files
+scratch/*.elf
+scratch/*.exe
+
+# Editor/OS settings
+.DS_Store
+Thumbs.db
