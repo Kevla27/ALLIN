@@ -237,6 +237,20 @@ static inline const char* board_cfg_get_board_name(void) {
     return BOARD_NAME_STRING;
 }
 
+/* ====================================================================
+ * 6. SAKELAR DIAGNOSTIK & INJEKSI BEBAN TIRUAN (R&D / FACTORY BENCH)
+ * ==================================================================== */
+#ifndef BOARD_CFG_ENABLE_SYNTHETIC_LOAD
+#define BOARD_CFG_ENABLE_SYNTHETIC_LOAD  1  /**< 1 = Aktifkan perintah CLI simulasi beban (load/volt/curr/synth), 0 = Produksi massal / Sertifikasi resmi PLN */
+#endif
+
+/**
+ * @brief Memeriksa apakah fitur beban tiruan metrologi diaktifkan pada level kompilasi
+ */
+static inline bool board_cfg_is_synthetic_load_enabled(void) {
+    return (BOARD_CFG_ENABLE_SYNTHETIC_LOAD != 0);
+}
+
 #ifdef __cplusplus
 }
 #endif

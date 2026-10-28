@@ -107,6 +107,22 @@ static bool mock_is_ac_failed(void) {
     return s_mock_ac_failed;
 }
 
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+static synthetic_load_config_t s_mock_synth_cfg;
+
+static void mock_set_synthetic_load(const synthetic_load_config_t *cfg) {
+    if (cfg != NULL) {
+        s_mock_synth_cfg = *cfg;
+    }
+}
+
+static void mock_get_synthetic_load(synthetic_load_config_t *out_cfg) {
+    if (out_cfg != NULL) {
+        *out_cfg = s_mock_synth_cfg;
+    }
+}
+#endif
+
 /* Inisialisasi Mock Environment */
 static void init_mock_env(void) {
     memset(&s_mock_meas, 0, sizeof(s_mock_meas));
@@ -145,6 +161,21 @@ static void init_mock_env(void) {
     s_mock_ac_failed = false;
     s_mock_last_button = BUTTON_DIR_DOWN;
     s_mock_button_count = 0;
+
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+    memset(&s_mock_synth_cfg, 0, sizeof(s_mock_synth_cfg));
+    s_mock_synth_cfg.voltage_r_dv = 2200;
+    s_mock_synth_cfg.voltage_s_dv = 2200;
+    s_mock_synth_cfg.voltage_t_dv = 2200;
+    s_mock_synth_cfg.current_r_ma = 15000;
+    s_mock_synth_cfg.current_s_ma = 15000;
+    s_mock_synth_cfg.current_t_ma = 15000;
+    s_mock_synth_cfg.current_n_ma = 50;
+    s_mock_synth_cfg.active_power_w = 9900;
+    s_mock_synth_cfg.reactive_power_var = 1485;
+    s_mock_synth_cfg.power_factor_ppm = 990;
+    s_mock_synth_cfg.active = false;
+#endif
 }
 
 void test_cli_core_commands(void) {
@@ -169,7 +200,11 @@ void test_cli_core_commands(void) {
         .get_active_tariff = mock_get_tariff,
         .button_press = mock_button_press,
         .set_ac_fail = mock_set_ac_fail,
-        .is_ac_failed = mock_is_ac_failed
+        .is_ac_failed = mock_is_ac_failed,
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+        .set_synthetic_load = mock_set_synthetic_load,
+        .get_synthetic_load = mock_get_synthetic_load
+#endif
     };
 
     console_cli_init(&hooks);
@@ -298,7 +333,45 @@ void test_cli_core_commands(void) {
     assert(console_cli_execute_command(cmd_buf) == 0);
     assert(s_mock_ac_failed == false);
 
-    /* 13. Uji Perintah Invalid dan Baris Kosong */
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+    /* 13. Uji Perintah Synthetic Load (load, volt, curr, synth) */
+    strcpy(cmd_buf, "synth status");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
+    strcpy(cmd_buf, "load 5000 500 990");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_synth_cfg.active == true);
+    assert(s_mock_synth_cfg.active_power_w == 5000);
+    assert(s_mock_synth_cfg.reactive_power_var == 500);
+    assert(s_mock_synth_cfg.power_factor_ppm == 990);
+
+    strcpy(cmd_buf, "volt 230");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_synth_cfg.voltage_r_dv == 2300);
+    assert(s_mock_synth_cfg.voltage_s_dv == 2300);
+    assert(s_mock_synth_cfg.voltage_t_dv == 2300);
+
+    strcpy(cmd_buf, "curr 12000 12000 12000 50");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_synth_cfg.current_r_ma == 12000);
+    assert(s_mock_synth_cfg.current_s_ma == 12000);
+    assert(s_mock_synth_cfg.current_t_ma == 12000);
+    assert(s_mock_synth_cfg.current_n_ma == 50);
+
+    strcpy(cmd_buf, "synth off");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_synth_cfg.active == false);
+
+    strcpy(cmd_buf, "synth on");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_synth_cfg.active == true);
+
+    strcpy(cmd_buf, "synth reset");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_synth_cfg.active_power_w == 9900);
+#endif
+
+    /* 14. Uji Perintah Invalid dan Baris Kosong */
     strcpy(cmd_buf, "perintah_ngawur_xyz");
     assert(console_cli_execute_command(cmd_buf) == -1);
 
@@ -330,7 +403,11 @@ void test_cli_rx_stream_and_editing(void) {
         .get_active_tariff = mock_get_tariff,
         .button_press = mock_button_press,
         .set_ac_fail = mock_set_ac_fail,
-        .is_ac_failed = mock_is_ac_failed
+        .is_ac_failed = mock_is_ac_failed,
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+        .set_synthetic_load = mock_set_synthetic_load,
+        .get_synthetic_load = mock_get_synthetic_load
+#endif
     };
 
     console_cli_init(&hooks);

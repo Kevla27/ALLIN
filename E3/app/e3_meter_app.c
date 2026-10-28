@@ -179,6 +179,49 @@ static bool cli_is_ac_failed(void) {
     return s_is_ac_failed;
 }
 
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+static synthetic_load_config_t s_synth_cfg = {
+    .active = false,
+    .active_power_w = 9900,
+    .reactive_power_var = 1485,
+    .power_factor_ppm = 990,
+    .voltage_r_dv = 2200,
+    .voltage_s_dv = 2200,
+    .voltage_t_dv = 2200,
+    .current_r_ma = 15000,
+    .current_s_ma = 15000,
+    .current_t_ma = 15000,
+    .current_n_ma = 50
+};
+
+void e3_meter_app_set_synthetic_load(const synthetic_load_config_t *cfg)
+{
+    if (cfg != NULL) {
+        s_synth_cfg = *cfg;
+    }
+}
+
+void e3_meter_app_get_synthetic_load(synthetic_load_config_t *out_cfg)
+{
+    if (out_cfg != NULL) {
+        *out_cfg = s_synth_cfg;
+    }
+}
+
+bool e3_meter_app_is_synthetic_load_active(void)
+{
+    return s_synth_cfg.active;
+}
+
+static void cli_set_synthetic_load(const synthetic_load_config_t *cfg) {
+    e3_meter_app_set_synthetic_load(cfg);
+}
+
+static void cli_get_synthetic_load(synthetic_load_config_t *out_cfg) {
+    e3_meter_app_get_synthetic_load(out_cfg);
+}
+#endif
+
 void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetry)
 {
     s_hadc_telemetry = hadc_telemetry;
@@ -249,7 +292,11 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
         .get_active_tariff = cli_get_active_tariff,
         .button_press = cli_button_press,
         .set_ac_fail = cli_set_ac_fail,
-        .is_ac_failed = cli_is_ac_failed
+        .is_ac_failed = cli_is_ac_failed,
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+        .set_synthetic_load = cli_set_synthetic_load,
+        .get_synthetic_load = cli_get_synthetic_load
+#endif
     };
     console_cli_init(&cli_hooks);
 

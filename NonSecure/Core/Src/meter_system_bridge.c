@@ -68,6 +68,27 @@ const meter_measurements_t *meter_system_get_measurements(void)
     return &s_meas;
 }
 
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+static uint32_t isqrt64(uint64_t val)
+{
+    if (val == 0) return 0;
+    uint64_t op = val;
+    uint64_t res = 0;
+    uint64_t one = 1ULL << 62;
+    while (one > op) one >>= 2;
+    while (one != 0) {
+        if (op >= res + one) {
+            op -= res + one;
+            res = (res >> 1) + one;
+        } else {
+            res >>= 1;
+        }
+        one >>= 2;
+    }
+    return (uint32_t)res;
+}
+#endif
+
 void app_metering_step(void)
 {
     static uint32_t last_step_tick_ms = 0;
@@ -81,6 +102,39 @@ void app_metering_step(void)
 
     /* 1. Pilar E1: Akuisisi Data ADC/SPI ADE9000, Konversi Fisik & Akumulasi Energi Wh */
     e1_metrology_service_step(&s_meas, delta_ms);
+
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+    if (e3_meter_app_is_synthetic_load_active())
+    {
+        synthetic_load_config_t synth;
+        e3_meter_app_get_synthetic_load(&synth);
+
+        s_meas.voltage_r_dvolts = synth.voltage_r_dv;
+        s_meas.voltage_s_dvolts = synth.voltage_s_dv;
+        s_meas.voltage_t_dvolts = synth.voltage_t_dv;
+
+        s_meas.current_r_mamps = synth.current_r_ma;
+        s_meas.current_s_mamps = synth.current_s_ma;
+        s_meas.current_t_mamps = synth.current_t_ma;
+        s_meas.current_n_mamps = synth.current_n_ma;
+
+        s_meas.active_power_w     = synth.active_power_w;
+        s_meas.reactive_power_var = synth.reactive_power_var;
+        s_meas.power_factor_ppm   = synth.power_factor_ppm;
+
+        int64_t p2 = (int64_t)s_meas.active_power_w * s_meas.active_power_w;
+        int64_t q2 = (int64_t)s_meas.reactive_power_var * s_meas.reactive_power_var;
+        s_meas.apparent_power_va = isqrt64((uint64_t)(p2 + q2));
+
+        if (s_meas.active_power_w > 0)
+        {
+            static uint32_t s_synth_wh_rem_mj = 0;
+            uint64_t mj = (uint64_t)s_meas.active_power_w * delta_ms + s_synth_wh_rem_mj;
+            s_meas.active_energy_wh += (mj / 3600000ULL);
+            s_synth_wh_rem_mj = (uint32_t)(mj % 3600000ULL);
+        }
+    }
+#endif
 
     /* 2. Pilar E2: Sinkronisasi Register Data Model OBIS DLMS/COSEM */
     e2_dlms_service_sync_snapshot(e2_dlms_service_get_snapshot(), &s_meas);

@@ -117,6 +117,25 @@ uint32_t e3_meter_app_get_internal_alarm(void);
  */
 const tamper_context_t* e3_meter_app_get_tamper_context(void);
 
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+#include "console_io.h"
+
+/**
+ * @brief Mengatur parameter injeksi beban metrologi tiruan (R&D / Factory Mode)
+ */
+void e3_meter_app_set_synthetic_load(const synthetic_load_config_t *cfg);
+
+/**
+ * @brief Membaca parameter injeksi beban metrologi tiruan saat ini
+ */
+void e3_meter_app_get_synthetic_load(synthetic_load_config_t *out_cfg);
+
+/**
+ * @brief Memeriksa apakah mode injeksi beban tiruan sedang aktif
+ */
+bool e3_meter_app_is_synthetic_load_active(void);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

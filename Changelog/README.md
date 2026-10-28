@@ -41,6 +41,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-031**](031_pemindahan_glue_code_meter_system_bridge.md) | 28-10-2026 | Pemisahan Glue Code dari main.c ke Dedicated System Bridge Module (`meter_system_bridge`) | `NonSecure/Core/Inc/meter_system_bridge.h`, `NonSecure/Core/Src/meter_system_bridge.c`, `NonSecure/Core/Src/main.c`, `NonSecure/CMakeLists.txt` | Selesai |
 | [**LOG-032**](032_integrasi_hardware_rtc_oled_dan_tou.md) | 28-10-2026 | Integrasi Hardware RTC STM32U5 ke Jam/Tanggal Layar OLED & Otomasi Tarif ToU (WBP/LWBP) | `Secure/Core/Src/*`, `E3/app/e3_meter_app.*`, `E3/app/console/*`, `E3/tests/*` | Selesai |
 | [**LOG-033**](033_prosedur_listrik_padam_last_gasp_oled.md) | 28-10-2026 | Prosedur Listrik Padam (Last Gasp) Layar OLED, Emergency Flash Checkpoint, Off-Power Standby 10 Detik & CLI Simulasi (`acfail` & `button`) | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/app/profiling/*`, `E3/app/e3_meter_app.*`, `E3/app/console/*`, `E3/tests/*` | Selesai |
+| [**LOG-034**](034_arsitektur_sakelar_beban_tiruan_metrologi.md) | 28-10-2026 | Arsitektur Sakelar Diagnostik Metrologi Tiruan (Synthetic Load Generator) via CLI (`load`, `volt`, `curr`, `synth`) & Isolasi Bersih 0-Byte Produksi Massal | `E3/app/board_profile_config.h`, `E3/app/console/*`, `E3/app/e3_meter_app.*`, `NonSecure/Core/Src/meter_system_bridge.c`, `E3/tests/*` | Selesai |
 
 ---
 

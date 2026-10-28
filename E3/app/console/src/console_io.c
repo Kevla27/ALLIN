@@ -41,6 +41,12 @@ static int cmd_time(int argc, char *argv[]);
 static int cmd_set_time(int argc, char *argv[]);
 static int cmd_acfail(int argc, char *argv[]);
 static int cmd_button(int argc, char *argv[]);
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+static int cmd_load(int argc, char *argv[]);
+static int cmd_volt(int argc, char *argv[]);
+static int cmd_curr(int argc, char *argv[]);
+static int cmd_synth(int argc, char *argv[]);
+#endif
 
 /* Tabel pendaftaran perintah CLI */
 static const console_cmd_entry_t s_cmd_table[] = {
@@ -58,6 +64,12 @@ static const console_cmd_entry_t s_cmd_table[] = {
     {"set_time", "Atur waktu RTC (sintaks: set_time <epoch>)", cmd_set_time},
     {"acfail",   "Simulasi listrik PLN padam/pulih (sintaks: acfail [0|1])", cmd_acfail},
     {"button",   "Simulasi tombol fisik OLED (sintaks: button <up|down|both>)", cmd_button},
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+    {"load",     "Set daya tiruan aktif/reaktif (sintaks: load <P_W> [Q_var] [pf])", cmd_load},
+    {"volt",     "Set tegangan 3-fasa tiruan (sintaks: volt <Vr_V> [Vs] [Vt])",      cmd_volt},
+    {"curr",     "Set arus 3-fasa tiruan (sintaks: curr <Ir_mA> [Is] [It] [In])",    cmd_curr},
+    {"synth",    "Sakelar status generator beban tiruan (sintaks: synth [on|off])",  cmd_synth},
+#endif
     {"mute",     "Mode senyap konsol proteksi biner DLMS", cmd_mute},
     {"echo",     "Mencetak kembali teks yang diinputkan",  cmd_echo},
     {"clear",    "Membersihkan layar terminal konsol",     cmd_clear},
@@ -152,6 +164,12 @@ static int cmd_help(int argc, char *argv[]) {
     printf("  set_time <epoch>      : Set waktu hardware RTC (UNIX epoch)\n");
     printf("  acfail <1|0>          : Simulasi padam (1) atau pulih (0) listrik PLN\n");
     printf("  button <up|down|both> : Simulasi penekanan tombol navigasi fisik\n");
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+    printf("  load <P_W> [Q] [pf]   : Set daya tiruan aktif/reaktif (misal: load 5000)\n");
+    printf("  volt <Vr_V> [Vs] [Vt] : Set tegangan 3-fasa tiruan (misal: volt 230 atau volt 90)\n");
+    printf("  curr <Ir_mA> [Is] [It]: Set arus 3-fasa tiruan (misal: curr 10000)\n");
+    printf("  synth <on|off|status> : Kontrol sakelar generator beban tiruan\n");
+#endif
     printf("  mute <1|0>            : 1=Senyap (proteksi DLMS), 0=Aktif\n");
     printf("===================================================================\n\n");
     return 0;
@@ -241,6 +259,14 @@ static int cmd_status(int argc, char *argv[]) {
     if (s_hooks_registered && s_hooks.is_ac_failed != NULL) {
         printf("  Suplai Daya PLN : %s\n", s_hooks.is_ac_failed() ? "PADAM / MATI LAMPU (AC FAIL - EMERGENCY STANDBY)" : "NORMAL (AC MAINS ACTIVE)");
     }
+
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+    if (s_hooks_registered && s_hooks.get_synthetic_load != NULL) {
+        synthetic_load_config_t synth;
+        s_hooks.get_synthetic_load(&synth);
+        printf("  Mode Metrologi  : %s\n", synth.active ? "SYNTHETIC SIMULATION (DIAGNOSTIC OVERRIDE ON)" : "PHYSICAL ADE9000 HARDWARE (LIVE SENSOR)");
+    }
+#endif
 
     printf("  Proteksi Konsol : %s\n\n", s_console_is_muted ? "MUTED (DLMS SAFE)" : "ACTIVE");
     return 0;
@@ -701,6 +727,218 @@ static int cmd_button(int argc, char *argv[]) {
     }
     return 0;
 }
+
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+static int cmd_synth(int argc, char *argv[]) {
+    if (!s_hooks_registered || s_hooks.get_synthetic_load == NULL || s_hooks.set_synthetic_load == NULL) {
+        printf("[CLI] Error: Hooks generator beban tiruan belum terdaftar.\n");
+        return -1;
+    }
+
+    synthetic_load_config_t cfg;
+    s_hooks.get_synthetic_load(&cfg);
+
+    if (argc < 2 || str_equals_ignore_case(argv[1], "status")) {
+        printf("\n--- STATUS GENERATOR BEBAN METROLOGI TIRUAN (SYNTHETIC LOAD) ---\n");
+        printf("  Status Generator : %s\n", cfg.active ? "AKTIF (DIAGNOSTIC OVERRIDE ON)" : "NON-AKTIF (MENGGUNAKAN ADE9000 FISIK)");
+        printf("  Daya Aktif (P)   : %ld Watt\n", (long)cfg.active_power_w);
+        printf("  Daya Reaktif (Q) : %ld var\n", (long)cfg.reactive_power_var);
+        printf("  Faktor Daya (PF) : %u.%03u\n", (unsigned)(cfg.power_factor_ppm / 1000U), (unsigned)(cfg.power_factor_ppm % 1000U));
+        printf("  Tegangan 3-Fasa  : R=%lu.%u V | S=%lu.%u V | T=%lu.%u V\n",
+               (unsigned long)(cfg.voltage_r_dv / 10U), (unsigned)(cfg.voltage_r_dv % 10U),
+               (unsigned long)(cfg.voltage_s_dv / 10U), (unsigned)(cfg.voltage_s_dv % 10U),
+               (unsigned long)(cfg.voltage_t_dv / 10U), (unsigned)(cfg.voltage_t_dv % 10U));
+        printf("  Arus 3-Fasa      : R=%lu.%03u A | S=%lu.%03u A | T=%lu.%03u A | N=%lu.%03u A\n\n",
+               (unsigned long)(cfg.current_r_ma / 1000U), (unsigned)(cfg.current_r_ma % 1000U),
+               (unsigned long)(cfg.current_s_ma / 1000U), (unsigned)(cfg.current_s_ma % 1000U),
+               (unsigned long)(cfg.current_t_ma / 1000U), (unsigned)(cfg.current_t_ma % 1000U),
+               (unsigned long)(cfg.current_n_ma / 1000U), (unsigned)(cfg.current_n_ma % 1000U));
+        printf("  Petunjuk: Ketik 'synth on' untuk mengaktifkan, 'synth off' untuk kembali ke sensor fisik ADE9000,\n");
+        printf("            atau 'synth reset' untuk mereset ke beban nominal (220V, 15A, 9.9kW).\n\n");
+        return 0;
+    }
+
+    if (str_equals_ignore_case(argv[1], "on") || str_equals_ignore_case(argv[1], "1")) {
+        cfg.active = true;
+        s_hooks.set_synthetic_load(&cfg);
+        printf("[CLI] Generator beban tiruan DIAKTIFKAN. Layar OLED & DLMS membaca data tiruan.\n");
+    } else if (str_equals_ignore_case(argv[1], "off") || str_equals_ignore_case(argv[1], "0")) {
+        cfg.active = false;
+        s_hooks.set_synthetic_load(&cfg);
+        printf("[CLI] Generator beban tiruan DINONAKTIFKAN. Kembali ke pembacaan sensor fisik ADE9000.\n");
+    } else if (str_equals_ignore_case(argv[1], "reset")) {
+        cfg.active = true;
+        cfg.active_power_w = 9900;
+        cfg.reactive_power_var = 1485;
+        cfg.power_factor_ppm = 990;
+        cfg.voltage_r_dv = 2200;
+        cfg.voltage_s_dv = 2200;
+        cfg.voltage_t_dv = 2200;
+        cfg.current_r_ma = 15000;
+        cfg.current_s_ma = 15000;
+        cfg.current_t_ma = 15000;
+        cfg.current_n_ma = 50;
+        s_hooks.set_synthetic_load(&cfg);
+        printf("[CLI] Generator beban tiruan di-reset ke nilai nominal (220.0V, 15.0A, 9.9kW).\n");
+    } else {
+        printf("[CLI] Parameter tidak valid: '%s'. Gunakan: synth <on|off|status|reset>\n", argv[1]);
+        return -2;
+    }
+    return 0;
+}
+
+static int cmd_load(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("[CLI] Penggunaan: load <P_Watt> [Q_var] [pf_permille]\n");
+        printf("       Contoh: load 5000          -> Set daya aktif 5000 W\n");
+        printf("       Contoh: load 15000         -> Uji trip pembatas daya (Overload >11kW)\n");
+        printf("       Contoh: load 3500 500 990  -> Set P=3500W, Q=500var, PF=0.990\n");
+        return -1;
+    }
+
+    if (!s_hooks_registered || s_hooks.get_synthetic_load == NULL || s_hooks.set_synthetic_load == NULL) {
+        printf("[CLI] Error: Hooks generator beban tiruan belum terdaftar.\n");
+        return -2;
+    }
+
+    synthetic_load_config_t cfg;
+    s_hooks.get_synthetic_load(&cfg);
+
+    cfg.active_power_w = (int32_t)strtol(argv[1], NULL, 10);
+    if (argc >= 3) {
+        cfg.reactive_power_var = (int32_t)strtol(argv[2], NULL, 10);
+    } else {
+        cfg.reactive_power_var = (int32_t)(cfg.active_power_w * 15 / 100);
+    }
+
+    if (argc >= 4) {
+        cfg.power_factor_ppm = (uint16_t)strtoul(argv[3], NULL, 10);
+    } else {
+        cfg.power_factor_ppm = 990U;
+    }
+
+    uint32_t v_avg = (cfg.voltage_r_dv > 0) ? (cfg.voltage_r_dv / 10U) : 220U;
+    if (v_avg == 0) v_avg = 220U;
+    uint32_t pf = (cfg.power_factor_ppm > 0) ? cfg.power_factor_ppm : 1000U;
+
+    int32_t abs_p = (cfg.active_power_w >= 0) ? cfg.active_power_w : -cfg.active_power_w;
+    uint32_t i_calc_ma = (uint32_t)(((uint64_t)abs_p * 1000ULL * 1000ULL) / ((uint64_t)3U * v_avg * pf));
+    cfg.current_r_ma = i_calc_ma;
+    cfg.current_s_ma = i_calc_ma;
+    cfg.current_t_ma = i_calc_ma;
+
+    cfg.active = true;
+    s_hooks.set_synthetic_load(&cfg);
+
+    printf("[CLI] Beban tiruan diperbarui: P=%ld W, Q=%ld var, PF=%u.%03u, Arus Fasa=%lu.%03u A (Mode: AKTIF)\n",
+           (long)cfg.active_power_w, (long)cfg.reactive_power_var,
+           (unsigned)(cfg.power_factor_ppm / 1000U), (unsigned)(cfg.power_factor_ppm % 1000U),
+           (unsigned long)(i_calc_ma / 1000U), (unsigned)(i_calc_ma % 1000U));
+    if (cfg.active_power_w > 11000) {
+        printf("      [PERINGATAN] Daya melebihi batas 11.000 Watt -> Bersiap menguji trip relai pembatas beban!\n");
+    }
+    return 0;
+}
+
+static int cmd_volt(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("[CLI] Penggunaan: volt <Vr_V> [Vs_V] [Vt_V]\n");
+        printf("       Contoh: volt 230           -> Set tegangan seimbang 230.0 V ke semua fasa\n");
+        printf("       Contoh: volt 90            -> Uji trip proteksi tegangan rendah (<110V)\n");
+        printf("       Contoh: volt 290           -> Uji trip proteksi tegangan lebih (>280V)\n");
+        printf("       Contoh: volt 230 0 230     -> Uji deteksi hilang fasa S (ERR24)\n");
+        return -1;
+    }
+
+    if (!s_hooks_registered || s_hooks.get_synthetic_load == NULL || s_hooks.set_synthetic_load == NULL) {
+        printf("[CLI] Error: Hooks generator beban tiruan belum terdaftar.\n");
+        return -2;
+    }
+
+    synthetic_load_config_t cfg;
+    s_hooks.get_synthetic_load(&cfg);
+
+    uint32_t vr_v = (uint32_t)strtoul(argv[1], NULL, 10);
+    cfg.voltage_r_dv = vr_v * 10U;
+
+    if (argc >= 3) {
+        cfg.voltage_s_dv = (uint32_t)strtoul(argv[2], NULL, 10) * 10U;
+    } else {
+        cfg.voltage_s_dv = cfg.voltage_r_dv;
+    }
+
+    if (argc >= 4) {
+        cfg.voltage_t_dv = (uint32_t)strtoul(argv[3], NULL, 10) * 10U;
+    } else {
+        cfg.voltage_t_dv = cfg.voltage_r_dv;
+    }
+
+    cfg.active = true;
+    s_hooks.set_synthetic_load(&cfg);
+
+    printf("[CLI] Tegangan tiruan 3-fasa diperbarui: Vr=%lu.%u V, Vs=%lu.%u V, Vt=%lu.%u V (Mode: AKTIF)\n",
+           (unsigned long)(cfg.voltage_r_dv / 10U), (unsigned)(cfg.voltage_r_dv % 10U),
+           (unsigned long)(cfg.voltage_s_dv / 10U), (unsigned)(cfg.voltage_s_dv % 10U),
+           (unsigned long)(cfg.voltage_t_dv / 10U), (unsigned)(cfg.voltage_t_dv % 10U));
+
+    if (cfg.voltage_r_dv < 1100U || cfg.voltage_s_dv < 1100U || cfg.voltage_t_dv < 1100U) {
+        printf("      [PERINGATAN] Terdeteksi tegangan di bawah ambang batas (<110V) -> Lo Volt trip aktif!\n");
+    } else if (cfg.voltage_r_dv > 2800U || cfg.voltage_s_dv > 2800U || cfg.voltage_t_dv > 2800U) {
+        printf("      [PERINGATAN] Terdeteksi tegangan di atas ambang batas (>280V) -> Hi Volt trip aktif!\n");
+    }
+    return 0;
+}
+
+static int cmd_curr(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("[CLI] Penggunaan: curr <Ir_mA> [Is_mA] [It_mA] [In_mA]\n");
+        printf("       Contoh: curr 10000         -> Set arus seimbang 10.000 A\n");
+        printf("       Contoh: curr 20000 5000 5000 -> Uji ketidakseimbangan fasa (Asymmetry)\n");
+        return -1;
+    }
+
+    if (!s_hooks_registered || s_hooks.get_synthetic_load == NULL || s_hooks.set_synthetic_load == NULL) {
+        printf("[CLI] Error: Hooks generator beban tiruan belum terdaftar.\n");
+        return -2;
+    }
+
+    synthetic_load_config_t cfg;
+    s_hooks.get_synthetic_load(&cfg);
+
+    cfg.current_r_ma = (uint32_t)strtoul(argv[1], NULL, 10);
+    if (argc >= 3) {
+        cfg.current_s_ma = (uint32_t)strtoul(argv[2], NULL, 10);
+    } else {
+        cfg.current_s_ma = cfg.current_r_ma;
+    }
+
+    if (argc >= 4) {
+        cfg.current_t_ma = (uint32_t)strtoul(argv[3], NULL, 10);
+    } else {
+        cfg.current_t_ma = cfg.current_r_ma;
+    }
+
+    if (argc >= 5) {
+        cfg.current_n_ma = (uint32_t)strtoul(argv[4], NULL, 10);
+    }
+
+    uint64_t p_va = ((uint64_t)cfg.current_r_ma * cfg.voltage_r_dv +
+                     (uint64_t)cfg.current_s_ma * cfg.voltage_s_dv +
+                     (uint64_t)cfg.current_t_ma * cfg.voltage_t_dv) / 10000ULL;
+    cfg.active_power_w = (int32_t)((p_va * cfg.power_factor_ppm) / 1000ULL);
+
+    cfg.active = true;
+    s_hooks.set_synthetic_load(&cfg);
+
+    printf("[CLI] Arus tiruan 3-fasa diperbarui: Ir=%lu.%03u A, Is=%lu.%03u A, It=%lu.%03u A, In=%lu.%03u A\n",
+           (unsigned long)(cfg.current_r_ma / 1000U), (unsigned)(cfg.current_r_ma % 1000U),
+           (unsigned long)(cfg.current_s_ma / 1000U), (unsigned)(cfg.current_s_ma % 1000U),
+           (unsigned long)(cfg.current_t_ma / 1000U), (unsigned)(cfg.current_t_ma % 1000U),
+           (unsigned long)(cfg.current_n_ma / 1000U), (unsigned)(cfg.current_n_ma % 1000U));
+    printf("      Daya aktif terhitung: %ld Watt (Mode: AKTIF)\n", (long)cfg.active_power_w);
+    return 0;
+}
+#endif
 
 /* ========================================================================= */
 /*  4. Interactive Serial CLI Engine & Dispatcher                           */

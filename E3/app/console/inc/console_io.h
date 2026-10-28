@@ -18,6 +18,26 @@ extern "C" {
 #include "tamper_manager.h"
 #include "power_relay_manager.h"
 #include "load_profile.h"
+#include "board_profile_config.h"
+
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+/**
+ * @brief Konfigurasi Injeksi Beban Metrologi Tiruan (Synthetic Metrology Injection)
+ */
+typedef struct {
+    bool     active;                /**< true: Injeksi beban aktif, false: Pembacaan fisik ADE9000 */
+    int32_t  active_power_w;        /**< Daya aktif total (Watt) */
+    int32_t  reactive_power_var;    /**< Daya reaktif total (var) */
+    uint16_t power_factor_ppm;      /**< Faktor daya (permille, misal 990 = 0.990) */
+    uint32_t voltage_r_dv;          /**< Tegangan Fasa R (desiVolt, 2300 = 230.0 V) */
+    uint32_t voltage_s_dv;          /**< Tegangan Fasa S (desiVolt) */
+    uint32_t voltage_t_dv;          /**< Tegangan Fasa T (desiVolt) */
+    uint32_t current_r_ma;          /**< Arus Fasa R (milliAmpere, 10000 = 10.000 A) */
+    uint32_t current_s_ma;          /**< Arus Fasa S (milliAmpere) */
+    uint32_t current_t_ma;          /**< Arus Fasa T (milliAmpere) */
+    uint32_t current_n_ma;          /**< Arus Kawat Netral N (milliAmpere) */
+} synthetic_load_config_t;
+#endif
 
 #define CONSOLE_CMD_MAX_LEN 128
 #define CONSOLE_MAX_ARGS    8
@@ -51,6 +71,10 @@ typedef struct {
     void                        (*button_press)(button_dir_t dir);
     void                        (*set_ac_fail)(bool is_fail);
     bool                        (*is_ac_failed)(void);
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+    void                        (*set_synthetic_load)(const synthetic_load_config_t *cfg);
+    void                        (*get_synthetic_load)(synthetic_load_config_t *out_cfg);
+#endif
 } console_meter_hooks_t;
 
 /**
