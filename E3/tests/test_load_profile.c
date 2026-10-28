@@ -76,28 +76,37 @@ void test_load_profile_ring_buffer_wrap(void) {
 }
 
 void test_max_demand_tracker(void) {
-    printf("[TEST] Testing Maximum Demand 15-Minute Tracker & Integration...\n");
+    printf("[TEST] Testing Maximum Demand 15-Minute Tracker (Active kW & Apparent kVA)...\n");
     max_demand_tracker_t tracker;
     max_demand_init(&tracker, 10);
 
     for (int s = 0; s < 10; s++) {
+        max_demand_feed_apparent_va(&tracker, 6500);
         max_demand_process_second(&tracker, 6000, 1700000000 + s);
     }
     assert(tracker.current_demand_w == 6000);
     assert(tracker.max_demand_w == 6000);
     assert(tracker.max_demand_timestamp == 1700000009);
+    assert(tracker.current_demand_s_va == 6500);
+    assert(tracker.max_demand_s_va == 6500);
+    assert(tracker.max_demand_s_timestamp == 1700000009);
 
     for (int s = 0; s < 10; s++) {
+        max_demand_feed_apparent_va(&tracker, 12000);
         max_demand_process_second(&tracker, 11000, 1700000010 + s);
     }
     assert(tracker.current_demand_w == 11000);
     assert(tracker.max_demand_w == 11000);
+    assert(tracker.current_demand_s_va == 12000);
+    assert(tracker.max_demand_s_va == 12000);
+    assert(tracker.max_demand_s_timestamp == 1700000019);
 
     max_demand_reset(&tracker);
     assert(tracker.max_demand_w == 0);
+    assert(tracker.max_demand_s_va == 0);
     assert(tracker.cumulative_max_demand_w == 11000);
     assert(tracker.reset_count == 1);
-    printf("   [PASS] Maximum Demand Tracker Verified OK!\n\n");
+    printf("   [PASS] Maximum Demand Tracker (kW & kVA) Verified OK!\n\n");
 }
 
 void test_billing_snapshot_ring(void) {

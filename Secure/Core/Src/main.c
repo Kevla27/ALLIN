@@ -404,7 +404,11 @@ static void MX_TAMP_RTC_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TAMP_Init 2 */
-
+  /* Aktifkan pendeteksi hardware tamper pada domain VSW:
+   * - TAMP1E (PC13): Pembukaan Tutup Meter (Case Open)
+   * - TAMP3E (PE6) : Pembukaan Tutup Terminal (Terminal Cover Open)
+   * - TAMP7E (PE4) : Induksi Medan Magnet Eksternal <= 500 mT */
+  SET_BIT(TAMP->CR1, TAMP_CR1_TAMP1E | TAMP_CR1_TAMP3E | TAMP_CR1_TAMP7E);
   /* USER CODE END TAMP_Init 2 */
 
 }

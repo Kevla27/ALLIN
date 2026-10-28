@@ -57,9 +57,10 @@ E3/
 │   └── tamper/           # Manajer Sabotase Fisik/Elektrikal & Alarm Hardware
 ├── drivers/              # Board Support Package (BSP) Driver Perangkat Keras
 │   ├── buzzer/           # Driver Audio Kadensi Buzzer
-│   └── oled/             # Driver Layar Fisik OLED SSD1306 (I2C3)
+│   ├── oled/             # Driver Layar Fisik OLED SSD1306 (I2C3)
+│   └── power/            # Driver Manajemen Hemat Daya STM32U5 Stop 2 Mode
 ├── docs/                 # Dokumentasi Teknis Sistem
-└── tests/                # Rangkaian Pengujian Unit Test CTest (9 Test Suites)
+└── tests/                # Rangkaian Pengujian Unit Test CTest (12 Test Suites)
 ```
 
 ---
@@ -242,23 +243,31 @@ E3/
 - **Fungsi Utama:**
   - Inisialisasi register charge pump OLED, kontras, pengiriman framebuffer via I2C, serta tabel bitmap font monospace (Font 6x8, Font 7x10, Font 11x18, Font 16x26).
 
+#### 17. `bsp_power_mode.h` & `bsp_power_mode.c`
+- **Tujuan & Fundamental:** Driver manajemen hemat daya ekstrem STM32U585 (*Ultra-Low Power Stop 2 Mode*) saat listrik PLN padam (`LOG-036`).
+- **Fungsi Utama:**
+  - Menurunkan konsumsi MCU ke ~4,5 µA (`HAL_PWREx_EnterSTOP2Mode`), mengatur clock hemat baterai MSIS 4 MHz saat layar menyala 10 detik, dan memulihkan PLL1 160 MHz saat listrik PLN kembali normal.
+
 ---
 
 ### H. Rangkaian Pengujian Unit Test (`E3/tests/`)
 
-Pilar E3 dilengkapi dengan **9 rangkaian unit test otomatis (CTest)** yang menjamin seluruh modul bebas dari regresi:
+Pilar E3 dilengkapi dengan **12 rangkaian unit test otomatis (CTest)** yang menjamin seluruh modul bebas dari regresi:
 
 | File Pengujian | Nama Test Suite di CTest | Aspek yang Diverifikasi |
 | :--- | :--- | :--- |
-| `test_board_profile.c` | `Unit_E3_Board_Profile` | Integritas makro profil papan hardware, display backend, dan timing proteksi (`LOG-030`). |
-| `test_console_cli.c` | `Unit_E3_Console_CLI` | Parsing 8 perintah serial CLI, tokenisasi string, dan validasi eksekusi perintah (`LOG-028`). |
+| `main.c` | `Integration_E3_Demo` | Integrasi penuh aplikasi E3 dalam simulasi skenario operasi meter. |
+| `test_board_profile.c` | `Unit_E3_Board_Profile` | Integritas makro profil papan hardware, display backend, ambang baterai 2700 mV, dan timing proteksi (`LOG-030`). |
+| `test_console_cli.c` | `Unit_E3_Console_CLI` | Parsing perintah serial CLI, tokenisasi string, dan validasi eksekusi perintah (`LOG-028`). |
 | `test_final_system_stress.c` | `Stress_E3_Final_System_Audit` | Uji ketahanan siklus ekstrem 10.000 iterasi, auto-billing EoB, dan integritas memori. |
 | `test_spln_display_tamper.c` | `Unit_E3_SPLN_Display_Tamper` | Format 3 baris SPLN Gambar 4, kelengkapan 49 halaman, rotasi error 3s, dan indikator Lo/Hi Volt. |
-| `test_load_profile.c` | `Unit_E3_Load_Profile` | Perekaman 100 entri load profile 15-menit, pelacakan Maximum Demand, dan snapshot 12 bulan. |
-| `test_load_profile_dlms_adapter.c` | (Terintegrasi di Load Profile) | Validasi serialisasi dan deserialisasi struktur 11-elemen A-XDR DLMS Class ID 7 (72B, `LOG-027`). |
+| `test_load_profile.c` | `Unit_E3_Load_Profile` | Perekaman 100 entri load profile 15-menit, pelacakan Maximum Demand (kW & kVA), A-XDR 72B, dan snapshot 12 bulan. |
 | `test_fsm_statechart.c` | `Unit_E3_FSM_Statechart` | Transisi master FSM statechart di seluruh kemungkinan kombinasi event. |
 | `test_power_relay.c` | `Unit_E3_Power_Relay` | Kurva waktu overload bertingkat, proteksi cut-off tegangan 110V/280V, dan status `READY ON`. |
-| `test_e3_app.c` | `Unit_E3_Display_Tamper` | Integrasi end-to-end aplikasi meter, sinkronisasi metrologi ke HMI, dan deteksi 9 tamper. |
+| `test_e3_app.c` | `Unit_E3_Display_Tamper` | Integrasi end-to-end aplikasi meter, preservasi konfigurasi Tabel E.2, dan deteksi 9 tamper + 3 FIFO. |
+| `test_power_mode.c` | `Unit_E3_Power_Mode_Stop2` | Transisi Stop 2 Mode, 4 sumber wake-up (Tombol, Tamper, RTC, AC Pulih), dan switching clock MSIS/PLL (`LOG-036`). |
+| `test_nvram_storage.c` | `Unit_E3_NVRAM_Storage` | Penyimpanan & pemulihan Load Profile, Tamper Snapshot, dan Energy Checkpoint dengan stempel magic `0x454E4759` (`LOG-038`). |
+| `test_rtos_tasks.c` | `Unit_E3_RTOS_Tasks` | Komunikasi antartask FreeRTOS (`xTamperQueue`, `xMeasMutex`), aktuasi buzzer PB7, dan consumer DLMS Tamper Log (`LOG-038`). |
 | `e3_mock_stubs.c` | (Pustaka Pendukung Mock) | Emulasi lingkungan mikrokontroler STM32 (Timer `HAL_GetTick`, GPIO Mock, Flash Mock) pada host PC. |
 
 ---

@@ -165,6 +165,11 @@ void max_demand_init(max_demand_tracker_t *tracker, uint32_t interval_sec) {
     tracker->interval_sec = (interval_sec > 0) ? interval_sec : LOAD_PROFILE_INTERVAL_SEC;
 }
 
+void max_demand_feed_apparent_va(max_demand_tracker_t *tracker, uint32_t apparent_power_va) {
+    if (tracker == NULL) return;
+    tracker->apparent_accum_va_sec += (uint64_t)apparent_power_va;
+}
+
 void max_demand_process_second(max_demand_tracker_t *tracker, int32_t active_power_w, uint32_t epoch_sec) {
     if (tracker == NULL) return;
 
@@ -175,17 +180,23 @@ void max_demand_process_second(max_demand_tracker_t *tracker, int32_t active_pow
 
     tracker->timer_sec++;
     if (tracker->timer_sec >= tracker->interval_sec) {
-        /* Hitung daya rata-rata interval 15 menit (Watt) */
+        /* Hitung daya rata-rata interval 15 menit (Watt & VA) */
         tracker->current_demand_w = (uint32_t)(tracker->power_accum_w_sec / tracker->interval_sec);
+        tracker->current_demand_s_va = (uint32_t)(tracker->apparent_accum_va_sec / tracker->interval_sec);
 
         /* Jika demand interval saat ini melampaui rekor MD periode berjalan, catat sebagai MD baru */
         if (tracker->current_demand_w > tracker->max_demand_w) {
             tracker->max_demand_w = tracker->current_demand_w;
             tracker->max_demand_timestamp = epoch_sec;
         }
+        if (tracker->current_demand_s_va > tracker->max_demand_s_va) {
+            tracker->max_demand_s_va = tracker->current_demand_s_va;
+            tracker->max_demand_s_timestamp = epoch_sec;
+        }
 
         /* Reset akumulator untuk interval 15-menit berikutnya */
         tracker->power_accum_w_sec = 0;
+        tracker->apparent_accum_va_sec = 0;
         tracker->timer_sec = 0;
     }
 }
@@ -201,5 +212,9 @@ void max_demand_reset(max_demand_tracker_t *tracker) {
     tracker->max_demand_timestamp = 0;
     tracker->current_demand_w = 0;
     tracker->power_accum_w_sec = 0;
+    tracker->max_demand_s_va = 0;
+    tracker->max_demand_s_timestamp = 0;
+    tracker->current_demand_s_va = 0;
+    tracker->apparent_accum_va_sec = 0;
     tracker->timer_sec = 0;
 }

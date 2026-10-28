@@ -57,11 +57,14 @@ static void test_default_board_profile_oled(void) {
     assert(BOARD_CFG_MODEM_BAUDRATE == 19200U);
     assert(BOARD_CFG_CLI_BAUDRATE == 115200U);
 
-    /* Verifikasi manajemen hemat daya Stop 2 */
+    /* Verifikasi manajemen hemat daya Stop 2 & telemetri ADC4 */
     assert(board_cfg_is_stop2_mode_enabled() == true);
     assert(BOARD_CFG_ENABLE_STOP2_MODE == 1);
     assert(BOARD_CFG_STOP2_WAKEUP_CLOCK_MSI == 1);
     assert(BOARD_CFG_RTC_WAKEUP_PERIOD_SEC == 60U);
+    assert(BOARD_CFG_ADC4_BATT_LOW_MV == 2700U);     /* 2.7V sesuai PIN.docx & SPLN ERR03 */
+    assert(BOARD_CFG_ADC4_SUPERCAP_LOW_MV == 2000U); /* 2.0V sesuai ERR06 */
+    assert(BOARD_CFG_DISPLAY_CAROUSEL_MS == 5000U);  /* 5.0 detik sesuai SPLN */
 
     printf("[PASS] Seluruh parameter Profil Papan Default terverifikasi 100%%!\n");
 }

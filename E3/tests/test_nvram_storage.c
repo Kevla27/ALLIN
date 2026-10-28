@@ -25,6 +25,11 @@ void test_nvram_load_profile_write_read(void) {
     load_profile_entry_t entry_read;
     bool read_ok = nvram_read_load_profile_entry(0, &entry_read);
     assert(read_ok == true);
+    assert(entry_read.timestamp == 1727570400);
+    assert(entry_read.active_energy_import_wh == 50000);
+    assert(entry_read.voltage_r_dvolts == 2215);
+    assert(entry_read.current_r_mamps == 5230);
+    assert(entry_read.crc16 == 0xF8E1);
 
     bool invalid_write = nvram_write_load_profile_entry(LOAD_PROFILE_MAX_ENTRIES + 1, &entry_to_write);
     assert(invalid_write == false);
@@ -45,6 +50,9 @@ void test_nvram_tamper_log_snapshot(void) {
     tamper_context_t restored_ctx;
     bool load_ok = nvram_load_tamper_log_snapshot(&restored_ctx);
     assert(load_ok == true);
+    assert(restored_ctx.active_tamper_mask == tamper_ctx.active_tamper_mask);
+    assert(restored_ctx.total_event_count == 1);
+    assert(restored_ctx.tamper_log_fifo.count == 1);
 
     printf("   [PASS] NVRAM Tamper Log Snapshot Valid!\n\n");
 }
@@ -59,6 +67,9 @@ void test_nvram_energy_checkpoint_magic_stamp(void) {
     cp_in.reactive_energy_varh = 55555;
     cp_in.tou_tariff_wh[0] = 5000000;
     cp_in.tou_tariff_wh[1] = 7345678;
+    cp_in.tou_import_tariff_wh[0] = 1500000;
+    cp_in.tou_import_tariff_wh[1] = 2500000;
+    cp_in.tou_import_tariff_wh[2] = 4765432;
     cp_in.vcap_mv_at_fail = 3250;
     cp_in.active_tamper_mask = 0;
 
@@ -78,6 +89,9 @@ void test_nvram_energy_checkpoint_magic_stamp(void) {
     assert(cp_out.reactive_energy_varh == 55555);
     assert(cp_out.tou_tariff_wh[0] == 5000000);
     assert(cp_out.tou_tariff_wh[1] == 7345678);
+    assert(cp_out.tou_import_tariff_wh[0] == 1500000);
+    assert(cp_out.tou_import_tariff_wh[1] == 2500000);
+    assert(cp_out.tou_import_tariff_wh[2] == 4765432);
     assert(cp_out.vcap_mv_at_fail == 3250);
 
     printf("   [PASS] NVRAM Energy Checkpoint Magic Stamp 0x454E4759 Verified!\n\n");

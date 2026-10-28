@@ -57,7 +57,7 @@ bool display_init(display_context_t *ctx, const char *customer_id, uint32_t caro
     ctx->meas_buffer.angle_is_deg = 120;
     ctx->meas_buffer.angle_it_deg = 240;
     ctx->meas_buffer.eob_day = 1;
-    ctx->meas_buffer.eob_hour = 0;
+    ctx->meas_buffer.eob_hour = 10;
     strncpy(ctx->meas_buffer.pln_unit_code, "PLN UID JAYA", sizeof(ctx->meas_buffer.pln_unit_code) - 1);
     return true;
 }
@@ -82,7 +82,28 @@ void display_set_asymmetry_warning(display_context_t *ctx, bool warning) {
 
 void display_update_measurements(display_context_t *ctx, const meter_measurements_t *meas) {
     if (ctx != NULL && meas != NULL) {
+        uint32_t saved_power_limit = ctx->meas_buffer.power_limit_w;
+        uint16_t saved_checksum    = ctx->meas_buffer.firmware_checksum;
+        uint8_t  saved_eob_day     = ctx->meas_buffer.eob_day;
+        uint8_t  saved_eob_hour    = ctx->meas_buffer.eob_hour;
+        char     saved_pln_unit[16];
+        memcpy(saved_pln_unit, ctx->meas_buffer.pln_unit_code, sizeof(saved_pln_unit));
+
         memcpy(&ctx->meas_buffer, meas, sizeof(meter_measurements_t));
+
+        if (ctx->meas_buffer.power_limit_w == 0U && saved_power_limit != 0U) {
+            ctx->meas_buffer.power_limit_w = saved_power_limit;
+        }
+        if (ctx->meas_buffer.firmware_checksum == 0U && saved_checksum != 0U) {
+            ctx->meas_buffer.firmware_checksum = saved_checksum;
+        }
+        if (ctx->meas_buffer.eob_day == 0U && saved_eob_day != 0U) {
+            ctx->meas_buffer.eob_day = saved_eob_day;
+            ctx->meas_buffer.eob_hour = saved_eob_hour;
+        }
+        if (ctx->meas_buffer.pln_unit_code[0] == '\0' && saved_pln_unit[0] != '\0') {
+            memcpy(ctx->meas_buffer.pln_unit_code, saved_pln_unit, sizeof(ctx->meas_buffer.pln_unit_code));
+        }
     }
 }
 

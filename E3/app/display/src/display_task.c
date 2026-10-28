@@ -6,7 +6,6 @@
 #include "display_task.h"
 #include "display.h"
 #include "rtos_tasks.h"
-#include "bsp_watchdog.h"
 #if defined(EMBEDDED_HARDWARE_TARGET) || defined(USE_FREERTOS)
 #include "FreeRTOS.h"
 #include "task.h"

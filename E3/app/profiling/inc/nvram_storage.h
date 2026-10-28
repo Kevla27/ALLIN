@@ -45,10 +45,11 @@ extern "C" {
 typedef struct {
     uint32_t magic;                    /**< 0x454E4759 ("ENGY") */
     uint32_t timestamp;                /**< Epoch timestamp saat pemadaman */
-    uint64_t active_energy_import_wh;  /**< Stand energi aktif impor total (Wh) */
-    uint64_t active_energy_export_wh;  /**< Stand energi aktif ekspor total (Wh) */
+    uint64_t active_energy_import_wh;  /**< Stand energi aktif impor/kirim total (Wh) */
+    uint64_t active_energy_export_wh;  /**< Stand energi aktif ekspor/terima PLTS total (Wh) */
     uint64_t reactive_energy_varh;     /**< Stand energi reaktif (varh) */
-    uint64_t tou_tariff_wh[8];         /**< Stand per zona tarif ToU (WBP, LWBP, dll) */
+    uint64_t tou_tariff_wh[8];         /**< Stand kirim per zona tarif ToU (WBP, LWBP1, LWBP2, dll) */
+    uint64_t tou_import_tariff_wh[8];  /**< Stand terima PLTS per zona tarif ToU (EA_IMP1..3 Tabel E.2 No 11-13) */
     uint32_t vcap_mv_at_fail;          /**< Tegangan superkapasitor VCAP saat AC Fail (mV) */
     uint32_t active_tamper_mask;       /**< Bitmask vektor sabotase yang sedang aktif */
 } nvram_energy_checkpoint_t;

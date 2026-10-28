@@ -19,12 +19,13 @@ void test_tamper_dlms_encoding(void) {
     uint8_t buffer[64];
     size_t len = tamper_log_encode_dlms_entry(&entry, buffer, sizeof(buffer));
 
-    assert(len > 0);
+    assert(len == 24);
     assert(buffer[0] == DLMS_AXDR_TAG_STRUCTURE);
-    assert(buffer[1] == 4); /* 3 elemen */
+    assert(buffer[1] == 3); /* 3 elemen */
+    assert(dlms_decode_verify_structure(buffer, len, 3) == true);
 
     printf("   Encoded Buffer Length: %zu bytes\n", len);
-    printf("   [PASS] Tamper A-XDR Encoding Valid 100%!\n\n");
+    printf("   [PASS] Tamper A-XDR Encoding Valid 100%%!\n\n");
 }
 
 int main(void) {
@@ -35,7 +36,7 @@ int main(void) {
     test_tamper_dlms_encoding();
 
     printf("=========================================\n");
-    printf(" ALL DLMS ADAPTER TESTS PASSED 100%!    \n");
+    printf(" ALL DLMS ADAPTER TESTS PASSED 100%%!    \n");
     printf("=========================================\n");
     return 0;
 }

@@ -51,3 +51,4 @@
   - `ROM`: `171,856 B / 1 MB (16.39%)`
 - **Host CTest Unit Tests:**
   - `11/11 Test Suites Passed 100%` (0 fail).
+

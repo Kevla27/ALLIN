@@ -38,15 +38,27 @@ static uint32_t s_internal_alarm_mask   = 0U; /* Bitmask spln_internal_alarm_t (
 static volatile bool     s_is_ac_failed         = false;
 static volatile uint32_t s_lcd_wakeup_timer_ms  = 0U;
 static volatile uint32_t s_button_beep_ms         = 0U;
-static uint64_t          s_last_active_energy_wh = 0ULL;
+static uint64_t          s_last_active_energy_wh  = 0ULL;
+static uint64_t          s_last_import_energy_wh  = 0ULL;
 
-/* Akumulator Energi Time-of-Use (ToU) 8 Zona Tarif (SP-13 & Desain Sistem Hal. 30) */
-static uint64_t s_tou_tariff_wh[E3_TOU_MAX_ZONES] = {0};
+/* Akumulator Energi Time-of-Use (ToU) 8 Zona Tarif Kirim & Terima/Impor (SP-13 & SPLN Tabel E.2) */
+static uint64_t s_tou_tariff_wh[E3_TOU_MAX_ZONES]        = {0};
+static uint64_t s_tou_import_tariff_wh[E3_TOU_MAX_ZONES] = {0};
 static uint8_t  s_active_tariff_zone = 1U; /* Default: Zona 1 (LWBP) */
 
 /* Counter Zero-Crossing (PE8) & Status Kontrol Bantu (PD10/PD14 -> PD8) */
 static volatile uint32_t s_zero_crossing_count  = 0U;
 static volatile uint8_t  s_aux_input_state_mask = 0U;
+
+static bool evaluate_is_relay_closed(void)
+{
+    bool is_hardware_alarm_trip = spln_alarm_should_trip_relay(s_internal_alarm_mask);
+    bool is_trip_commanded = (power_relay_get_state(&s_relay_ctx) == RELAY_STATE_DISCONNECTED ||
+                              tamper_should_trip_relay(&s_tamper_ctx) ||
+                              is_hardware_alarm_trip);
+    bool is_ready_on = power_relay_is_ready_on(&s_relay_ctx);
+    return (!is_trip_commanded && !is_ready_on);
+}
 
 static uint8_t evaluate_tou_tariff_zone(uint32_t epoch_sec)
 {
@@ -131,12 +143,14 @@ static relay_reason_t cli_get_relay_disconnect_reason(void) {
 
 static bool cli_relay_disconnect(relay_reason_t reason) {
     power_relay_disconnect(&s_relay_ctx, reason, s_now_epoch_sec);
+    spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_RELAY_CHANGE, false, s_now_epoch_sec, (uint32_t)reason);
     return true;
 }
 
 static bool cli_relay_request_reconnect(void) {
     power_relay_request_reconnect(&s_relay_ctx, s_now_epoch_sec);
     display_set_relay_ready_on(&s_disp_ctx, true);
+    spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_READY_RECONNECT, true, s_now_epoch_sec, 0);
     return true;
 }
 
@@ -144,6 +158,7 @@ static bool cli_relay_confirm_reconnect(void) {
     bool ok = power_relay_confirm_reconnect(&s_relay_ctx, s_now_epoch_sec);
     if (ok) {
         display_set_relay_ready_on(&s_disp_ctx, false);
+        spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_RELAY_CHANGE, true, s_now_epoch_sec, RELAY_REASON_NONE);
     }
     return ok;
 }
@@ -254,7 +269,11 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
 
     /* 2. Inisialisasi Modul-Modul Inti Pilar E3 */
     s_internal_alarm_mask = 0U;
-    display_init(&s_disp_ctx, customer_id ? customer_id : "54321678901", 3000);
+    s_last_active_energy_wh = 0ULL;
+    s_last_import_energy_wh = 0ULL;
+    memset(s_tou_tariff_wh, 0, sizeof(s_tou_tariff_wh));
+    memset(s_tou_import_tariff_wh, 0, sizeof(s_tou_import_tariff_wh));
+    display_init(&s_disp_ctx, customer_id ? customer_id : "54321678901", BOARD_CFG_DISPLAY_CAROUSEL_MS);
 #if defined(EMBEDDED_HARDWARE_TARGET)
     const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
     if (oled_drv != NULL && oled_drv->init != NULL)
@@ -274,12 +293,14 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
     if (nvram_load_energy_checkpoint(&energy_cp))
     {
         s_last_active_energy_wh = energy_cp.active_energy_import_wh;
-        s_disp_ctx.meas_buffer.active_energy_import_wh = energy_cp.active_energy_import_wh;
+        s_last_import_energy_wh = energy_cp.active_energy_export_wh;
         s_disp_ctx.meas_buffer.active_energy_wh = energy_cp.active_energy_import_wh;
+        s_disp_ctx.meas_buffer.active_energy_import_wh = energy_cp.active_energy_export_wh;
         s_disp_ctx.meas_buffer.reactive_energy_varh = energy_cp.reactive_energy_varh;
         for (int i = 0; i < E3_TOU_MAX_ZONES; i++)
         {
             s_tou_tariff_wh[i] = energy_cp.tou_tariff_wh[i];
+            s_tou_import_tariff_wh[i] = energy_cp.tou_import_tariff_wh[i];
         }
     }
 
@@ -388,6 +409,7 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
 #if defined(EMBEDDED_HARDWARE_TARGET)
             display_spln_frame_t spln_frame;
             display_render_spln_frame(&s_disp_ctx, &spln_frame);
+            spln_frame.is_relay_closed = evaluate_is_relay_closed();
             if (oled_drv != NULL && oled_drv->render_frame != NULL)
             {
                 oled_drv->render_frame(&spln_frame);
@@ -402,15 +424,24 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         }
     }
 
-    /* 1. Akumulasi detik epoch & distribusi energi Time-of-Use (ToU) 8-Zona */
+    /* 1. Akumulasi detik epoch & distribusi energi Time-of-Use (ToU) 8-Zona Kirim & Terima/Impor */
+    s_active_tariff_zone = evaluate_tou_tariff_zone(s_now_epoch_sec);
     if (meas->active_energy_wh > s_last_active_energy_wh)
     {
         uint64_t delta_wh = meas->active_energy_wh - s_last_active_energy_wh;
         s_last_active_energy_wh = meas->active_energy_wh;
-        s_active_tariff_zone = evaluate_tou_tariff_zone(s_now_epoch_sec);
         if (s_active_tariff_zone < E3_TOU_MAX_ZONES)
         {
             s_tou_tariff_wh[s_active_tariff_zone] += delta_wh;
+        }
+    }
+    if (meas->active_energy_import_wh > s_last_import_energy_wh)
+    {
+        uint64_t delta_imp_wh = meas->active_energy_import_wh - s_last_import_energy_wh;
+        s_last_import_energy_wh = meas->active_energy_import_wh;
+        if (s_active_tariff_zone < E3_TOU_MAX_ZONES)
+        {
+            s_tou_import_tariff_wh[s_active_tariff_zone] += delta_imp_wh;
         }
     }
 
@@ -472,7 +503,26 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
 
     if (tamp_case) tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_CASE_OPEN, true, s_now_epoch_sec);
     if (tamp_term) tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_TERMINAL_OPEN, true, s_now_epoch_sec);
-    if (tamp_mag)  tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_MAGNETIC_FIELD, true, s_now_epoch_sec);
+
+    /* Evaluasi Sensor Medan Magnet PE4 dengan filter persistensi & auto-clear 10 detik (SPLN Tabel 6 No 7) */
+    static bool     s_hw_mag_asserted = false;
+    static uint32_t s_mag_clear_ms    = 0U;
+    if (tamp_mag)
+    {
+        s_mag_clear_ms    = 0U;
+        s_hw_mag_asserted = true;
+        tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_MAGNETIC_FIELD, true, s_now_epoch_sec);
+    }
+    else if (s_hw_mag_asserted)
+    {
+        s_mag_clear_ms += delta_ms;
+        if (s_mag_clear_ms >= BOARD_CFG_TAMPER_MAG_CLEAR_MS)
+        {
+            s_hw_mag_asserted = false;
+            s_mag_clear_ms    = 0U;
+            tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_MAGNETIC_FIELD, false, s_now_epoch_sec);
+        }
+    }
 
     /* Deteksi Hilang Tegangan 1 atau 2 Fasa (ERR24 - SPLN Tabel 6 No 6) saat PLN aktif */
     if (!s_is_ac_failed)
@@ -545,11 +595,11 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         sample_battery_and_supercap(&s_vbat_millivolts, &s_vcap_millivolts);
 
         uint32_t telemetry_alarms = 0U;
-        if (s_vbat_millivolts < 2700U && s_vbat_millivolts > 500U)
+        if (s_vbat_millivolts < BOARD_CFG_ADC4_BATT_LOW_MV && s_vbat_millivolts > 500U)
         {
-            telemetry_alarms |= SPLN_ALARM_LOW_BATTERY; /* ERR03: Low Battery */
+            telemetry_alarms |= SPLN_ALARM_LOW_BATTERY; /* ERR03: Low Battery (< 2,7V sesuai PIN.docx) */
         }
-        if (s_vcap_millivolts < 2000U && s_vcap_millivolts > 100U)
+        if (s_vcap_millivolts < BOARD_CFG_ADC4_SUPERCAP_LOW_MV && s_vcap_millivolts > 100U)
         {
             telemetry_alarms |= SPLN_ALARM_SUPERCAP_FAIL; /* ERR06: Supercap anomaly */
         }
@@ -567,7 +617,21 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
 
     /* 5. Jalankan State Machine Pembatas Beban & Relai (PC8) serta Tracker Maximum Demand (MD) */
     bool relay_closed_fb = (HAL_GPIO_ReadPin(RELAY_STATUS_GPIO_Port, RELAY_STATUS_Pin) == (BOARD_CFG_RELAY_FB_CLOSED_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET));
+    relay_state_t prev_v_state = power_relay_get_state(&s_relay_ctx);
     power_relay_process_voltage(&s_relay_ctx, meas->voltage_r_dvolts, meas->voltage_s_dvolts, meas->voltage_t_dvolts, s_now_epoch_sec);
+    relay_state_t post_v_state = power_relay_get_state(&s_relay_ctx);
+    if (post_v_state != prev_v_state)
+    {
+        if (post_v_state == RELAY_STATE_DISCONNECTED)
+        {
+            spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_RELAY_CHANGE, false, s_now_epoch_sec, (uint32_t)s_relay_ctx.last_reason);
+        }
+        else if (post_v_state == RELAY_STATE_CONNECTED)
+        {
+            spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_RELAY_CHANGE, true, s_now_epoch_sec, RELAY_REASON_NONE);
+        }
+    }
+
     if (is_one_sec_tick)
     {
         bool p_tripped = power_relay_process_power(&s_relay_ctx, (int32_t)meas->active_power_w, s_now_epoch_sec);
@@ -576,6 +640,7 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
             spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_POWER_LIMIT_EXC, true, s_now_epoch_sec, (uint32_t)meas->active_power_w);
             spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_RELAY_CHANGE, false, s_now_epoch_sec, RELAY_REASON_POWER_LIMITER);
         }
+        max_demand_feed_apparent_va(&s_md_tracker, meas->apparent_power_va);
         max_demand_process_second(&s_md_tracker, (int32_t)meas->active_power_w, s_now_epoch_sec);
     }
 
@@ -652,16 +717,27 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
      * - Kondisi normal: Buzzer MATI */
     bsp_alarm_buzzer_update_cadence(is_trip_commanded, beep_override, delta_ms);
 
-    /* 6. Perbarui Tampilan Carousel UI (SPLN Gambar 4) */
+    /* 6. Perbarui Tampilan Carousel UI (SPLN Gambar 4 & Tabel E.1 / E.2) */
     meter_measurements_t disp_meas = *meas;
-    disp_meas.active_energy_wbp_wh = s_tou_tariff_wh[0];
-    disp_meas.active_energy_lwbp_wh = s_tou_tariff_wh[1];
-    disp_meas.active_energy_lwbp2_wh = s_tou_tariff_wh[2];
-    disp_meas.active_energy_import_wh = meas->active_energy_import_wh;
-    disp_meas.max_demand_w = s_md_tracker.max_demand_w;
-    disp_meas.max_demand_timestamp = s_md_tracker.max_demand_timestamp;
-    disp_meas.cumulative_max_demand_w = s_md_tracker.cumulative_max_demand_w;
-    disp_meas.max_demand_reset_count = s_md_tracker.reset_count;
+    disp_meas.active_energy_wbp_wh       = s_tou_tariff_wh[0];
+    disp_meas.active_energy_lwbp_wh      = s_tou_tariff_wh[1];
+    disp_meas.active_energy_lwbp2_wh     = s_tou_tariff_wh[2];
+    disp_meas.active_energy_import_wh    = meas->active_energy_import_wh;
+    disp_meas.active_energy_imp_wbp_wh   = s_tou_import_tariff_wh[0];
+    disp_meas.active_energy_imp_lwbp1_wh = s_tou_import_tariff_wh[1];
+    disp_meas.active_energy_imp_lwbp2_wh = s_tou_import_tariff_wh[2];
+    disp_meas.max_demand_w               = s_md_tracker.max_demand_w;
+    disp_meas.max_demand_timestamp       = s_md_tracker.max_demand_timestamp;
+    disp_meas.max_demand_s_va            = s_md_tracker.max_demand_s_va;
+    disp_meas.max_demand_s_timestamp     = s_md_tracker.max_demand_s_timestamp;
+    disp_meas.cumulative_max_demand_w    = s_md_tracker.cumulative_max_demand_w;
+    disp_meas.max_demand_reset_count     = s_md_tracker.reset_count;
+    disp_meas.power_limit_w              = s_relay_ctx.power_limit_w;
+    disp_meas.eob_day                    = 1U;
+    disp_meas.eob_hour                   = 10U;
+    disp_meas.firmware_checksum          = 0xA5B6U;
+    strncpy(disp_meas.pln_unit_code, "PLN UID JAYA", sizeof(disp_meas.pln_unit_code) - 1);
+    disp_meas.pln_unit_code[sizeof(disp_meas.pln_unit_code) - 1] = '\0';
 
     /* Ambil stand penagihan bulan lalu jika tersedia */
     billing_snapshot_entry_t last_bill;
@@ -723,13 +799,14 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         periodic_cp.magic = NVRAM_ENERGY_CHECKPOINT_MAGIC;
         periodic_cp.timestamp = s_now_epoch_sec;
         periodic_cp.active_energy_import_wh = s_last_active_energy_wh;
-        periodic_cp.active_energy_export_wh = s_disp_ctx.meas_buffer.active_energy_import_wh;
+        periodic_cp.active_energy_export_wh = s_last_import_energy_wh;
         periodic_cp.reactive_energy_varh = s_disp_ctx.meas_buffer.reactive_energy_varh;
         periodic_cp.vcap_mv_at_fail = s_vcap_millivolts;
         periodic_cp.active_tamper_mask = tamper_get_active_mask(&s_tamper_ctx);
         for (int i = 0; i < E3_TOU_MAX_ZONES; i++)
         {
             periodic_cp.tou_tariff_wh[i] = s_tou_tariff_wh[i];
+            periodic_cp.tou_import_tariff_wh[i] = s_tou_import_tariff_wh[i];
         }
         (void)nvram_save_energy_checkpoint(&periodic_cp);
 
@@ -763,7 +840,10 @@ void e3_meter_app_on_button(button_dir_t dir)
     {
         if (dir == BUTTON_DIR_BOTH)
         {
-            power_relay_confirm_reconnect(&s_relay_ctx, s_now_epoch_sec);
+            if (power_relay_confirm_reconnect(&s_relay_ctx, s_now_epoch_sec))
+            {
+                spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_RELAY_CHANGE, true, s_now_epoch_sec, RELAY_REASON_NONE);
+            }
             display_set_relay_ready_on(&s_disp_ctx, false);
             HAL_GPIO_WritePin(RELAY_TRIP_GPIO_Port, RELAY_TRIP_Pin, GPIO_PIN_RESET);
             HAL_GPIO_WritePin(LED_ALM_GPIO_Port, LED_ALM_Pin, GPIO_PIN_RESET);
@@ -778,6 +858,7 @@ void e3_meter_app_on_button(button_dir_t dir)
     {
         display_spln_frame_t spln_frame;
         display_render_spln_frame(&s_disp_ctx, &spln_frame);
+        spln_frame.is_relay_closed = evaluate_is_relay_closed();
         const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
         if (oled_drv != NULL && oled_drv->render_frame != NULL)
         {
@@ -809,13 +890,14 @@ void e3_meter_app_on_ac_fail(bool is_power_cut)
         energy_cp.magic = NVRAM_ENERGY_CHECKPOINT_MAGIC;
         energy_cp.timestamp = s_now_epoch_sec;
         energy_cp.active_energy_import_wh = s_last_active_energy_wh;
-        energy_cp.active_energy_export_wh = s_disp_ctx.meas_buffer.active_energy_import_wh;
+        energy_cp.active_energy_export_wh = s_last_import_energy_wh;
         energy_cp.reactive_energy_varh = s_disp_ctx.meas_buffer.reactive_energy_varh;
         energy_cp.vcap_mv_at_fail = s_vcap_millivolts;
         energy_cp.active_tamper_mask = tamper_get_active_mask(&s_tamper_ctx);
         for (int i = 0; i < E3_TOU_MAX_ZONES; i++)
         {
             energy_cp.tou_tariff_wh[i] = s_tou_tariff_wh[i];
+            energy_cp.tou_import_tariff_wh[i] = s_tou_import_tariff_wh[i];
         }
         (void)nvram_save_energy_checkpoint(&energy_cp);
         (void)nvram_save_tamper_log_snapshot(&s_tamper_ctx);
@@ -884,6 +966,9 @@ void e3_meter_app_on_aux_input(uint8_t channel, bool is_active)
         else           s_aux_input_state_mask &= (uint8_t)~0x02U;
     }
 
+    /* Catat perubahan state input bantu ke Event Log FIFO (SPLN Tabel 18 No. 14: Perubahan state I/O kontrol) */
+    spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_IO_CHANGE, is_active, s_now_epoch_sec, (uint32_t)channel);
+
     /* Sinkronkan output kontrol bantu AUX_CTRL_OUT1 (PD8) dengan status interlok input bantu */
     HAL_GPIO_WritePin(AUX_CTRL_OUT1_GPIO_Port, AUX_CTRL_OUT1_Pin,
                       (s_aux_input_state_mask != 0U) ? GPIO_PIN_SET : GPIO_PIN_RESET);
@@ -896,10 +981,13 @@ uint32_t e3_meter_app_get_epoch(void)
 
 void e3_meter_app_set_epoch(uint32_t epoch_sec)
 {
+    uint32_t prev_epoch = s_now_epoch_sec;
     s_now_epoch_sec = epoch_sec;
 #if defined(EMBEDDED_HARDWARE_TARGET)
     SECURE_SetRTCDateTime(epoch_sec);
 #endif
+    /* Catat perubahan waktu jam/tanggal ke Event Log FIFO (SPLN Tabel 18 No. 17: Perubahan tanggal dan waktu) */
+    spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_TIME_CHANGE, true, epoch_sec, prev_epoch);
     s_active_tariff_zone = evaluate_tou_tariff_zone(s_now_epoch_sec);
     display_set_time(&s_disp_ctx, s_now_epoch_sec);
     s_last_disp_print_ms = 0U; /* Segera perbarui layar OLED */

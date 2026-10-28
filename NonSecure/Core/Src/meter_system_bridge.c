@@ -140,6 +140,22 @@ void app_metering_step(void)
             s_meas.active_energy_wh += (mj / 3600000ULL);
             s_synth_wh_rem_mj = (uint32_t)(mj % 3600000ULL);
         }
+        else if (s_meas.active_power_w < 0)
+        {
+            static uint32_t s_synth_imp_wh_rem_mj = 0;
+            uint64_t mj_imp = (uint64_t)(-s_meas.active_power_w) * delta_ms + s_synth_imp_wh_rem_mj;
+            s_meas.active_energy_import_wh += (mj_imp / 3600000ULL);
+            s_synth_imp_wh_rem_mj = (uint32_t)(mj_imp % 3600000ULL);
+        }
+
+        if (s_meas.reactive_power_var != 0)
+        {
+            static uint32_t s_synth_varh_rem_mj = 0;
+            uint32_t abs_q = (uint32_t)((s_meas.reactive_power_var > 0) ? s_meas.reactive_power_var : -s_meas.reactive_power_var);
+            uint64_t mvar_s = (uint64_t)abs_q * delta_ms + s_synth_varh_rem_mj;
+            s_meas.reactive_energy_varh += (mvar_s / 3600000ULL);
+            s_synth_varh_rem_mj = (uint32_t)(mvar_s % 3600000ULL);
+        }
     }
 #endif
 

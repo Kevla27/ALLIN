@@ -170,17 +170,25 @@ CMSE_NS_ENTRY uint32_t SECURE_GetTamperStatusMask(void)
   uint32_t mask = 0U;
   uint32_t sr   = TAMP->SR;
 
-  if ((sr & TAMP_SR_TAMP1F) != 0U)
+  /* Periksa latch hardware TAMP->SR maupun status pin fisik Secure GPIO (PC13, PE6, PE4) */
+  if (((sr & TAMP_SR_TAMP1F) != 0U) ||
+      (HAL_GPIO_ReadPin(TAMP_CASE_OPEN_GPIO_Port, TAMP_CASE_OPEN_Pin) == GPIO_PIN_SET))
   {
     mask |= (1U << 0); /* TAMPER_VECTOR_CASE_OPEN */
   }
-  if ((sr & TAMP_SR_TAMP3F) != 0U)
+  if (((sr & TAMP_SR_TAMP3F) != 0U) ||
+      (HAL_GPIO_ReadPin(TAMP_TERM_COVER_GPIO_Port, TAMP_TERM_COVER_Pin) == GPIO_PIN_SET))
   {
     mask |= (1U << 1); /* TAMPER_VECTOR_TERMINAL_OPEN */
   }
-  if ((sr & TAMP_SR_TAMP7F) != 0U)
+  if (HAL_GPIO_ReadPin(SENSOR_MAGNET_GPIO_Port, SENSOR_MAGNET_Pin) == GPIO_PIN_SET)
   {
     mask |= (1U << 2); /* TAMPER_VECTOR_MAGNETIC_FIELD */
+  }
+  else if ((sr & TAMP_SR_TAMP7F) != 0U)
+  {
+    /* Bersihkan flag latch TAMP7F saat medan magnet telah dijauhkan agar pemulihan 10s ERR25 bekerja */
+    TAMP->SCR = TAMP_SCR_CTAMP7F;
   }
   return mask;
 }

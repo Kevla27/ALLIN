@@ -41,23 +41,27 @@ E3/
 │       ├── inc/tamper_manager.h
 │       └── src/tamper_manager.c
 ├── drivers/
-│   ├── oled/                 # Driver perangkat keras OLED SSD1306 via I2C1
+│   ├── oled/                 # Driver perangkat keras OLED SSD1306 via I2C3
 │   │   ├── inc/ssd1306.h, ssd1306_fonts.h, bsp_display_oled.h
 │   │   └── src/ssd1306.c, ssd1306_fonts.c, bsp_display_oled.c
-│   └── buzzer/               # Driver aktuator Buzzer & LED Alarm PB7
-│       ├── inc/bsp_alarm_buzzer.h
-│       └── src/bsp_alarm_buzzer.c
-├── tests/                    # Pengujian unit & integrasi mandiri domain E3
+│   ├── buzzer/               # Driver aktuator Buzzer & LED Alarm PB7
+│   │   ├── inc/bsp_alarm_buzzer.h
+│   │   └── src/bsp_alarm_buzzer.c
+│   └── power/                # Driver manajemen hemat daya ekstrem STM32U5 Stop 2 Mode
+│       ├── inc/bsp_power_mode.h
+│       └── src/bsp_power_mode.c
+├── tests/                    # Pengujian unit & integrasi mandiri domain E3 (12 Test Suites)
 │   ├── test_e3_app.c
 │   ├── test_power_relay.c
 │   ├── test_spln_display_tamper.c
 │   ├── test_fsm_statechart.c
 │   ├── test_load_profile.c
-│   ├── test_load_profile_dlms_adapter.c
+│   ├── test_final_system_stress.c
+│   ├── test_console_cli.c
+│   ├── test_board_profile.c
+│   ├── test_power_mode.c
 │   ├── test_nvram_storage.c
 │   ├── test_rtos_tasks.c
-│   ├── test_stress_soak.c
-│   ├── test_e1_to_e2_integration.c
 │   └── e3_mock_stubs.c
 ├── docs/                     # Dokumentasi arsitektur dan integrasi sistem E3
 │   ├── PANDUAN_DAN_RANGKUMAN_SISTEM_E3.md

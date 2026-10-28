@@ -33,6 +33,13 @@ void test_display_carousel(void) {
 
     assert(strstr(l3, "220.5 V") != NULL);
 
+    /* Pastikan display_update_measurements tidak menimpa konfigurasi statis Tabel E.2 dengan 0 */
+    assert(disp.meas_buffer.power_limit_w == 11000U);
+    assert(disp.meas_buffer.firmware_checksum == 0xA5B6U);
+    assert(disp.meas_buffer.eob_day == 1U);
+    assert(disp.meas_buffer.eob_hour == 10U);
+    assert(strcmp(disp.meas_buffer.pln_unit_code, "PLN UID JAYA") == 0);
+
     printf("   [PASS] Display Carousel & Rendering OK!\n\n");
 }
 

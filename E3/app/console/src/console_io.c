@@ -346,15 +346,18 @@ static int cmd_energy(int argc, char *argv[]) {
     }
 
     printf("\n--- STAND AKUMULASI ENERGI TRANSAKSI ---\n");
-    printf("  Energi Aktif Total  (01.08) : %llu Wh (%.3f kWh)\n",
+    printf("  Energi Aktif Kirim  (01.08)   : %llu Wh (%.3f kWh)\n",
            (unsigned long long)m->active_energy_wh, (double)m->active_energy_wh / 1000.0);
-    printf("  Energi Terima PLTS  (02.08) : %llu Wh (%.3f kWh)\n",
+    printf("  Energi Terima PLTS  (02.08)   : %llu Wh (%.3f kWh)\n",
            (unsigned long long)m->active_energy_import_wh, (double)m->active_energy_import_wh / 1000.0);
-    printf("  Energi Reaktif      (03.08) : %llu varh (%.3f kvarh)\n",
+    printf("  Energi Reaktif      (03.08)   : %llu varh (%.3f kvarh)\n",
            (unsigned long long)m->reactive_energy_varh, (double)m->reactive_energy_varh / 1000.0);
-    printf("  ToU Tarif 1 WBP     (01.08.1): %llu Wh\n", (unsigned long long)m->active_energy_wbp_wh);
-    printf("  ToU Tarif 2 LWBP1   (01.08.2): %llu Wh\n", (unsigned long long)m->active_energy_lwbp_wh);
-    printf("  ToU Tarif 3 LWBP2   (01.08.3): %llu Wh\n\n", (unsigned long long)m->active_energy_lwbp2_wh);
+    printf("  ToU Kirim  Tarif 1 WBP   (01.08.1): %llu Wh\n", (unsigned long long)m->active_energy_wbp_wh);
+    printf("  ToU Kirim  Tarif 2 LWBP1 (01.08.2): %llu Wh\n", (unsigned long long)m->active_energy_lwbp_wh);
+    printf("  ToU Kirim  Tarif 3 LWBP2 (01.08.3): %llu Wh\n", (unsigned long long)m->active_energy_lwbp2_wh);
+    printf("  ToU Terima Tarif 1 WBP   (02.08.1): %llu Wh\n", (unsigned long long)m->active_energy_imp_wbp_wh);
+    printf("  ToU Terima Tarif 2 LWBP1 (02.08.2): %llu Wh\n", (unsigned long long)m->active_energy_imp_lwbp1_wh);
+    printf("  ToU Terima Tarif 3 LWBP2 (02.08.3): %llu Wh\n\n", (unsigned long long)m->active_energy_imp_lwbp2_wh);
     return 0;
 }
 
@@ -564,12 +567,15 @@ static int cmd_demand(int argc, char *argv[]) {
     }
 
     if (argc < 2 || str_equals_ignore_case(argv[1], "status")) {
-        printf("\n--- MAXIMUM DEMAND 15-MENIT TRACKER (SPLN TABEL E.1) ---\n");
-        printf("  Current Demand (15-min) : %lu W\n", (unsigned long)tracker->current_demand_w);
-        printf("  Peak Max Demand (MD)    : %lu W\n", (unsigned long)tracker->max_demand_w);
-        printf("  Waktu Kejadian (Epoch)  : %lu\n", (unsigned long)tracker->max_demand_timestamp);
-        printf("  Cumulative MD (CMD)     : %lu W\n", (unsigned long)tracker->cumulative_max_demand_w);
-        printf("  Jumlah Reset Counter    : %lu kali\n\n", (unsigned long)tracker->reset_count);
+        printf("\n--- MAXIMUM DEMAND 15-MENIT TRACKER (SPLN TABEL E.1 & E.2) ---\n");
+        printf("  Current Demand P (15-min) : %lu W\n", (unsigned long)tracker->current_demand_w);
+        printf("  Peak Max Demand P (01.06) : %lu W (Epoch: %lu)\n",
+               (unsigned long)tracker->max_demand_w, (unsigned long)tracker->max_demand_timestamp);
+        printf("  Current Demand S (15-min) : %lu VA\n", (unsigned long)tracker->current_demand_s_va);
+        printf("  Peak Max Demand S (09.06) : %lu VA (Epoch: %lu)\n",
+               (unsigned long)tracker->max_demand_s_va, (unsigned long)tracker->max_demand_s_timestamp);
+        printf("  Cumulative MD (CMD)       : %lu W\n", (unsigned long)tracker->cumulative_max_demand_w);
+        printf("  Jumlah Reset Counter      : %lu kali\n\n", (unsigned long)tracker->reset_count);
         return 0;
     }
 

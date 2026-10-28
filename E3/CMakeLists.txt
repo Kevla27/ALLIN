@@ -14,9 +14,11 @@ endif()
 # =========================================================
 add_library(e3_core STATIC
     app/display/src/display.c
+    app/display/src/display_task.c
     app/tamper/src/tamper_manager.c
     app/fsm/src/fsm_statechart.c
     app/fsm/src/power_relay_manager.c
+    app/fsm/src/rtos_tasks.c
     app/profiling/src/load_profile.c
     app/profiling/src/load_profile_dlms_adapter.c
     app/profiling/src/nvram_storage.c
@@ -107,3 +109,8 @@ add_test(NAME Unit_E3_Power_Mode_Stop2 COMMAND test_power_mode)
 add_executable(test_nvram_storage tests/test_nvram_storage.c)
 target_link_libraries(test_nvram_storage PRIVATE e3_core)
 add_test(NAME Unit_E3_NVRAM_Storage COMMAND test_nvram_storage)
+
+# 12. Unit Test: RTOS Tasks IPC Queue & DLMS Consumer Bridge
+add_executable(test_rtos_tasks tests/test_rtos_tasks.c)
+target_link_libraries(test_rtos_tasks PRIVATE e3_core)
+add_test(NAME Unit_E3_RTOS_Tasks COMMAND test_rtos_tasks)

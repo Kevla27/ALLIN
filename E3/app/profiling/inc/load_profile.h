@@ -81,7 +81,7 @@ typedef struct {
     uint32_t total_snapshots;
 } billing_snapshot_ctx_t;
 
-/* --- Maximum Demand (MD) Tracker 15-Menit Sesuai SPLN D3.006:2021 Tabel E.1 No 4-7 --- */
+/* --- Maximum Demand (MD) Tracker 15-Menit Sesuai SPLN D3.006:2021 Tabel E.1 No 4-7 & Tabel E.2 No 35-36 --- */
 typedef struct {
     uint32_t interval_sec;               /**< Periode integrasi MD (default 900 detik / 15 menit) */
     uint32_t timer_sec;                  /**< Timer detik integrasi berjalan */
@@ -91,6 +91,10 @@ typedef struct {
     uint32_t max_demand_timestamp;       /**< Waktu RTC saat MD tercatat */
     uint32_t cumulative_max_demand_w;    /**< Akumulasi MD kumulatif (CMD) */
     uint32_t reset_count;                /**< Jumlah counter reset MD */
+    uint64_t apparent_accum_va_sec;      /**< Akumulasi VA-detik dalam interval (Daya Semu) */
+    uint32_t current_demand_s_va;        /**< Daya semu demand rata-rata interval terakhir (VA) */
+    uint32_t max_demand_s_va;            /**< Maximum demand daya semu tertinggi (S_MAX VA - Tabel E.2 No 35) */
+    uint32_t max_demand_s_timestamp;     /**< Waktu RTC saat S_MAX tercatat (TS_MAX - Tabel E.2 No 36) */
 } max_demand_tracker_t;
 
 /* --- API Functions --- */
@@ -111,6 +115,7 @@ bool billing_snapshot_verify_integrity(const billing_snapshot_entry_t *entry);
 
 /* --- Maximum Demand APIs --- */
 void max_demand_init(max_demand_tracker_t *tracker, uint32_t interval_sec);
+void max_demand_feed_apparent_va(max_demand_tracker_t *tracker, uint32_t apparent_power_va);
 void max_demand_process_second(max_demand_tracker_t *tracker, int32_t active_power_w, uint32_t epoch_sec);
 void max_demand_reset(max_demand_tracker_t *tracker);
 

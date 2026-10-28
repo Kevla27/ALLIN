@@ -90,8 +90,8 @@ extern "C" {
 #define BOARD_CFG_NOMINAL_VOLTAGE_DV    2200U      /**< Tegangan nominal 220.0 V (skala 0.1V) */
 #define BOARD_CFG_NOMINAL_FREQ_MHZ      50000U     /**< Frekuensi nominal 50.00 Hz (skala 0.001Hz) */
 #define BOARD_CFG_ANTI_CREEP_WATTS      3U         /**< Ambang batas tanpa beban / anti-creep (3 Watt) */
-#define BOARD_CFG_ADC4_BATT_LOW_MV      3000U      /**< Ambang batas alarm baterai lemah ERR03 (<3.0V) */
-#define BOARD_CFG_ADC4_SUPERCAP_LOW_MV  2500U      /**< Ambang batas alarm superkapasitor lemah ERR06 (<2.5V) */
+#define BOARD_CFG_ADC4_BATT_LOW_MV      2700U      /**< Ambang batas alarm baterai lemah ERR03 (<=2.7V per PIN.docx & SPLN Tabel 4) */
+#define BOARD_CFG_ADC4_SUPERCAP_LOW_MV  2000U      /**< Ambang batas alarm superkapasitor lemah ERR06 (<2.0V) */
 
 /* --- H. Power Saving & Ultra-Low-Power Stop 2 Mode --- */
 #define BOARD_CFG_ENABLE_STOP2_MODE        1          /**< 1 = Masuk Stop 2 Mode saat listrik padam & layar padam (~4.5 uA) */
@@ -157,8 +157,8 @@ extern "C" {
 #define BOARD_CFG_NOMINAL_VOLTAGE_DV    2200U
 #define BOARD_CFG_NOMINAL_FREQ_MHZ      50000U
 #define BOARD_CFG_ANTI_CREEP_WATTS      3U
-#define BOARD_CFG_ADC4_BATT_LOW_MV      3000U
-#define BOARD_CFG_ADC4_SUPERCAP_LOW_MV  2500U
+#define BOARD_CFG_ADC4_BATT_LOW_MV      2700U
+#define BOARD_CFG_ADC4_SUPERCAP_LOW_MV  2000U
 
 /* --- H. Power Saving & Ultra-Low-Power Stop 2 Mode --- */
 #define BOARD_CFG_ENABLE_STOP2_MODE        1
@@ -217,8 +217,8 @@ extern "C" {
 #define BOARD_CFG_NOMINAL_VOLTAGE_DV    2200U
 #define BOARD_CFG_NOMINAL_FREQ_MHZ      50000U
 #define BOARD_CFG_ANTI_CREEP_WATTS      3U
-#define BOARD_CFG_ADC4_BATT_LOW_MV      3000U
-#define BOARD_CFG_ADC4_SUPERCAP_LOW_MV  2500U
+#define BOARD_CFG_ADC4_BATT_LOW_MV      2700U
+#define BOARD_CFG_ADC4_SUPERCAP_LOW_MV  2000U
 
 /* --- H. Power Saving & Ultra-Low-Power Stop 2 Mode --- */
 #define BOARD_CFG_ENABLE_STOP2_MODE        0
