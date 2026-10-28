@@ -266,34 +266,34 @@ void test_spln_butir12_3_three_fifo_registers(void) {
     assert(event_entries[11].parameter_val == 7500); // 7500 W
     printf("   Event Log FIFO: 100%% Seluruh 12 Kejadian SPLN D3.006 Tabel 5 Terverifikasi [PASS]\n");
 
-    /* 3. Pengujian Register 3: Tamper Log FIFO (9 jenis, min. 30 entri) */
+    /* 3. Pengujian Register 3: Tamper Log FIFO (9 jenis Sesuai SPLN D3.006: 2021 Tabel 18 No. 20 s.d 28) */
     assert(ctx.tamper_log_fifo.count == 0);
-    tamper_process_signal(&ctx, TAMPER_VECTOR_CASE_OPEN, true, 3001);
-    tamper_process_signal(&ctx, TAMPER_VECTOR_MAGNETIC_FIELD, true, 3002);
-    tamper_process_signal(&ctx, TAMPER_VECTOR_REVERSE_POWER, true, 3003);
-    assert(ctx.tamper_log_fifo.count == 3);
+    spln_log_record_tamper(&ctx, SPLN_LOG_TAMPER_CASE_OPEN,       true, 3001, 0);    /* No 20 */
+    spln_log_record_tamper(&ctx, SPLN_LOG_TAMPER_TERMINAL_OPEN,   true, 3002, 0);    /* No 21 */
+    spln_log_record_tamper(&ctx, SPLN_LOG_TAMPER_WRONG_SEQUENCE,  true, 3003, 0);    /* No 22 */
+    spln_log_record_tamper(&ctx, SPLN_LOG_TAMPER_CROSS_PHASE,     true, 3004, 0);    /* No 23 */
+    spln_log_record_tamper(&ctx, SPLN_LOG_TAMPER_MISSING_NEUTRAL, true, 3005, 0);    /* No 24 */
+    spln_log_record_tamper(&ctx, SPLN_LOG_TAMPER_PHASE_LOSS,      true, 3006, 0);    /* No 25 */
+    spln_log_record_tamper(&ctx, SPLN_LOG_TAMPER_MAGNETIC_FIELD,  true, 3007, 0);    /* No 26 */
+    spln_log_record_tamper(&ctx, SPLN_LOG_TAMPER_REVERSE_POWER,   true, 3008, 0);    /* No 27 */
+    spln_log_record_tamper(&ctx, SPLN_LOG_TAMPER_LOW_PF_QUAD4,    true, 3009, 820);  /* No 28: PF 0.82 < 0.85 */
 
-    spln_standard_log_entry_t tamper_entries[10];
+    assert(ctx.tamper_log_fifo.count == 9);
+    assert(ctx.tamper_log_fifo.total_events == 9);
+
+    spln_standard_log_entry_t tamper_entries[12];
     size_t tamper_count = 0;
-    spln_log_get_entries(&ctx.tamper_log_fifo, tamper_entries, 10, &tamper_count);
-    assert(tamper_count == 3);
+    spln_log_get_entries(&ctx.tamper_log_fifo, tamper_entries, 12, &tamper_count);
+    assert(tamper_count == 9);
     assert(tamper_entries[0].event_code == SPLN_LOG_TAMPER_CASE_OPEN);
-    assert(tamper_entries[1].event_code == SPLN_LOG_TAMPER_MAGNETIC_FIELD);
-    assert(tamper_entries[2].event_code == SPLN_LOG_TAMPER_REVERSE_POWER);
-    printf("   Tamper Log FIFO (Case open, Magnetic field, Reverse power) [PASS]\n");
+    assert(tamper_entries[8].parameter_val == 820);
+    printf("   Tamper Log FIFO: 100%% Seluruh 9 Sabotase SPLN D3.006 Tabel 18 Terverifikasi [PASS]\n");
 
     /* 4. Pengujian Error Register (Bit-String Rangkuman Real-Time SPLN Butir 12.3) */
     uint32_t err_reg = spln_log_get_error_register(&ctx);
-    // Verifikasi bit alarm aktif (bit 0..7)
-    assert((err_reg & 0xFF) != 0);
-    // Verifikasi bit event aktif (bit 8..19): POWER_FAILURE (bit 8), POWER_UP (bit 9), ASYMMETRIC (bit 17), POWER_LIMIT (bit 19)
-    assert((err_reg & (1U << 8)) != 0);
-    assert((err_reg & (1U << 9)) != 0);
-    // Verifikasi bit tamper aktif (bit 20..28): CASE_OPEN (bit 20), MAGNETIC (bit 26), REVERSE (bit 27)
-    assert((err_reg & (1U << 20)) != 0);
-    assert((err_reg & (1U << 26)) != 0);
-    assert((err_reg & (1U << 27)) != 0);
-    printf("   Error Register Bit-String: 0x%08X (Alarm, Event, Tamper summary verified) [PASS]\n", err_reg);
+    // Verifikasi seluruh 29 bit aktif simultan (Bit 0..7 Alarm, Bit 8..19 Event, Bit 20..28 Tamper)
+    assert(err_reg == 0x1FFFFFFFU);
+    printf("   Error Register Bit-String: 0x%08X (29/29 Bit Tabel 18 Verified) [PASS]\n", err_reg);
 
     /* 5. Pengujian Pemulihan Alarm Baterai Tanpa Reset (SPLN D3.006: 2021 Butir 6.11 Hal 39) */
     uint32_t batt_bit = (1U << ((uint32_t)SPLN_LOG_ALARM_LOW_BATTERY - 1U));
