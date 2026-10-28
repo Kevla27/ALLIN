@@ -50,9 +50,10 @@ int main(void) {
     assert(strcmp(frame.main_value, "230.0") == 0);
     assert(strcmp(frame.unit, "V") == 0);
     assert(strcmp(frame.obis_code, "32.07") == 0);
+    assert(strcmp(frame.reg_info, "UR") == 0);
     assert(frame.is_large_font == true);
-    printf("  > Page 02 (Volt R): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
-           frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
+    printf("  > Page 02 (Volt R - UR): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
 
     /* Cek Halaman Arus R (3 Desimal sesuai SPLN Tabel E.1) */
     ctx.current_page = DISP_PAGE_CURRENT_R;
@@ -62,8 +63,9 @@ int main(void) {
     assert(strcmp(frame.main_value, "11.946") == 0);
     assert(strcmp(frame.unit, "A") == 0);
     assert(strcmp(frame.obis_code, "31.07") == 0);
-    printf("  > Page 05 (Arus R - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
-           frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
+    assert(strcmp(frame.reg_info, "IR") == 0);
+    printf("  > Page 05 (Arus R - IR - 3 Desimal): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
 
     /* Cek Halaman Energi Aktif Tarif 1 WBP (DISP_PAGE_ENERGY_WBP) - SPLN Tabel E.1 No 2 */
     ctx.current_page = DISP_PAGE_ENERGY_WBP;
@@ -598,13 +600,13 @@ int main(void) {
     display_render_spln_frame(&ctx, &frame);
     assert((frame.voltage_phases & 0x01) == 0);
     assert((frame.voltage_phases & 0x02) != 0);
-    assert(strstr(frame.header_symbols, "L-23") != NULL);
+    assert(strstr(frame.header_symbols, "U-ST") != NULL);
 
-    /* Uji fasa R mati total (0 Volt) harus mematikan indikator fasa 1 */
+    /* Uji fasa R mati total (0 Volt) harus mematikan indikator fasa R (URST -> U-ST) */
     ctx.meas_buffer.voltage_r_dvolts = 0;
     display_render_spln_frame(&ctx, &frame);
     assert((frame.voltage_phases & 0x01) == 0);
-    assert(strstr(frame.header_symbols, "L-23") != NULL);
+    assert(strstr(frame.header_symbols, "U-ST") != NULL);
     printf("  > Indikator Fasa Tegangan Dinamis (Fasa R Drop & 0V Disconnect): Header '%s' [PASS]\n\n", frame.header_symbols);
 
     /* --------------------------------------------------------------------- */

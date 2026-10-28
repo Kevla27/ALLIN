@@ -89,3 +89,4 @@ Pemeriksaan mendalam baris demi baris pada seluruh pilar firmware (E1 Metrologi,
 - **ARM GCC Bare-metal Toolchain (`build/Debug`)**:
   - `ALLIN_S.elf`: ROM 24.072 B (2,31%), RAM 12.056 B (4,60%). 0 Errors, 0 Warnings.
   - `ALLIN_NS.elf`: ROM 173.704 B (16,57%), RAM 68.992 B (13,16%). 0 Errors, 0 Warnings.
+

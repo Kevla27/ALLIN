@@ -36,7 +36,7 @@ Semua modul yang dikelola langsung oleh E3 terletak di dalam folder [`firmware/a
 
 | Modul E3 | Berkas Utama | Tanggung Jawab Teknis |
 | :--- | :--- | :--- |
-| **Display (HMI)** | [`display.h`](file:///g:/PPPP/Day_Sekian/Uji_Coba_Integrasi/firmware/app/display/inc/display.h)<br>[`display.c`](file:///g:/PPPP/Day_Sekian/Uji_Coba_Integrasi/firmware/app/display/src/display.c) | Mengatur 14 halaman carousel tampilan meter. Memformat layout SPLN Gambar 4 (`display_spln_frame_t`), simbol status (`OK` / `!`), status baterai `[B]`, arah arus `<-`, fasa `L123 I123`, dan kode OBIS penagihan. |
+| **Display (HMI)** | [`display.h`](file:///g:/PPPP/Day_Sekian/Uji_Coba_Integrasi/firmware/app/display/inc/display.h)<br>[`display.c`](file:///g:/PPPP/Day_Sekian/Uji_Coba_Integrasi/firmware/app/display/src/display.c) | Mengatur halaman carousel tampilan meter (Tabel E.1 & E.2). Memformat layout SPLN Gambar 4/Gambar 6 (`display_spln_frame_t`), simbol status (`OK` / `!`), status baterai `[B]`, arah arus `<-`, fasa tegangan `URST`, arus `IRST`, register Lampiran E (`UR`, `US`, `UT`, dsb bergantian dengan kode OBIS), dan kode OBIS penagihan. |
 | **Driver Layar OLED** | [`ssd1306.c`](file:///g:/PPPP/Day_Sekian/Uji_Coba_Integrasi/Core/Src/ssd1306.c)<br>[`ssd1306_fonts.c`](file:///g:/PPPP/Day_Sekian/Uji_Coba_Integrasi/Core/Src/ssd1306_fonts.c) | Driver perangkat keras OLED SSD1306 via I2C1 (PB8/PB9). Berisi font 6x8 (teks kecil) dan font 11x18 (angka besar 7-segment). **Sudah dilengkapi proteksi batas waktu (timeout 25ms) anti-freeze.** |
 | **Tamper Manager** | [`tamper_manager.h`](file:///g:/PPPP/Day_Sekian/Uji_Coba_Integrasi/firmware/app/tamper/inc/tamper_manager.h)<br>[`tamper_manager.c`](file:///g:/PPPP/Day_Sekian/Uji_Coba_Integrasi/firmware/app/tamper/src/tamper_manager.c) | Menangani 5 vektor sabotase: Buka Tutup Meter (`CASE_OPEN`), Buka Terminal (`TERMINAL_OPEN`), Medan Magnet (`MAGNETIC_FIELD`), Arus Balik (`REVERSE_POWER`), dan Hilang Netral (`NEUTRAL_BYPASS`). |
 | **RTOS Tasks & IPC** | [`rtos_tasks.h`](file:///g:/PPPP/Day_Sekian/Uji_Coba_Integrasi/firmware/app/fsm/inc/rtos_tasks.h)<br>[`rtos_tasks.c`](file:///g:/PPPP/Day_Sekian/Uji_Coba_Integrasi/firmware/app/fsm/src/rtos_tasks.c) | Jantung konkurensi sistem: inisialisasi `xMeasMutex` (Mutex proteksi memori pengukuran) dan `xTamperQueue` (Queue pesan darurat). Mengatur fungsi publish/snapshot data. |
@@ -152,38 +152,42 @@ Saat tombol fisik PC13 ditekan atau saklar microswitch casing terbuka:
 
 ---
 
-### B. Spesifikasi Layar Standar PLN (SPLN D3.006-1 Gambar 4)
+### B. Spesifikasi Layar Standar PLN (SPLN D3.006:2021 Butir 6.11 Gambar 4 & Gambar 6)
 
 Layar OLED SSD1306 128x32 dibagi menjadi 2 area vertikal:
 
 ```
     0                    Lebar Layar = 128 Pixel                   127
   0 ┌────────────────────────────────────────────────────────────────┐
-    │ OK[B] L123 I123 32.07                                          │ <- Baris 1: Simbol & Kode OBIS (Font 6x8)
+    │ OK[B] URST IRST  UR / 32.07                                    │ <- Baris 1: Simbol & Reg/OBIS (Font 6x8)
  10 ├ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  ┤ <- Garis pemisah titik-titik (Y=10)
     │                                                                │
     │ 02               2 3 0 . 0                                   V │ <- Baris 2: zz (Font 6x8), Nilai (Font 11x18),
  31 └────────────────────────────────────────────────────────────────┘             Satuan (Font 6x8)
 ```
+*Catatan Sesuai SPLN D3.006:2021 Butir 6.11 & Lampiran E:*
+* Tegangan fasa dilambangkan dengan **`UR, US, UT`** (format status bar `URST` / `U-ST`), bukan notasi Eropa `L1, L2, L3`.
+* Arus fasa dilambangkan dengan **`IR, IS, IT`** (format status bar `IRST` / `I-ST`), bukan `I1, I2, I3`.
+* Area kanan atas (Baris 1) menampilkan **Informasi Register sebanyak 7 karakter** (Lampiran E: `UR`, `US`, `UT`, `IR`, `P_EXP`, `EA_EXP1`, `S_MAX`, dll.) bergantian setiap 2,5 detik dengan kode OBIS numerik (`32.07`, `01.08.1`, dll.).
 
-#### Tabel 14 Halaman Carousel Otomatis (Berganti Tiap 2 Detik):
+#### Tabel Halaman Carousel Tampilan (Tabel E.1 Auto-Scroll & E.2 Manual-Scroll):
 
-| zz | Halaman Parameter | Baris 1 (Simbol & Kode) | Baris 2 (zz, Nilai Besar, Satuan) |
-|---|---|---|---|
-| **01** | ID Pelanggan | `OK[B] L123 I123 96.01` | `01  530000000001` |
-| **02** | Tegangan Fasa R / L1 | `OK[B] L123 I123 32.07` | `02    230.0   V` |
-| **03** | Tegangan Fasa S / L2 | `OK[B] L123 I123 52.07` | `03    230.0   V` |
-| **04** | Tegangan Fasa T / L3 | `OK[B] L123 I123 72.07` | `04    230.0   V` |
-| **05** | Arus Fasa R / L1 | `OK[B] L123 I123 31.07` | `05    11.95   A` |
-| **06** | Arus Fasa S / L2 | `OK[B] L123 I123 51.07` | `06    11.95   A` |
-| **07** | Arus Fasa T / L3 | `OK[B] L123 I123 71.07` | `07    11.95   A` |
-| **08** | Arus Netral N | `OK[B] L123 I123 91.07` | `08     2.39   A` |
-| **09** | Daya Aktif Total | `OK[B] L123 I123 01.07` | `09    6.898  kW` |
-| **10** | Daya Reaktif Total | `OK[B] L123 I123 03.07` | `10    0.000  kvar` |
-| **11** | Daya Semu Total | `OK[B] L123 I123 09.07` | `11    6.898  kVA` |
-| **12** | Faktor Daya Total | `OK[B] L123 I123 13.07` | `12    1.000  PF` |
-| **13** | Frekuensi Jaringan | `OK[B] L123 I123 14.07` | `13    50.00  Hz` |
-| **14** | Total Energi Aktif | `OK[B] L123 I123 01.08` | `14   125.43  kWh` |
+| zz | Halaman Parameter | Register (Tabel E) | Baris 1 (Status Bar & Reg/OBIS) | Baris 2 (zz, Nilai Besar, Satuan) |
+|---|---|---|---|---|
+| **01** | ID Pelanggan | `IDPEL` | `OK[B] URST IRST  IDPEL / 96.01` | `01  530000000001` |
+| **02** | Tegangan Fasa R | `UR` | `OK[B] URST IRST     UR / 32.07` | `02    230.0   V` |
+| **03** | Tegangan Fasa S | `US` | `OK[B] URST IRST     US / 52.07` | `03    230.0   V` |
+| **04** | Tegangan Fasa T | `UT` | `OK[B] URST IRST     UT / 72.07` | `04    230.0   V` |
+| **05** | Arus Fasa R | `IR` | `OK[B] URST IRST     IR / 31.07` | `05    11.95   A` |
+| **06** | Arus Fasa S | `IS` | `OK[B] URST IRST     IS / 51.07` | `06    11.95   A` |
+| **07** | Arus Fasa T | `IT` | `OK[B] URST IRST     IT / 71.07` | `07    11.95   A` |
+| **08** | Arus Netral N | `IN` | `OK[B] URST IRST     IN / 91.07` | `08     2.39   A` |
+| **09** | Daya Aktif Kirim (+A) | `P_EXP` | `OK[B] URST IRST  P_EXP / 01.07` | `09    6.898  kW` |
+| **10** | Daya Reaktif Kirim (+R)| `Q_EXP` | `OK[B] URST IRST  Q_EXP / 03.07` | `10    0.000  kvar` |
+| **11** | Daya Semu Total | `S_MAX` | `OK[B] URST IRST  S_MAX / 09.07` | `11    6.898  kVA` |
+| **12** | Faktor Daya Total | `PF` | `OK[B] URST IRST     PF / 13.07` | `12    1.000  PF` |
+| **13** | Frekuensi Jaringan | `FREQ` | `OK[B] URST IRST   FREQ / 14.07` | `13    50.00  Hz` |
+| **14** | Total Energi Aktif Kirim | `EA_EXP` | `OK[B] URST IRST EA_EXP / 01.08` | `14   125.43  kWh` |
 
 ---
 

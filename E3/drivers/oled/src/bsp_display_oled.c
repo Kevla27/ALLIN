@@ -132,42 +132,46 @@ static void bsp_oled_render_frame(const display_spln_frame_t *spln_frame) {
      * 2. Ikon Alarm / Tamper (X=13..21)
      * 3. Ikon Baterai Grafis (X=24..35)
      * 4. Badge Tarif ToU (X=38..56)
-     * 5. Fasa Tegangan L123 (X=59..78)
-     * 6. Fasa Arus I123 / REV (X=80..99)
-     * 7. Kode OBIS (X=101..127)
+     * 5. Fasa Tegangan URST (SPLN Gambar 6) (X=57..80)
+     * 6. Fasa Arus IRST / REV (SPLN Gambar 6) (X=82..105)
+     * 7. Kode Register SPLN (UR/US/UT) / OBIS (X=107..127)
      */
     oled_draw_relay_icon(1, 1, spln_frame->is_relay_closed, spln_frame->is_relay_ready_on, spln_frame->is_battery_blink_on);
     oled_draw_tamper_alarm_icon(13, 0, spln_frame->is_alarm_active || spln_frame->is_tamper_active);
     oled_draw_battery_gauge(24, 1, spln_frame->is_battery_low, spln_frame->is_battery_blink_on);
     oled_draw_tariff_badge(38, 0, spln_frame->active_tariff_zone);
 
-    /* Indikator Fasa Tegangan L123 di X = 59 */
-    char v_str[5] = "L---";
-    v_str[1] = (spln_frame->voltage_phases & 0x01) ? '1' : '-';
-    v_str[2] = (spln_frame->voltage_phases & 0x02) ? '2' : '-';
-    v_str[3] = (spln_frame->voltage_phases & 0x04) ? '3' : '-';
-    ssd1306_SetCursor(59, 0);
+    /* Indikator Fasa Tegangan URST (SPLN D3.006:2021 Butir 6.11 Gambar 6) di X = 57 */
+    char v_str[5] = "U---";
+    v_str[1] = (spln_frame->voltage_phases & 0x01) ? 'R' : '-';
+    v_str[2] = (spln_frame->voltage_phases & 0x02) ? 'S' : '-';
+    v_str[3] = (spln_frame->voltage_phases & 0x04) ? 'T' : '-';
+    ssd1306_SetCursor(57, 0);
     ssd1306_WriteString(v_str, Font_6x8, White);
 
-    /* Indikator Fasa Arus / Arah Arus di X = 80 */
+    /* Indikator Fasa Arus IRST / Arah Arus REV (SPLN Gambar 6) di X = 82 */
     if (spln_frame->is_reverse_power) {
-        ssd1306_SetCursor(80, 0);
+        ssd1306_SetCursor(82, 0);
         ssd1306_WriteString("REV", Font_6x8, White);
     } else {
         char i_str[5] = "I---";
-        i_str[1] = (spln_frame->current_phases & 0x01) ? '1' : '-';
-        i_str[2] = (spln_frame->current_phases & 0x02) ? '2' : '-';
-        i_str[3] = (spln_frame->current_phases & 0x04) ? '3' : '-';
-        ssd1306_SetCursor(80, 0);
+        i_str[1] = (spln_frame->current_phases & 0x01) ? 'R' : '-';
+        i_str[2] = (spln_frame->current_phases & 0x02) ? 'S' : '-';
+        i_str[3] = (spln_frame->current_phases & 0x04) ? 'T' : '-';
+        ssd1306_SetCursor(82, 0);
         ssd1306_WriteString(i_str, Font_6x8, White);
     }
 
-    /* Kode Register OBIS rata kanan di X = 101..127 */
-    int obis_len = (int)strlen(spln_frame->obis_code);
-    int x_obis = 127 - (obis_len * 6);
-    if (x_obis < 101) x_obis = 101;
-    ssd1306_SetCursor((uint8_t)x_obis, 0);
-    ssd1306_WriteString((char *)spln_frame->obis_code, Font_6x8, White);
+    /* Kode Register SPLN Lampiran E (UR, US, UT, dll) bergantian dengan OBIS (32.07, dll) di X = 107..127 */
+    const char *code_str = spln_frame->obis_code;
+    if (spln_frame->reg_info[0] != '\0') {
+        code_str = spln_frame->show_reg_alt ? spln_frame->reg_info : spln_frame->obis_code;
+    }
+    int code_len = (int)strlen(code_str);
+    int x_code = 127 - (code_len * 6);
+    if (x_code < 107) x_code = 107;
+    ssd1306_SetCursor((uint8_t)x_code, 0);
+    ssd1306_WriteString((char *)code_str, Font_6x8, White);
 
     /* Garis Pemisah Horizontal (Y = 9) */
     if (spln_frame->is_alarm_active || spln_frame->is_tamper_active) {

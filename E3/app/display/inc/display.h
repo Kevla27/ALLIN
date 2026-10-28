@@ -206,6 +206,7 @@ typedef struct {
     char main_value[32];          /* Baris 2: Nilai utama numerik / teks status */
     char unit[16];                /* Baris 3: Satuan metrologi (V, A, kW, kvarh, kWh) / kode ERR */
     char obis_code[16];           /* OBIS identifier sesuai SPLN */
+    char reg_info[12];            /* Informasi Register SPLN Lampiran E (UR, US, UT, IR, dll) */
     char alarm_code[8];           /* Indikator "!ALM" atau "OK" */
     bool is_large_font;           /* true: Font 11x18 (nilai numerik), false: Font 7x10 */
     bool is_alarm_active;         /* Status icon alarm aktif */
@@ -219,6 +220,7 @@ typedef struct {
     bool is_relay_ready_on;       /* Status relai READY ON (siap sambung kembali dengan tombol ▲+▼) */
     bool is_tamper_active;        /* Status sabotase terdeteksi (case open, terminal open, magnet, dll) */
     uint8_t active_tariff_zone;   /* Zona tarif aktif (0: WBP, 1: LWBP1, 2: LWBP2) */
+    bool show_reg_alt;            /* True: fase tampilan reg_info (UR, US, UT), False: fase obis_code (32.07) */
 } display_spln_frame_t;
 
 /**
