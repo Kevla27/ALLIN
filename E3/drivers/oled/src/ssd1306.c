@@ -15,12 +15,12 @@ void ssd1306_Reset(void) {
 
 // Send a byte to the command register
 void ssd1306_WriteCommand(uint8_t byte) {
-    HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, s_ssd1306_addr, 0x00, 1, &byte, 1, HAL_MAX_DELAY);
+    HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, s_ssd1306_addr, 0x00, 1, &byte, 1, 50U);
 }
 
 // Send data
 void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
-    HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, s_ssd1306_addr, 0x40, 1, buffer, buff_size, HAL_MAX_DELAY);
+    HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, s_ssd1306_addr, 0x40, 1, buffer, buff_size, 100U);
 }
 
 #elif defined(SSD1306_USE_SPI)
@@ -124,7 +124,8 @@ void ssd1306_Init(void) {
     } else {
         printf("[WARN] SSD1306 OLED TIDAK MERESPONS di bus I2C3 (PC0=SCL, PC1=SDA)!\r\n");
         printf("       Pastikan kabel: VCC->3.3V, GND->GND, SCL->PC0, SDA->PC1.\r\n");
-        s_ssd1306_addr = (0x3C << 1); /* Tetap coba kirim ke 0x3C */
+        SSD1306.Initialized = 0;
+        return; /* Aman: jangan memblokir CPU bila layar fisik belum terpasang */
     }
 #endif
 
