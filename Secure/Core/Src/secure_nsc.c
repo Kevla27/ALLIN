@@ -45,6 +45,46 @@ static volatile uint32_t s_sec_reactive_varh  = 0U;
 static volatile uint32_t s_sec_epoch_override = 1791794500UL;
 static volatile uint16_t s_sec_century_base   = 2000U;
 
+#define SECURE_RTC_BKP_CENTURY_REG   RTC_BKP_DR2
+#define SECURE_RTC_CENTURY_MAGIC     0xCE000000U /* "CE" = Century Signature */
+#define SECURE_RTC_CENTURY_MASK      0xFFFF0000U
+
+/**
+  * @brief  Membaca dan memvalidasi basis abad (2000 / 2100) dari Backup Register RTC_BKP_DR2 (Domain VBAT)
+  */
+static uint16_t secure_rtc_get_century_base(void)
+{
+  uint32_t val = HAL_RTCEx_BKUPRead(&hrtc, SECURE_RTC_BKP_CENTURY_REG);
+  if ((val & SECURE_RTC_CENTURY_MASK) == SECURE_RTC_CENTURY_MAGIC)
+  {
+    uint16_t century = (uint16_t)(val & 0xFFFFU);
+    if (century == 2000U || century == 2100U)
+    {
+      s_sec_century_base = century;
+      return s_sec_century_base;
+    }
+  }
+  else if (val == 2000U || val == 2100U)
+  {
+    s_sec_century_base = (uint16_t)val;
+    return s_sec_century_base;
+  }
+
+  /* Default jika domain VBAT belum pernah diinisialisasi */
+  s_sec_century_base = 2000U;
+  HAL_RTCEx_BKUPWrite(&hrtc, SECURE_RTC_BKP_CENTURY_REG, SECURE_RTC_CENTURY_MAGIC | (uint32_t)s_sec_century_base);
+  return s_sec_century_base;
+}
+
+/**
+  * @brief  Menyimpan basis abad ke Backup Register RTC_BKP_DR2 (Domain VBAT) dengan stempel magic
+  */
+static void secure_rtc_save_century_base(uint16_t century)
+{
+  s_sec_century_base = century;
+  HAL_RTCEx_BKUPWrite(&hrtc, SECURE_RTC_BKP_CENTURY_REG, SECURE_RTC_CENTURY_MAGIC | (uint32_t)s_sec_century_base);
+}
+
 /**
   * @brief  Secure registration of non-secure callback.
   * @param  CallbackId  callback identifier
@@ -183,15 +223,24 @@ CMSE_NS_ENTRY uint32_t SECURE_GetRTCDateTime(void)
   RTC_TimeTypeDef sTime = {0};
   RTC_DateTypeDef sDate = {0};
 
+  /* Pastikan basis abad selalu ter-sinkronisasi dengan Backup Register RTC_BKP_DR2 (Domain VBAT) */
+  uint16_t century_base = secure_rtc_get_century_base();
+
   /* Catatan: Pada STM32 HAL RTC, GetTime harus selalu dipanggil sebelum GetDate
    * agar shadow registers RTC ter-unlock dengan benar */
   if (HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) == HAL_OK &&
       HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN) == HAL_OK)
   {
-    if (sDate.Month >= 1U && sDate.Month <= 12U && sDate.Date >= 1U && sDate.Date <= 31U &&
-        (s_sec_century_base > 2000U || sDate.Year >= 20U))
+    if (sDate.Month >= 1U && sDate.Month <= 12U && sDate.Date >= 1U && sDate.Date <= 31U)
     {
-      uint32_t days = rtc_days_from_civil((int)s_sec_century_base + (int)sDate.Year, (unsigned)sDate.Month, (unsigned)sDate.Date);
+      /* Deteksi transisi abad otonom: Jika meter beroperasi melewati 2099 menuju 2100 (Year = 00..19) */
+      if (century_base == 2000U && sDate.Year < 20U)
+      {
+        century_base = 2100U;
+        secure_rtc_save_century_base(century_base);
+      }
+
+      uint32_t days = rtc_days_from_civil((int)century_base + (int)sDate.Year, (unsigned)sDate.Month, (unsigned)sDate.Date);
       uint32_t day_sec = ((uint32_t)sTime.Hours * 3600UL) +
                          ((uint32_t)sTime.Minutes * 60UL) +
                          (uint32_t)sTime.Seconds;
@@ -214,7 +263,8 @@ CMSE_NS_ENTRY void SECURE_SetRTCDateTime(uint32_t epoch_sec)
   uint8_t m = 10, d = 28;
   rtc_civil_from_days(epoch_sec / 86400UL, &y, &m, &d);
 
-  s_sec_century_base = (y >= 2100U) ? 2100U : 2000U;
+  uint16_t new_century = (y >= 2100U) ? 2100U : 2000U;
+  secure_rtc_save_century_base(new_century);
 
   RTC_DateTypeDef sDate = {0};
   sDate.Year = (uint8_t)(y >= s_sec_century_base ? (y - s_sec_century_base) : 0U);

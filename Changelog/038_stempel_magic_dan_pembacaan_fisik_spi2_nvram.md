@@ -56,3 +56,4 @@ Pada pengujian dan audit pemulihan data setelah siklus daya padam (*power-cycle*
 - **Target ARM Cortex-M33 (ARM GCC 14.3.1):**
   - `ALLIN_S.elf`: `23,656 B ROM / 12,048 B RAM` (Selesai tanpa peringatan).
   - `ALLIN_NS.elf`: `171,856 B ROM (16.39%) / 65,160 B RAM (12.43%)` (Kompilasi & Link sukses).
+
