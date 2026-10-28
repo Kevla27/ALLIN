@@ -63,7 +63,9 @@ static void test_default_board_profile_oled(void) {
     assert(BOARD_CFG_STOP2_WAKEUP_CLOCK_MSI == 1);
     assert(BOARD_CFG_RTC_WAKEUP_PERIOD_SEC == 60U);
     assert(BOARD_CFG_ADC4_BATT_LOW_MV == 2700U);     /* 2.7V sesuai PIN.docx & SPLN ERR03 */
+    assert(BOARD_CFG_ADC4_BATT_REC_MV == 2750U);     /* 2.75V pemulihan baterai normal tanpa reset */
     assert(BOARD_CFG_ADC4_SUPERCAP_LOW_MV == 2000U); /* 2.0V sesuai ERR06 */
+    assert(BOARD_CFG_ADC4_SUPERCAP_REC_MV == 2100U); /* 2.10V pemulihan superkapasitor normal */
     assert(BOARD_CFG_DISPLAY_CAROUSEL_MS == 5000U);  /* 5.0 detik sesuai SPLN */
 
     printf("[PASS] Seluruh parameter Profil Papan Default terverifikasi 100%%!\n");

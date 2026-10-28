@@ -283,7 +283,15 @@ void test_spln_butir12_3_three_fifo_registers(void) {
     assert((err_reg & (1U << 20)) != 0);
     assert((err_reg & (1U << 26)) != 0);
     assert((err_reg & (1U << 27)) != 0);
-    printf("   Error Register Bit-String: 0x%08X (Alarm, Event, Tamper summary verified) [PASS]\n\n", err_reg);
+    printf("   Error Register Bit-String: 0x%08X (Alarm, Event, Tamper summary verified) [PASS]\n", err_reg);
+
+    /* 5. Pengujian Pemulihan Alarm Baterai Tanpa Reset (SPLN D3.006: 2021 Butir 6.11 Hal 39) */
+    uint32_t batt_bit = (1U << ((uint32_t)SPLN_LOG_ALARM_LOW_BATTERY - 1U));
+    assert((ctx.error_register_bitstring & batt_bit) != 0);
+    // Baterai pulih: catat deassertion (is_asserted = false)
+    spln_log_record_alarm(&ctx, SPLN_LOG_ALARM_LOW_BATTERY, false, 4001, 3600);
+    assert((ctx.error_register_bitstring & batt_bit) == 0); // Bit alarm baterai terhapus otomatis!
+    printf("   Battery Recovery Deassertion: Bitstring cleared without reset [PASS]\n\n");
 }
 
 int main(void) {

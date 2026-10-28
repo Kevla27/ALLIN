@@ -928,6 +928,31 @@ int main(void) {
     assert(frame.is_relay_closed == true);
     printf("  > Relai Normal: is_relay_closed = true (Simbol Sakelar Menghubungkan Terminal) [PASS]\n\n");
 
+    /* --------------------------------------------------------------------- */
+    /* UJI 15: VERIFIKASI PENORMALAN INDIKASI BATERAI TANPA RESET (SPLN HAL 39) */
+    /* --------------------------------------------------------------------- */
+    printf("[UJI 15] Verifikasi Penormalan Indikasi Baterai Tanpa Reset (SPLN Hal 39)...\n");
+    /* 1. Kondisi Baterai Drop <= 2.7V (ERR03 Aktif, Simbol Baterai Berkedip) */
+    ctx.current_page = DISP_PAGE_TAMPER_ALARM;
+    display_set_internal_alarm(&ctx, SPLN_ALARM_LOW_BATTERY);
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.is_battery_low == true);
+    assert(strcmp(frame.unit, "ERR03") == 0);
+    printf("  > 1. Baterai Drop (<=2.7V): is_battery_low=true (Berkedip), Kode=ERR03 [PASS]\n");
+
+    /* 2. Simulasi Penggantian Baterai Normal Tanpa Me-reset Display Context / CPU */
+    /* Sesuai SPLN D3.006:2021 Butir 6.11 Hal 39 Catatan:
+     * "CATATAN: *) Indikasi baterai kembali normal dapat dilakukan secara otomatis tanpa me-reset." */
+    uint32_t active_alarms = display_get_internal_alarm(&ctx);
+    active_alarms &= ~SPLN_ALARM_LOW_BATTERY;
+    display_set_internal_alarm(&ctx, active_alarms);
+
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.is_battery_low == false);
+    assert(strcmp(frame.unit, "ERR03") != 0);
+    assert(ctx.alarm_icon_active == false);
+    printf("  > 2. Penormalan Otomatis Tanpa Reset: is_battery_low=false (Solid), ERR03 Hilang [PASS]\n\n");
+
     printf("====================================================================\n");
     printf("  HASIL: 100%% SELURUH KODE ERROR SPLN D3.006 TABEL 4 & 6 LULUS!      \n");
     printf("====================================================================\n");

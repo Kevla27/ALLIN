@@ -119,11 +119,14 @@ static uint32_t cli_get_internal_alarm(void) {
 
 static void cli_set_internal_alarm(uint32_t mask) {
     if (mask == 0) {
-        s_internal_alarm_mask = 0;
-        display_set_internal_alarm(&s_disp_ctx, 0);
+        e3_meter_app_clear_internal_alarm(0xFFFFFFFFU);
     } else {
         e3_meter_app_set_internal_alarm(mask);
     }
+}
+
+static void cli_set_battery_voltage(uint32_t vbat_mv) {
+    e3_meter_app_set_simulated_battery_voltage(vbat_mv, s_vcap_millivolts);
 }
 
 static const tamper_context_t* cli_get_tamper_context(void) {
@@ -317,6 +320,9 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
         .get_measurements = cli_get_measurements,
         .get_internal_alarm = cli_get_internal_alarm,
         .set_internal_alarm = cli_set_internal_alarm,
+        .clear_internal_alarm = e3_meter_app_clear_internal_alarm,
+        .get_battery_voltage = e3_meter_app_get_battery_voltage_mv,
+        .set_battery_voltage = cli_set_battery_voltage,
         .get_tamper_context = cli_get_tamper_context,
         .inject_tamper = cli_inject_tamper,
         .get_relay_state = cli_get_relay_state,
@@ -615,16 +621,35 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         uint32_t telemetry_alarms = 0U;
         if (s_vbat_millivolts < BOARD_CFG_ADC4_BATT_LOW_MV && s_vbat_millivolts > 500U)
         {
-            telemetry_alarms |= SPLN_ALARM_LOW_BATTERY; /* ERR03: Low Battery (< 2,7V sesuai PIN.docx) */
+            telemetry_alarms |= SPLN_ALARM_LOW_BATTERY; /* ERR03: Low Battery (< 2,7V sesuai PIN.docx & SPLN Tabel 4) */
         }
+        else if (s_vbat_millivolts >= BOARD_CFG_ADC4_BATT_REC_MV && (s_internal_alarm_mask & SPLN_ALARM_LOW_BATTERY))
+        {
+            /* SPLN D3.006:2021 Butir 6.11 Catatan Halaman 39:
+             * "CATATAN: *) Indikasi baterai kembali normal dapat dilakukan secara otomatis tanpa me-reset."
+             * Saat baterai baru dipasang atau tegangan kembali normal (>= 2.75V dengan histeresis 50mV),
+             * meter secara otomatis menormalisasi indikasi baterai, memadamkan kedipan pada layar OLED,
+             * menghapus ERR03, dan mencatat pemulihan ke log FIFO tanpa me-reset mikrokontroler! */
+            e3_meter_app_clear_internal_alarm(SPLN_ALARM_LOW_BATTERY);
+        }
+
         if (s_vcap_millivolts < BOARD_CFG_ADC4_SUPERCAP_LOW_MV && s_vcap_millivolts > 100U)
         {
             telemetry_alarms |= SPLN_ALARM_SUPERCAP_FAIL; /* ERR06: Supercap anomaly */
         }
+        else if (s_vcap_millivolts >= BOARD_CFG_ADC4_SUPERCAP_REC_MV && (s_internal_alarm_mask & SPLN_ALARM_SUPERCAP_FAIL))
+        {
+            e3_meter_app_clear_internal_alarm(SPLN_ALARM_SUPERCAP_FAIL);
+        }
+
 #if defined(EMBEDDED_HARDWARE_TARGET)
         if (SECURE_IsLseClockHealthy() == 0U)
         {
             telemetry_alarms |= SPLN_ALARM_RTC_ERROR; /* ERR02: LSE 32.768 kHz failure */
+        }
+        else if (s_internal_alarm_mask & SPLN_ALARM_RTC_ERROR)
+        {
+            e3_meter_app_clear_internal_alarm(SPLN_ALARM_RTC_ERROR);
         }
 #endif
         if (telemetry_alarms != 0U)
@@ -1087,6 +1112,28 @@ static void log_internal_alarm_events(uint32_t newly_asserted_alarms, uint32_t e
         spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_RELAY_FAIL, true, epoch_sec, 0);
 }
 
+static void log_internal_alarm_recovery(uint32_t newly_cleared_alarms, uint32_t epoch_sec)
+{
+    if (newly_cleared_alarms == 0U) return;
+
+    if (newly_cleared_alarms & SPLN_ALARM_FLASH_ERROR)
+        spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_FLASH_ERROR, false, epoch_sec, 0);
+    if (newly_cleared_alarms & SPLN_ALARM_RAM_ERROR)
+        spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_RAM_ERROR, false, epoch_sec, 0);
+    if (newly_cleared_alarms & SPLN_ALARM_RTC_ERROR)
+        spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_CLOCK_LOSS, false, epoch_sec, 0);
+    if (newly_cleared_alarms & SPLN_ALARM_LOW_BATTERY)
+        spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_LOW_BATTERY, false, epoch_sec, s_vbat_millivolts);
+    if (newly_cleared_alarms & SPLN_ALARM_MCU_ERROR)
+        spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_MCU_ERROR, false, epoch_sec, 0);
+    if (newly_cleared_alarms & SPLN_ALARM_ADC_ERROR)
+        spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_ADC_ERROR, false, epoch_sec, 0);
+    if (newly_cleared_alarms & SPLN_ALARM_SUPERCAP_FAIL)
+        spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_SUPERCAP_FAIL, false, epoch_sec, s_vcap_millivolts);
+    if (newly_cleared_alarms & SPLN_ALARM_RELAY_FAIL)
+        spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_RELAY_FAIL, false, epoch_sec, 0);
+}
+
 void e3_meter_app_set_internal_alarm(uint32_t alarm_flags)
 {
     uint32_t new_alarms = alarm_flags & (~s_internal_alarm_mask);
@@ -1095,9 +1142,30 @@ void e3_meter_app_set_internal_alarm(uint32_t alarm_flags)
     display_set_internal_alarm(&s_disp_ctx, s_internal_alarm_mask);
 }
 
+void e3_meter_app_clear_internal_alarm(uint32_t alarm_flags)
+{
+    uint32_t alarms_to_clear = alarm_flags & s_internal_alarm_mask;
+    if (alarms_to_clear == 0U) return;
+
+    s_internal_alarm_mask &= ~alarm_flags;
+    log_internal_alarm_recovery(alarms_to_clear, s_now_epoch_sec);
+    display_set_internal_alarm(&s_disp_ctx, s_internal_alarm_mask);
+}
+
 uint32_t e3_meter_app_get_internal_alarm(void)
 {
     return s_internal_alarm_mask;
+}
+
+void e3_meter_app_set_simulated_battery_voltage(uint32_t vbat_mv, uint32_t vcap_mv)
+{
+    s_vbat_millivolts = vbat_mv;
+    s_vcap_millivolts = vcap_mv;
+}
+
+uint32_t e3_meter_app_get_battery_voltage_mv(void)
+{
+    return s_vbat_millivolts;
 }
 
 const tamper_context_t* e3_meter_app_get_tamper_context(void)

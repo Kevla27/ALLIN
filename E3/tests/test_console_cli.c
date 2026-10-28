@@ -12,6 +12,7 @@
 /* Variabel state tiruan untuk mock hooks */
 static meter_measurements_t s_mock_meas;
 static uint32_t             s_mock_alarm_mask = 0;
+static uint32_t             s_mock_vbat_mv = 3600;
 static tamper_context_t     s_mock_tamper_ctx;
 static relay_state_t        s_mock_relay_state = RELAY_STATE_CONNECTED;
 static relay_reason_t       s_mock_relay_reason = RELAY_REASON_NONE;
@@ -34,6 +35,18 @@ static uint32_t mock_get_alarm(void) {
 
 static void mock_set_alarm(uint32_t mask) {
     s_mock_alarm_mask = mask;
+}
+
+static void mock_clear_alarm(uint32_t mask) {
+    s_mock_alarm_mask &= ~mask;
+}
+
+static uint32_t mock_get_battery_voltage(void) {
+    return s_mock_vbat_mv;
+}
+
+static void mock_set_battery_voltage(uint32_t vbat_mv) {
+    s_mock_vbat_mv = vbat_mv;
 }
 
 static const tamper_context_t* mock_get_tamper(void) {
@@ -199,6 +212,9 @@ void test_cli_core_commands(void) {
         .get_measurements = mock_get_meas,
         .get_internal_alarm = mock_get_alarm,
         .set_internal_alarm = mock_set_alarm,
+        .clear_internal_alarm = mock_clear_alarm,
+        .get_battery_voltage = mock_get_battery_voltage,
+        .set_battery_voltage = mock_set_battery_voltage,
         .get_tamper_context = mock_get_tamper,
         .inject_tamper = mock_inject_tamper,
         .get_relay_state = mock_get_relay_state,
@@ -274,7 +290,12 @@ void test_cli_core_commands(void) {
     assert(console_cli_execute_command(cmd_buf) == 0);
     assert(s_mock_alarm_mask == 0);
 
-    strcpy(cmd_buf, "alarm set 0x05"); /* ERR00 Flash + ERR02 RTC */
+    strcpy(cmd_buf, "alarm set 0x0D"); /* ERR00 Flash + ERR02 RTC + ERR03 Batt (0x01 | 0x04 | 0x08) */
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_alarm_mask == 0x0D);
+
+    /* Hapus hanya alarm ERR03 (0x08) tanpa reset seluruh sistem */
+    strcpy(cmd_buf, "alarm clear 0x08");
     assert(console_cli_execute_command(cmd_buf) == 0);
     assert(s_mock_alarm_mask == 0x05);
 
@@ -355,6 +376,14 @@ void test_cli_core_commands(void) {
     assert(console_cli_execute_command(cmd_buf) == 0);
     assert(s_mock_ac_failed == false);
 
+    /* Uji simulasi voltase baterai dan inspeksi status daya */
+    strcpy(cmd_buf, "power batt 2650");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_vbat_mv == 2650);
+
+    strcpy(cmd_buf, "power");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
     /* 13. Uji Perintah Synthetic Load (load, volt, curr, synth) */
     strcpy(cmd_buf, "synth status");
@@ -411,6 +440,9 @@ void test_cli_rx_stream_and_editing(void) {
         .get_measurements = mock_get_meas,
         .get_internal_alarm = mock_get_alarm,
         .set_internal_alarm = mock_set_alarm,
+        .clear_internal_alarm = mock_clear_alarm,
+        .get_battery_voltage = mock_get_battery_voltage,
+        .set_battery_voltage = mock_set_battery_voltage,
         .get_tamper_context = mock_get_tamper,
         .inject_tamper = mock_inject_tamper,
         .get_relay_state = mock_get_relay_state,

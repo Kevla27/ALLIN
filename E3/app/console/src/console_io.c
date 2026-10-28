@@ -488,14 +488,22 @@ static int cmd_alarm(int argc, char *argv[]) {
     }
 
     if (str_equals_ignore_case(argv[1], "clear")) {
-        if (s_hooks.set_internal_alarm != NULL) {
+        uint32_t mask_to_clear = 0xFFFFFFFFU;
+        if (argc >= 3) {
+            mask_to_clear = (uint32_t)strtoul(argv[2], NULL, 0);
+        }
+        if (s_hooks.clear_internal_alarm != NULL) {
+            s_hooks.clear_internal_alarm(mask_to_clear);
+            printf("[CLI] Alarm mask 0x%04lX berhasil di-clear (PULIH/NORMAL).\n", (unsigned long)mask_to_clear);
+            return 0;
+        } else if (s_hooks.set_internal_alarm != NULL) {
             s_hooks.set_internal_alarm(0);
             printf("[CLI] Semua alarm internal di-reset ke 0 (SEHAT).\n");
             return 0;
         }
     }
 
-    printf("[CLI] Sintaks alarm salah. Gunakan: alarm [status | set <hex> | clear]\n");
+    printf("[CLI] Sintaks alarm salah. Gunakan: alarm [status | set <hex> | clear [mask_hex]]\n");
     return -1;
 }
 
@@ -760,11 +768,25 @@ static int cmd_button(int argc, char *argv[]) {
 }
 
 static int cmd_power(int argc, char *argv[]) {
-    (void)argc;
-    (void)argv;
+    if (argc >= 3 && str_equals_ignore_case(argv[1], "batt")) {
+        uint32_t mv = (uint32_t)strtoul(argv[2], NULL, 0);
+        if (s_hooks.set_battery_voltage != NULL) {
+            s_hooks.set_battery_voltage(mv);
+            printf("[CLI] Simulasi tegangan baterai diatur ke: %lu mV\n", (unsigned long)mv);
+            return 0;
+        }
+    }
+
     printf("\n=== MANAJEMEN POWER SAVING EKSTREM STM32U5 ===\n");
     bool is_fail = (s_hooks_registered && s_hooks.is_ac_failed != NULL) ? s_hooks.is_ac_failed() : false;
     printf("  Status Suplai AC : %s\n", is_fail ? "PADAM (AC FAIL - STANDBY BATERAI)" : "NORMAL (AC MAINS AKTIF)");
+
+    if (s_hooks_registered && s_hooks.get_battery_voltage != NULL) {
+        uint32_t vbat = s_hooks.get_battery_voltage();
+        printf("  Tegangan Baterai : %lu.%03lu V (%s, Ambang Normal >= 2.70V)\n",
+               (unsigned long)(vbat / 1000U), (unsigned long)(vbat % 1000U),
+               (vbat >= BOARD_CFG_ADC4_BATT_LOW_MV) ? "NORMAL" : "LEMAH / ERR03");
+    }
 
     meter_power_mode_t mode = METER_POWER_MODE_RUN;
     if (s_hooks_registered && s_hooks.get_power_mode != NULL) {

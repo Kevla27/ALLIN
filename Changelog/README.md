@@ -55,6 +55,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-045**](045_implementasi_ikon_grafis_kuadran_daya_oled_spln.md) | 28-10-2026 | Implementasi Render Ikon Grafis Kuadran Daya 4-Kuadran pada Layar OLED Sesuai SPLN D3.006:2021 (Butir 6.11 & Lampiran A) | `E3/drivers/oled/*`, `E3/app/display/*`, `E3/tests/*`, `E3/docs/*` | Selesai |
 | [**LOG-046**](046_implementasi_ikon_grafis_panah_aliran_daya_dan_baterai_spln.md) | 28-10-2026 | Implementasi Ikon Grafis Panah Arah Aliran Energi Aktif dan Penyempurnaan Indikator Baterai Layar OLED (SPLN D3.006:2021 Butir 6.11 Gambar 6) | `E3/drivers/oled/*`, `E3/docs/*` | Selesai |
 | [**LOG-047**](047_implementasi_ikon_modem_telepon_dan_sakelar_terbuka_spln.md) | 28-10-2026 | Implementasi Ikon Grafis Modem Telepon Lingkaran dan Sakelar Terbuka Sesuai Standar Layar LCD SPLN D3.006:2021 Gambar 6 | `E3/app/display/*`, `E3/app/e3_meter_app.*`, `E3/drivers/oled/*`, `E3/tests/*`, `E3/docs/*` | Selesai |
+| [**LOG-048**](048_penormalan_otomatis_indikasi_baterai_tanpa_reset_spln.md) | 28-10-2026 | Penormalan Otomatis Indikasi Baterai Tanpa Reset Sesuai Standar Layar LCD SPLN D3.006:2021 Butir 6.11 Halaman 39 | `E3/app/e3_meter_app.*`, `E3/app/board_profile_config.h`, `E3/app/console/*`, `E3/tests/*`, `E3/docs/*` | Selesai |
 
 ---
 

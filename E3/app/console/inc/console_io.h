@@ -56,6 +56,9 @@ typedef struct {
     const meter_measurements_t* (*get_measurements)(void);
     uint32_t                    (*get_internal_alarm)(void);
     void                        (*set_internal_alarm)(uint32_t mask);
+    void                        (*clear_internal_alarm)(uint32_t mask);
+    uint32_t                    (*get_battery_voltage)(void);
+    void                        (*set_battery_voltage)(uint32_t vbat_mv);
     const tamper_context_t*     (*get_tamper_context)(void);
     void                        (*inject_tamper)(tamper_vector_t vec, bool asserted);
     relay_state_t               (*get_relay_state)(void);

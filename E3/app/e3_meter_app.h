@@ -108,9 +108,28 @@ const max_demand_tracker_t* e3_meter_app_get_max_demand(void);
 void e3_meter_app_set_internal_alarm(uint32_t alarm_flags);
 
 /**
+ * @brief Menghapus flag alarm internal hardware saat kondisi kembali normal tanpa perlu me-reset meter
+ *        (Sesuai SPLN D3.006: 2021 Butir 6.11 Catatan Halaman 39 & Tabel 4)
+ * @param alarm_flags Mask spln_internal_alarm_t yang pulih (misal SPLN_ALARM_LOW_BATTERY)
+ */
+void e3_meter_app_clear_internal_alarm(uint32_t alarm_flags);
+
+/**
  * @brief Memperoleh mask alarm internal hardware yang sedang aktif
  */
 uint32_t e3_meter_app_get_internal_alarm(void);
+
+/**
+ * @brief Mengatur nilai simulasi tegangan baterai & superkapasitor (mV) untuk pengujian penormalan otomatis
+ * @param vbat_mv Tegangan baterai dalam millivolt (contoh: 3600 = 3.6V, 2500 = 2.5V)
+ * @param vcap_mv Tegangan superkapasitor dalam millivolt (contoh: 3300 = 3.3V)
+ */
+void e3_meter_app_set_simulated_battery_voltage(uint32_t vbat_mv, uint32_t vcap_mv);
+
+/**
+ * @brief Memperoleh nilai tegangan baterai saat ini (millivolt)
+ */
+uint32_t e3_meter_app_get_battery_voltage_mv(void);
 
 /**
  * @brief Memperoleh pointer ke konteks tamper & 3 log register FIFO (Alarm, Event, Tamper)
