@@ -144,6 +144,36 @@ CMSE_NS_ENTRY uint32_t SECURE_GetTamperStatusMask(void)
   return mask;
 }
 
+static uint32_t rtc_days_from_civil(int y, unsigned m, unsigned d)
+{
+  if (m <= 2U) y -= 1;
+  int era = (y >= 0 ? y : y - 399) / 400;
+  unsigned yoe = (unsigned)(y - era * 400);
+  unsigned doy = (153U * (m > 2U ? m - 3U : m + 9U) + 2U) / 5U + d - 1U;
+  unsigned doe = yoe * 365U + yoe / 4U - yoe / 100U + doy;
+  return (uint32_t)(era * 146097 + (int)doe - 719468);
+}
+
+static void rtc_civil_from_days(uint32_t z, uint16_t *out_y, uint8_t *out_m, uint8_t *out_d)
+{
+  z += 719468U;
+  uint32_t era = z / 146097U;
+  uint32_t doe = z - era * 146097U;
+  uint32_t yoe = (doe - doe / 1460U + doe / 36524U - doe / 146096U) / 365U;
+  uint32_t y = yoe + era * 400U;
+  uint32_t doy = doe - (365U * yoe + yoe / 4U - yoe / 100U);
+  uint32_t mp = (5U * doy + 2U) / 153U;
+  uint32_t d = doy - (153U * mp + 2U) / 5U + 1U;
+  uint32_t m = (mp < 10U) ? (mp + 3U) : (mp - 9U);
+  if (m <= 2U)
+  {
+    y += 1U;
+  }
+  if (out_y) *out_y = (uint16_t)y;
+  if (out_m) *out_m = (uint8_t)m;
+  if (out_d) *out_d = (uint8_t)d;
+}
+
 /**
   * @brief  Membaca waktu kalender dari Secure RTC dalam detik UNIX Epoch
   */
@@ -152,32 +182,50 @@ CMSE_NS_ENTRY uint32_t SECURE_GetRTCDateTime(void)
   RTC_TimeTypeDef sTime = {0};
   RTC_DateTypeDef sDate = {0};
 
+  /* Catatan: Pada STM32 HAL RTC, GetTime harus selalu dipanggil sebelum GetDate
+   * agar shadow registers RTC ter-unlock dengan benar */
   if (HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) == HAL_OK &&
       HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN) == HAL_OK)
   {
-    /* Jika RTC sudah berjalan (tahun >= 26), hitung offset detik harian */
-    uint32_t day_sec = ((uint32_t)sTime.Hours * 3600UL) +
-                       ((uint32_t)sTime.Minutes * 60UL) +
-                       (uint32_t)sTime.Seconds;
-    uint32_t base_day_epoch = (s_sec_epoch_override / 86400UL) * 86400UL;
-    return base_day_epoch + day_sec;
+    if (sDate.Year >= 20U && sDate.Month >= 1U && sDate.Month <= 12U && sDate.Date >= 1U && sDate.Date <= 31U)
+    {
+      uint32_t days = rtc_days_from_civil(2000 + (int)sDate.Year, (unsigned)sDate.Month, (unsigned)sDate.Date);
+      uint32_t day_sec = ((uint32_t)sTime.Hours * 3600UL) +
+                         ((uint32_t)sTime.Minutes * 60UL) +
+                         (uint32_t)sTime.Seconds;
+      uint32_t epoch = (days * 86400UL) + day_sec;
+      s_sec_epoch_override = epoch;
+      return epoch;
+    }
   }
   return s_sec_epoch_override;
 }
 
 /**
-  * @brief  Menyinkronkan waktu kalender Secure RTC dari perintah DLMS/COSEM Clock
+  * @brief  Menyinkronkan waktu kalender Secure RTC dari perintah DLMS/COSEM Clock atau Konsol CLI
   */
 CMSE_NS_ENTRY void SECURE_SetRTCDateTime(uint32_t epoch_sec)
 {
   s_sec_epoch_override = epoch_sec;
+
+  uint16_t y = 2026;
+  uint8_t m = 10, d = 28;
+  rtc_civil_from_days(epoch_sec / 86400UL, &y, &m, &d);
+
+  RTC_DateTypeDef sDate = {0};
+  sDate.Year = (uint8_t)(y >= 2000 ? y - 2000 : 0);
+  sDate.Month = m;
+  sDate.Date = d;
+  sDate.WeekDay = (uint8_t)(((epoch_sec / 86400UL) + 4UL) % 7UL + 1UL); // 1 = Monday
 
   RTC_TimeTypeDef sTime = {0};
   uint32_t rem = epoch_sec % 86400UL;
   sTime.Hours   = (uint8_t)(rem / 3600UL);
   sTime.Minutes = (uint8_t)((rem % 3600UL) / 60UL);
   sTime.Seconds = (uint8_t)(rem % 60UL);
+
   (void)HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+  (void)HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 }
 
 /**

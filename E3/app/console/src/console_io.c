@@ -37,23 +37,27 @@ static int cmd_demand(int argc, char *argv[]);
 static int cmd_mute(int argc, char *argv[]);
 static int cmd_echo(int argc, char *argv[]);
 static int cmd_clear(int argc, char *argv[]);
+static int cmd_time(int argc, char *argv[]);
+static int cmd_set_time(int argc, char *argv[]);
 
 /* Tabel pendaftaran perintah CLI */
 static const console_cmd_entry_t s_cmd_table[] = {
-    {"help",   "Menampilkan daftar perintah dan sintaks", cmd_help},
-    {"?",      "Alias untuk bantuan perintah",           cmd_help},
-    {"status", "Status umum meter, relai, alarm & tamper",cmd_status},
-    {"meas",   "Pengukuran listrik 3-fasa instan",       cmd_meas},
-    {"energy", "Akumulasi energi Wh/varh & ToU",         cmd_energy},
-    {"relay",  "Kontrol/inspeksi status relai kontaktor", cmd_relay},
-    {"tamper", "Status sabotase atau simulasi injeksi",  cmd_tamper},
-    {"alarm",  "Status alarm internal hardware ERR00..07",cmd_alarm},
-    {"log",    "Membaca isi 3 register log FIFO SPLN",   cmd_log},
-    {"demand", "Status Maximum Demand 15-menit & reset", cmd_demand},
-    {"mute",   "Mode senyap konsol proteksi biner DLMS", cmd_mute},
-    {"echo",   "Mencetak kembali teks yang diinputkan",  cmd_echo},
-    {"clear",  "Membersihkan layar terminal konsol",     cmd_clear},
-    {"cls",    "Alias untuk membersihkan layar",         cmd_clear}
+    {"help",     "Menampilkan daftar perintah dan sintaks", cmd_help},
+    {"?",        "Alias untuk bantuan perintah",           cmd_help},
+    {"status",   "Status umum meter, relai, alarm & tamper",cmd_status},
+    {"meas",     "Pengukuran listrik 3-fasa instan",       cmd_meas},
+    {"energy",   "Akumulasi energi Wh/varh & ToU",         cmd_energy},
+    {"relay",    "Kontrol/inspeksi status relai kontaktor", cmd_relay},
+    {"tamper",   "Status sabotase atau simulasi injeksi",  cmd_tamper},
+    {"alarm",    "Status alarm internal hardware ERR00..07",cmd_alarm},
+    {"log",      "Membaca isi 3 register log FIFO SPLN",   cmd_log},
+    {"demand",   "Status Maximum Demand 15-menit & reset", cmd_demand},
+    {"time",     "Status kalender RTC & zona tarif ToU",   cmd_time},
+    {"set_time", "Atur waktu RTC (sintaks: set_time <epoch>)", cmd_set_time},
+    {"mute",     "Mode senyap konsol proteksi biner DLMS", cmd_mute},
+    {"echo",     "Mencetak kembali teks yang diinputkan",  cmd_echo},
+    {"clear",    "Membersihkan layar terminal konsol",     cmd_clear},
+    {"cls",      "Alias untuk membersihkan layar",         cmd_clear}
 };
 
 #define CMD_TABLE_SIZE (sizeof(s_cmd_table) / sizeof(s_cmd_table[0]))
@@ -542,6 +546,72 @@ static int cmd_clear(int argc, char *argv[]) {
     (void)argv;
     printf("\033[2J\033[H");
     return 0;
+}
+
+static int cmd_time(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+    if (!s_hooks_registered || s_hooks.get_time == NULL) {
+        printf("[CLI] Error: Hook waktu RTC belum terdaftar.\n");
+        return -1;
+    }
+
+    uint32_t epoch = s_hooks.get_time();
+    uint32_t rem_sec = epoch % 86400U;
+    uint8_t sec  = (uint8_t)(rem_sec % 60U);
+    uint8_t min  = (uint8_t)((rem_sec / 60U) % 60U);
+    uint8_t hour = (uint8_t)(rem_sec / 3600U);
+
+    uint32_t z = (epoch / 86400U) + 719468U;
+    uint32_t era = z / 146097U;
+    uint32_t doe = z - era * 146097U;
+    uint32_t yoe = (doe - doe / 1460U + doe / 36524U - doe / 146096U) / 365U;
+    uint32_t y = yoe + era * 400U;
+    uint32_t doy = doe - (365U * yoe + yoe / 4U - yoe / 100U);
+    uint32_t mp = (5U * doy + 2U) / 153U;
+    uint32_t d = doy - (153U * mp + 2U) / 5U + 1U;
+    uint32_t m = (mp < 10U) ? (mp + 3U) : (mp - 9U);
+    if (m <= 2U) y += 1U;
+
+    uint8_t zone = (s_hooks.get_active_tariff != NULL) ? s_hooks.get_active_tariff() : 1U;
+    const char *tariff_names[] = {
+        "Tarif 1: WBP (17:00 - 22:00)",
+        "Tarif 2: LWBP Malam (22:00 - 06:00)",
+        "Tarif 3: LWBP Siang (06:00 - 17:00)",
+        "Tarif 4 (Reserved)", "Tarif 5 (Reserved)", "Tarif 6 (Reserved)",
+        "Tarif 7 (Reserved)", "Tarif 8 (Reserved)"
+    };
+    const char *t_str = (zone < 8U) ? tariff_names[zone] : "Unknown";
+
+    printf("\n--- STATUS REAL-TIME CLOCK (RTC) & TARIF TOU ---\n");
+    printf("  Tanggal Kalender: %02u-%02u-%04u\n", (unsigned)d, (unsigned)m, (unsigned)y);
+    printf("  Jam / Waktu     : %02u:%02u:%02u WIB\n", (unsigned)hour, (unsigned)min, (unsigned)sec);
+    printf("  UNIX Epoch      : %lu detik\n", (unsigned long)epoch);
+    printf("  Zona Tarif Aktif: [%u] %s\n\n", (unsigned)zone, t_str);
+    return 0;
+}
+
+static int cmd_set_time(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("[CLI] Penggunaan: set_time <epoch_sec>\n");
+        printf("       Contoh: set_time 1793181600 (28-10-2026 10:00:00)\n");
+        return -1;
+    }
+
+    if (!s_hooks_registered || s_hooks.set_time == NULL) {
+        printf("[CLI] Error: Hook set_time belum terdaftar.\n");
+        return -2;
+    }
+
+    uint32_t new_epoch = (uint32_t)strtoul(argv[1], NULL, 10);
+    if (new_epoch < 1700000000UL) {
+        printf("[CLI] Error: Epoch tidak valid (harus >= 1700000000).\n");
+        return -3;
+    }
+
+    s_hooks.set_time(new_epoch);
+    printf("[CLI] Waktu hardware RTC & OLED berhasil diatur ke epoch: %lu\n", (unsigned long)new_epoch);
+    return cmd_time(1, argv);
 }
 
 /* ========================================================================= */

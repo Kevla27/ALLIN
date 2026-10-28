@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "secure_nsc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -354,7 +354,18 @@ static void MX_RTC_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN RTC_Init 2 */
-
+  /* Inisialisasi awal tanggal/jam jika belum terkonfigurasi (tahun < 26) */
+  RTC_DateTypeDef sDateCheck = {0};
+  RTC_TimeTypeDef sTimeCheck = {0};
+  (void)HAL_RTC_GetTime(&hrtc, &sTimeCheck, RTC_FORMAT_BIN);
+  if (HAL_RTC_GetDate(&hrtc, &sDateCheck, RTC_FORMAT_BIN) == HAL_OK)
+  {
+    if (sDateCheck.Year < 26U)
+    {
+      /* Set baseline tanggal default ke 28 Oktober 2026 10:00:00 (1793181600) */
+      SECURE_SetRTCDateTime(1793181600UL);
+    }
+  }
   /* USER CODE END RTC_Init 2 */
 
 }

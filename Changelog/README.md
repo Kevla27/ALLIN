@@ -39,6 +39,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-029**](029_audit_akhir_integrasi_sudut_fasa_tamper_dan_eob.md) | 27-10-2026 | Audit Akhir & Integrasi Sudut Fasa E1, Evaluasi Tamper Elektrikal Lengkap (ERR21/ERR22/ERR27), serta Pemicu Otomatis End-of-Billing (EoB) | `E1/Metrology/e1_metrology_service.c`, `E3/app/e3_meter_app.c`, `E3/tests/test_fsm_statechart.c` | Selesai |
 | [**LOG-030**](030_arsitektur_board_profile_config.md) | 28-10-2026 | Arsitektur Fleksibilitas Perangkat Keras via Board Profile Configuration (HAL) untuk Penggantian Display (OLED vs Segment LCD), Relai, NVRAM & Sensor Tamper | `E3/app/board_profile_config.h`, `E3/app/e3_meter_app.*`, `E3/CMakeLists.txt`, `E3/tests/test_board_profile.c` | Selesai |
 | [**LOG-031**](031_pemindahan_glue_code_meter_system_bridge.md) | 28-10-2026 | Pemisahan Glue Code dari main.c ke Dedicated System Bridge Module (`meter_system_bridge`) | `NonSecure/Core/Inc/meter_system_bridge.h`, `NonSecure/Core/Src/meter_system_bridge.c`, `NonSecure/Core/Src/main.c`, `NonSecure/CMakeLists.txt` | Selesai |
+| [**LOG-032**](032_integrasi_hardware_rtc_oled_dan_tou.md) | 28-10-2026 | Integrasi Hardware RTC STM32U5 ke Jam/Tanggal Layar OLED & Otomasi Tarif ToU (WBP/LWBP) | `Secure/Core/Src/*`, `E3/app/e3_meter_app.*`, `E3/app/console/*`, `E3/tests/*` | Selesai |
 
 ---
 

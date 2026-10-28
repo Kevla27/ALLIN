@@ -71,6 +71,12 @@ void e3_meter_app_on_aux_input(uint8_t channel, bool is_active);
 uint32_t e3_meter_app_get_epoch(void);
 
 /**
+ * @brief Mengatur waktu kalender UNIX Epoch (disinkronkan ke Secure RTC hardware)
+ * @param epoch_sec Waktu baru dalam detik UNIX Epoch
+ */
+void e3_meter_app_set_epoch(uint32_t epoch_sec);
+
+/**
  * @brief Memperoleh akumulasi energi Time-of-Use (ToU) per zona tarif (0..7) dalam Wh
  */
 uint64_t e3_meter_app_get_tou_energy_wh(uint8_t zone_idx);

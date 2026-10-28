@@ -155,6 +155,18 @@ static void cli_reset_max_demand(void) {
     max_demand_reset(&s_md_tracker);
 }
 
+static uint32_t cli_get_time(void) {
+    return e3_meter_app_get_epoch();
+}
+
+static void cli_set_time(uint32_t epoch_sec) {
+    e3_meter_app_set_epoch(epoch_sec);
+}
+
+static uint8_t cli_get_active_tariff(void) {
+    return e3_meter_app_get_active_tariff_zone();
+}
+
 void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetry)
 {
     s_hadc_telemetry = hadc_telemetry;
@@ -207,7 +219,10 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
         .relay_request_reconnect = cli_relay_request_reconnect,
         .relay_confirm_reconnect = cli_relay_confirm_reconnect,
         .get_max_demand = cli_get_max_demand,
-        .reset_max_demand = cli_reset_max_demand
+        .reset_max_demand = cli_reset_max_demand,
+        .get_time = cli_get_time,
+        .set_time = cli_set_time,
+        .get_active_tariff = cli_get_active_tariff
     };
     console_cli_init(&cli_hooks);
 
@@ -265,9 +280,23 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
     if (s_ms_accumulator >= 1000U)
     {
         uint32_t elapsed_sec = s_ms_accumulator / 1000U;
-        s_now_epoch_sec += elapsed_sec;
         s_ms_accumulator %= 1000U;
         is_one_sec_tick = true;
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+        /* Sinkronisasi presisi waktu langsung dari peripheral Secure Hardware RTC STM32U5 */
+        uint32_t rtc_now = SECURE_GetRTCDateTime();
+        if (rtc_now > 1700000000U)
+        {
+            s_now_epoch_sec = rtc_now;
+        }
+        else
+        {
+            s_now_epoch_sec += elapsed_sec;
+        }
+#else
+        s_now_epoch_sec += elapsed_sec;
+#endif
 
         s_active_tariff_zone = evaluate_tou_tariff_zone(s_now_epoch_sec);
         display_set_time(&s_disp_ctx, s_now_epoch_sec);
@@ -646,6 +675,17 @@ void e3_meter_app_on_aux_input(uint8_t channel, bool is_active)
 uint32_t e3_meter_app_get_epoch(void)
 {
     return s_now_epoch_sec;
+}
+
+void e3_meter_app_set_epoch(uint32_t epoch_sec)
+{
+    s_now_epoch_sec = epoch_sec;
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    SECURE_SetRTCDateTime(epoch_sec);
+#endif
+    s_active_tariff_zone = evaluate_tou_tariff_zone(s_now_epoch_sec);
+    display_set_time(&s_disp_ctx, s_now_epoch_sec);
+    s_last_disp_print_ms = 0U; /* Segera perbarui layar OLED */
 }
 
 uint64_t e3_meter_app_get_tou_energy_wh(uint8_t zone_idx)

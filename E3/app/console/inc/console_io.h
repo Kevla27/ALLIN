@@ -45,6 +45,9 @@ typedef struct {
     bool                        (*relay_confirm_reconnect)(void);
     const max_demand_tracker_t* (*get_max_demand)(void);
     void                        (*reset_max_demand)(void);
+    uint32_t                    (*get_time)(void);
+    void                        (*set_time)(uint32_t epoch_sec);
+    uint8_t                     (*get_active_tariff)(void);
 } console_meter_hooks_t;
 
 /**

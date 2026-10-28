@@ -16,6 +16,9 @@ static relay_state_t        s_mock_relay_state = RELAY_STATE_CONNECTED;
 static relay_reason_t       s_mock_relay_reason = RELAY_REASON_NONE;
 static max_demand_tracker_t s_mock_demand_tracker;
 
+static uint32_t             s_mock_time_epoch = 1793181600;
+static uint8_t              s_mock_tariff_zone = 0;
+
 /* Mock Hook Implementations */
 static const meter_measurements_t* mock_get_meas(void) {
     return &s_mock_meas;
@@ -76,6 +79,18 @@ static void mock_reset_demand(void) {
     max_demand_reset(&s_mock_demand_tracker);
 }
 
+static uint32_t mock_get_time(void) {
+    return s_mock_time_epoch;
+}
+
+static void mock_set_time(uint32_t epoch_sec) {
+    s_mock_time_epoch = epoch_sec;
+}
+
+static uint8_t mock_get_tariff(void) {
+    return s_mock_tariff_zone;
+}
+
 /* Inisialisasi Mock Environment */
 static void init_mock_env(void) {
     memset(&s_mock_meas, 0, sizeof(s_mock_meas));
@@ -128,7 +143,10 @@ void test_cli_core_commands(void) {
         .relay_request_reconnect = mock_relay_request_reconnect,
         .relay_confirm_reconnect = mock_relay_confirm_reconnect,
         .get_max_demand = mock_get_demand,
-        .reset_max_demand = mock_reset_demand
+        .reset_max_demand = mock_reset_demand,
+        .get_time = mock_get_time,
+        .set_time = mock_set_time,
+        .get_active_tariff = mock_get_tariff
     };
 
     console_cli_init(&hooks);
@@ -222,6 +240,14 @@ void test_cli_core_commands(void) {
     strcpy(cmd_buf, "echo ALLIN Smart Meter CLI Ready");
     assert(console_cli_execute_command(cmd_buf) == 0);
 
+    /* 11. Uji Time & Set_Time (RTC) */
+    strcpy(cmd_buf, "time");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
+    strcpy(cmd_buf, "set_time 1793184000");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_time_epoch == 1793184000);
+
     /* 11. Uji Perintah Invalid dan Baris Kosong */
     strcpy(cmd_buf, "perintah_ngawur_xyz");
     assert(console_cli_execute_command(cmd_buf) == -1);
@@ -248,7 +274,10 @@ void test_cli_rx_stream_and_editing(void) {
         .relay_request_reconnect = mock_relay_request_reconnect,
         .relay_confirm_reconnect = mock_relay_confirm_reconnect,
         .get_max_demand = mock_get_demand,
-        .reset_max_demand = mock_reset_demand
+        .reset_max_demand = mock_reset_demand,
+        .get_time = mock_get_time,
+        .set_time = mock_set_time,
+        .get_active_tariff = mock_get_tariff
     };
 
     console_cli_init(&hooks);
