@@ -226,6 +226,17 @@ void test_load_profile_dlms_axdr_encoding(void) {
     assert(dlms_decode_verify_structure(lp_buf, 10, 11) == false); /* Stream terpotong */
     assert(dlms_decode_verify_structure(lp_buf, sz_lp, 10) == false); /* Elemen mismatch */
 
+    /* 5. Uji Kekebalan Y2K38 (Pasca-2038: Tahun 2050 & Tahun 2100) pada dlms_encode_datetime */
+    uint8_t dt_buf[12];
+    dlms_encode_datetime(2524608000UL, dt_buf); /* 01-01-2050 00:00:00 */
+    uint16_t yr_2050 = ((uint16_t)dt_buf[0] << 8) | dt_buf[1];
+    assert(yr_2050 == 2050U && dt_buf[2] == 1U && dt_buf[3] == 1U);
+
+    dlms_encode_datetime(4102444800UL, dt_buf); /* 01-01-2100 00:00:00 */
+    uint16_t yr_2100 = ((uint16_t)dt_buf[0] << 8) | dt_buf[1];
+    assert(yr_2100 == 2100U && dt_buf[2] == 1U && dt_buf[3] == 1U);
+    printf("   -> Y2K38 Immunity Verified (2050 & 2100 A-XDR DateTime OK)\n");
+
     printf("   [PASS] DLMS A-XDR Structure Encoding & Verification Verified OK!\n\n");
 }
 

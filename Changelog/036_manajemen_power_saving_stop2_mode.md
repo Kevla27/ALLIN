@@ -104,3 +104,4 @@ Total Test time (real) = 0.25 sec
 ### B. Kompilasi Target Hardware ARM Cortex-M33 (GCC STM32U585)
 - **Secure Domain (`Secure/build`):** ROM 23.592 B (2.27%), RAM 12.048 B (4.60%) — *0 Error, 0 Warning*.
 - **Non-Secure Domain (`NonSecure/build`):** ROM 157.064 B (14.98%), RAM 65.088 B (12.41%) — *0 Error, 0 Warning*.
+

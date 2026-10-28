@@ -1143,7 +1143,9 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
 
     /* Status Relai & Tamper untuk Grafis Layar OLED */
     frame->is_relay_ready_on = ctx->relay_ready_on;
-    frame->is_relay_closed = !ctx->relay_ready_on;
+    frame->is_relay_closed = !ctx->relay_ready_on &&
+                             ((ctx->active_tamper_mask & TAMPER_MASK_RELAY_TRIP) == 0U) &&
+                             ((ctx->active_alarm_mask & SPLN_ALARM_MASK_RELAY_TRIP) == 0U);
     frame->is_tamper_active = (ctx->active_tamper_mask != 0);
 
     /* Evaluasi Zona Tarif ToU untuk Tampilan OLED */

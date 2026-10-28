@@ -87,5 +87,5 @@ Daftar suite pengujian terverifikasi:
 ## 📚 Dokumentasi & Riwayat Perubahan
 
 - **Master Panduan File & Fundamental E3**: [E3/PANDUAN_ARSITEKTUR_DAN_FILE_E3.md](E3/PANDUAN_ARSITEKTUR_DAN_FILE_E3.md)
-- **Indeks Riwayat Perubahan Lengkap**: [Changelog/README.md](Changelog/README.md) (LOG-001 hingga LOG-036)
+- **Indeks Riwayat Perubahan Lengkap**: [Changelog/README.md](Changelog/README.md) (LOG-001 hingga LOG-037)
 

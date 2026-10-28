@@ -131,3 +131,4 @@ void bsp_power_mock_simulate_wakeup(meter_wakeup_reason_t reason);
 #endif
 
 #endif /* BSP_POWER_MODE_H */
+

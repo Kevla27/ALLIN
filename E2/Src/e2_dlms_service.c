@@ -5,8 +5,32 @@
 
 #include "e2_dlms_service.h"
 #include "e1_metrology_service.h"
+#include "e3_meter_app.h"
 #include "ami_obis_catalog.h"
 #include <string.h>
+
+#define CLI_RX_FIFO_SIZE 64U
+static volatile uint8_t s_cli_rx_fifo[CLI_RX_FIFO_SIZE];
+static volatile uint8_t s_cli_rx_head = 0U;
+static volatile uint8_t s_cli_rx_tail = 0U;
+
+static void dlms_epoch_to_civil(uint32_t epoch, uint16_t *out_y, uint8_t *out_m, uint8_t *out_d, uint8_t *out_dow)
+{
+    uint32_t z = (epoch / 86400UL) + 719468UL;
+    uint32_t era = z / 146097UL;
+    uint32_t doe = z - era * 146097UL;
+    uint32_t yoe = (doe - doe / 1460UL + doe / 36524UL - doe / 146096UL) / 365UL;
+    uint32_t y = yoe + era * 400UL;
+    uint32_t doy = doe - (365UL * yoe + yoe / 4UL - yoe / 100UL);
+    uint32_t mp = (5UL * doy + 2UL) / 153UL;
+    uint32_t d = doy - (153UL * mp + 2UL) / 5UL + 1UL;
+    uint32_t m = (mp < 10UL) ? (mp + 3UL) : (mp - 9UL);
+    if (m <= 2UL) y += 1UL;
+    if (out_y) *out_y = (uint16_t)y;
+    if (out_m) *out_m = (uint8_t)m;
+    if (out_d) *out_d = (uint8_t)d;
+    if (out_dow) *out_dow = (uint8_t)(((epoch / 86400UL) + 3UL) % 7UL + 1UL);
+}
 
 typedef struct {
     UART_HandleTypeDef  *huart;
@@ -90,16 +114,20 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
         snapshot->reactive_export_varh = 0ULL;
     }
 
-    /* 2. Sinkronisasi Clock COSEM Class 8 (2026-10-27 WIB) */
-    snapshot->clock_date_time.year[0] = (uint8_t)(2026U >> 8);
-    snapshot->clock_date_time.year[1] = (uint8_t)(2026U & 0xFFU);
-    snapshot->clock_date_time.month   = 10U;
-    snapshot->clock_date_time.day     = 27U;
-    snapshot->clock_date_time.day_of_week = 2U;
-    uint32_t sec_of_day = (HAL_GetTick() / 1000U) % 86400U;
-    snapshot->clock_date_time.hour    = (uint8_t)((sec_of_day / 3600U) % 24U);
-    snapshot->clock_date_time.minute  = (uint8_t)((sec_of_day / 60U) % 60U);
-    snapshot->clock_date_time.second  = (uint8_t)(sec_of_day % 60U);
+    /* 2. Sinkronisasi Clock COSEM Class 8 langsung dari RTC Epoch Aktif */
+    uint32_t now_epoch = e3_meter_app_get_epoch();
+    uint16_t yr = 2026U;
+    uint8_t mo = 10U, dy = 28U, dow = 3U;
+    dlms_epoch_to_civil(now_epoch, &yr, &mo, &dy, &dow);
+    snapshot->clock_date_time.year[0] = (uint8_t)(yr >> 8);
+    snapshot->clock_date_time.year[1] = (uint8_t)(yr & 0xFFU);
+    snapshot->clock_date_time.month   = mo;
+    snapshot->clock_date_time.day     = dy;
+    snapshot->clock_date_time.day_of_week = dow;
+    uint32_t sec_of_day = now_epoch % 86400UL;
+    snapshot->clock_date_time.hour    = (uint8_t)((sec_of_day / 3600UL) % 24UL);
+    snapshot->clock_date_time.minute  = (uint8_t)((sec_of_day / 60UL) % 60UL);
+    snapshot->clock_date_time.second  = (uint8_t)(sec_of_day % 60UL);
     snapshot->clock_date_time.deviation[0] = 0x01U; /* +420 menit (WIB) */
     snapshot->clock_date_time.deviation[1] = 0xA4U;
 
@@ -133,6 +161,19 @@ static void process_channel_rx(DlmsChannelState *ch)
     uint8_t apdu_resp[AMI_COSEM_AXDR_ENCODED_MAX];
     size_t  tx_len = 0;
     size_t  apdu_resp_len = 0;
+
+    /* Jika kanal USART2 sedang tidak mengoleksi frame HDLC (0x7E) dan menerima karakter ASCII CLI */
+    if (ch == &s_modem_channel && ch->hdlc_ctx.collecting == 0U && ch->rx_byte != AMI_HDLC_FLAG)
+    {
+        uint8_t next_head = (uint8_t)((s_cli_rx_head + 1U) % CLI_RX_FIFO_SIZE);
+        if (next_head != s_cli_rx_tail)
+        {
+            s_cli_rx_fifo[s_cli_rx_head] = ch->rx_byte;
+            s_cli_rx_head = next_head;
+        }
+        HAL_UART_Receive_IT(ch->huart, &ch->rx_byte, 1);
+        return;
+    }
 
     AmiHdlcStatus status = ami_dlms_hdlc_parse_byte(&ch->hdlc_ctx, ch->rx_byte, &ch->rx_frame);
     if (status == AMI_HDLC_FRAME_READY)
@@ -267,4 +308,15 @@ bool e2_dlms_send_last_gasp_push(uint32_t timestamp_epoch, uint64_t active_impor
 AmiCosemRegisterSnapshot *e2_dlms_service_get_snapshot(void)
 {
     return &s_global_dlms_snapshot;
+}
+
+bool e2_dlms_service_pop_cli_rx_byte(uint8_t *out_byte)
+{
+    if (out_byte == NULL || s_cli_rx_head == s_cli_rx_tail)
+    {
+        return false;
+    }
+    *out_byte = s_cli_rx_fifo[s_cli_rx_tail];
+    s_cli_rx_tail = (uint8_t)((s_cli_rx_tail + 1U) % CLI_RX_FIFO_SIZE);
+    return true;
 }

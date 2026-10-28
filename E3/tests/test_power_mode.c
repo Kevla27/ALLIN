@@ -116,3 +116,4 @@ int main(void) {
     printf("\n>>> SEMUA UJI MANAJEMEN DAYA STOP 2 LULUS (100%%)! <<<\n");
     return 0;
 }
+

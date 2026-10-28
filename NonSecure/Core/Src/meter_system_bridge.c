@@ -100,6 +100,13 @@ void app_metering_step(void)
         delta_ms = 1U;
     }
 
+    /* 0. Proses antrean byte karakter Interactive Serial CLI dari USART2 */
+    uint8_t cli_byte = 0U;
+    while (e2_dlms_service_pop_cli_rx_byte(&cli_byte))
+    {
+        console_cli_process_rx_byte(cli_byte);
+    }
+
     /* 1. Pilar E1: Akuisisi Data ADC/SPI ADE9000, Konversi Fisik & Akumulasi Energi Wh */
     e1_metrology_service_step(&s_meas, delta_ms);
 

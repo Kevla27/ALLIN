@@ -57,6 +57,13 @@ bool e2_dlms_send_last_gasp_push(uint32_t timestamp_epoch, uint64_t active_impor
  */
 AmiCosemRegisterSnapshot *e2_dlms_service_get_snapshot(void);
 
+/**
+ * @brief Mengambil 1 byte karakter ASCII non-HDLC dari antrean RX UART konsol/modem (USART2)
+ * @param[out] out_byte Pointer ke variabel penerima byte
+ * @return true jika ada byte tersedia di FIFO, false jika kosong
+ */
+bool e2_dlms_service_pop_cli_rx_byte(uint8_t *out_byte);
+
 #ifdef __cplusplus
 }
 #endif

@@ -437,12 +437,21 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         s_active_tariff_zone = evaluate_tou_tariff_zone(s_now_epoch_sec);
         display_set_time(&s_disp_ctx, s_now_epoch_sec);
 
-        /* Pemicu Otomatis End-of-Billing (EoB) Tanggal 1 Pukul 10:00:00 (SPLN Butir 12.4 Hal. 34) */
-        uint32_t days_since_epoch = s_now_epoch_sec / 86400U;
-        uint32_t sec_of_day = s_now_epoch_sec % 86400U;
-        if ((days_since_epoch % 30U) == 0U && sec_of_day == 36000U)
+        /* Pemicu Otomatis End-of-Billing (EoB) Tanggal 1 Setiap Bulan Pukul 10:00:00 (SPLN Butir 12.4 Hal. 34) */
+        uint32_t sec_of_day = s_now_epoch_sec % 86400UL;
+        if (sec_of_day == 36000UL) /* Pukul 10:00:00 tepat */
         {
-            e3_meter_app_trigger_billing_snapshot();
+            uint32_t z   = (s_now_epoch_sec / 86400UL) + 719468UL;
+            uint32_t era = z / 146097UL;
+            uint32_t doe = z - era * 146097UL;
+            uint32_t yoe = (doe - doe / 1460UL + doe / 36524UL - doe / 146096UL) / 365UL;
+            uint32_t doy = doe - (365UL * yoe + yoe / 4UL - yoe / 100UL);
+            uint32_t mp  = (5UL * doy + 2UL) / 153UL;
+            uint32_t day_of_month = doy - (153UL * mp + 2UL) / 5UL + 1UL;
+            if (day_of_month == 1UL)
+            {
+                e3_meter_app_trigger_billing_snapshot();
+            }
         }
     }
 
@@ -674,6 +683,7 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
 #if defined(EMBEDDED_HARDWARE_TARGET)
         display_spln_frame_t spln_frame;
         display_render_spln_frame(&s_disp_ctx, &spln_frame);
+        spln_frame.is_relay_closed = (!is_trip_commanded && !is_ready_on);
         const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
         if (oled_drv != NULL && oled_drv->render_frame != NULL)
         {

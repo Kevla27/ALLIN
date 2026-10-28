@@ -43,6 +43,7 @@ static volatile uint32_t s_sec_cf2_pulses     = 0U;
 static volatile uint32_t s_sec_active_wh      = 0U;
 static volatile uint32_t s_sec_reactive_varh  = 0U;
 static volatile uint32_t s_sec_epoch_override = 1791794500UL;
+static volatile uint16_t s_sec_century_base   = 2000U;
 
 /**
   * @brief  Secure registration of non-secure callback.
@@ -187,9 +188,10 @@ CMSE_NS_ENTRY uint32_t SECURE_GetRTCDateTime(void)
   if (HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) == HAL_OK &&
       HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN) == HAL_OK)
   {
-    if (sDate.Year >= 20U && sDate.Month >= 1U && sDate.Month <= 12U && sDate.Date >= 1U && sDate.Date <= 31U)
+    if (sDate.Month >= 1U && sDate.Month <= 12U && sDate.Date >= 1U && sDate.Date <= 31U &&
+        (s_sec_century_base > 2000U || sDate.Year >= 20U))
     {
-      uint32_t days = rtc_days_from_civil(2000 + (int)sDate.Year, (unsigned)sDate.Month, (unsigned)sDate.Date);
+      uint32_t days = rtc_days_from_civil((int)s_sec_century_base + (int)sDate.Year, (unsigned)sDate.Month, (unsigned)sDate.Date);
       uint32_t day_sec = ((uint32_t)sTime.Hours * 3600UL) +
                          ((uint32_t)sTime.Minutes * 60UL) +
                          (uint32_t)sTime.Seconds;
@@ -212,11 +214,13 @@ CMSE_NS_ENTRY void SECURE_SetRTCDateTime(uint32_t epoch_sec)
   uint8_t m = 10, d = 28;
   rtc_civil_from_days(epoch_sec / 86400UL, &y, &m, &d);
 
+  s_sec_century_base = (y >= 2100U) ? 2100U : 2000U;
+
   RTC_DateTypeDef sDate = {0};
-  sDate.Year = (uint8_t)(y >= 2000 ? y - 2000 : 0);
+  sDate.Year = (uint8_t)(y >= s_sec_century_base ? (y - s_sec_century_base) : 0U);
   sDate.Month = m;
   sDate.Date = d;
-  sDate.WeekDay = (uint8_t)(((epoch_sec / 86400UL) + 4UL) % 7UL + 1UL); // 1 = Monday
+  sDate.WeekDay = (uint8_t)(((epoch_sec / 86400UL) + 3UL) % 7UL + 1UL); // 1 = Monday .. 7 = Sunday
 
   RTC_TimeTypeDef sTime = {0};
   uint32_t rem = epoch_sec % 86400UL;

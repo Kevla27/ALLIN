@@ -44,6 +44,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-034**](034_arsitektur_sakelar_beban_tiruan_metrologi.md) | 28-10-2026 | Arsitektur Sakelar Diagnostik Metrologi Tiruan (Synthetic Load Generator) via CLI (`load`, `volt`, `curr`, `synth`) & Isolasi Bersih 0-Byte Produksi Massal | `E3/app/board_profile_config.h`, `E3/app/console/*`, `E3/app/e3_meter_app.*`, `NonSecure/Core/Src/meter_system_bridge.c`, `E3/tests/*` | Selesai |
 | [**LOG-035**](035_visualisasi_ikon_grafis_layar_oled.md) | 28-10-2026 | Visualisasi Ikon Grafis Status Bar Khusus Layar OLED (Relai Kontaktor, Baterai Gauge, Tamper Warning Triangle & Tarif ToU Badge) | `E3/app/display/*`, `E3/drivers/oled/*` | Selesai |
 | [**LOG-036**](036_manajemen_power_saving_stop2_mode.md) | 28-10-2026 | Manajemen Power Saving Ekstrem STM32U5 (Stop 2 Mode saat Listrik Padam, Wakeup EXTI/RTC & Restorasi Jam Adaptif) | `E3/drivers/power/*`, `E3/app/board_profile_config.h`, `E3/app/e3_meter_app.*`, `E3/app/console/*`, `E3/tests/*`, `NonSecure/CMakeLists.txt` | Selesai |
+| [**LOG-037**](037_sinkronisasi_rtc_dlms_cli_rx_dan_ikon_relai_oled.md) | 28-10-2026 | Sinkronisasi Clock DLMS Class 8 dengan Hardware RTC, Antrean RX CLI Non-HDLC pada USART2, dan Akurasi Ikon Kontaktor OLED | `E2/Inc/e2_dlms_service.h`, `E2/Src/e2_dlms_service.c`, `NonSecure/Core/Src/meter_system_bridge.c`, `E3/app/display/src/display.c`, `E3/app/e3_meter_app.c` | Selesai |
 
 ---
 
