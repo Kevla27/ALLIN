@@ -48,6 +48,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-038**](038_penyempurnaan_tabel_e2_nvram_magic_dan_event_log_e3.md) | 28-10-2026 | Penyempurnaan Parameter Halaman Tabel E.2, Stempel Magic NVRAM & Read SPI2, Event Log FIFO Tabel 18, dan Pembersihan RTOS Tasks E3 | `E3/app/*`, `E3/tests/*`, `E3/CMakeLists.txt`, `E3/README.md`, `E3/PANDUAN_ARSITEKTUR_DAN_FILE_E3.md` | Selesai |
 | [**LOG-039**](039_persistensi_abad_rtc_backup_register_vbat.md) | 28-10-2026 | Persistensi Abad RTC (s_sec_century_base) di Backup Register VBAT RTC_BKP_DR2 | `Secure/Core/Src/secure_nsc.c`, `Secure/Core/Src/main.c` | Selesai |
 | [**LOG-040**](040_perbaikan_trustzone_tamper_boundary_dan_spi_flash_page_chunking.md) | 28-10-2026 | Perbaikan TrustZone Tamper Boundary (Isolasi NSC PC13/PE6/PE4 & Safeguard Active-Low) dan SPI Flash Page-Program Chunking 256-Byte | `E3/app/e3_meter_app.c`, `E3/app/profiling/src/nvram_storage.c`, `E3/drivers/power/src/bsp_power_mode.c`, `Secure/Core/Src/secure_nsc.c` | Selesai |
+| [**LOG-041**](041_penyempurnaan_proteksi_koil_relai_century_rollover_dan_cli_crlf.md) | 28-10-2026 | Penyempurnaan Proteksi Koil Relai (ERR07 Debounce & Pulse 100ms), Century Rollover RTC Otonom, dan Filter CRLF Serial CLI | `E3/app/e3_meter_app.c`, `Secure/Core/Src/secure_nsc.c`, `Secure/Core/Src/main.c`, `E3/app/console/src/console_io.c`, `E3/tests/*` | Selesai |
 
 ---
 

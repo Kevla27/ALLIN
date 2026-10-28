@@ -1058,6 +1058,15 @@ int console_cli_execute_command(char *cmd_line) {
 }
 
 void console_cli_process_rx_byte(uint8_t byte) {
+    static uint8_t s_prev_rx_byte = 0U;
+
+    /* Abaikan karakter '\n' redundant jika didahului oleh '\r' (CRLF dari PuTTY / serial terminal) */
+    if (byte == '\n' && s_prev_rx_byte == '\r') {
+        s_prev_rx_byte = byte;
+        return;
+    }
+    s_prev_rx_byte = byte;
+
     if (byte == '\r' || byte == '\n') {
         if (s_rx_line_idx > 0) {
             s_rx_line_buf[s_rx_line_idx] = '\0';

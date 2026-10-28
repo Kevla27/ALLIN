@@ -251,12 +251,14 @@ CMSE_NS_ENTRY uint32_t SECURE_GetRTCDateTime(void)
   {
     if (sDate.Month >= 1U && sDate.Month <= 12U && sDate.Date >= 1U && sDate.Date <= 31U)
     {
-      /* Deteksi transisi abad otonom: Jika meter beroperasi melewati 2099 menuju 2100 (Year = 00..19) */
-      if (century_base == 2000U && sDate.Year < 20U)
+      /* Deteksi transisi abad otonom: Jika meter beroperasi terus menerus melintasi 2099 menuju 2100 (99 -> 00) */
+      static uint8_t s_prev_rtc_year = 0xFFU;
+      if (s_prev_rtc_year == 99U && sDate.Year == 0U && century_base == 2000U)
       {
         century_base = 2100U;
         secure_rtc_save_century_base(century_base);
       }
+      s_prev_rtc_year = sDate.Year;
 
       uint32_t days = rtc_days_from_civil((int)century_base + (int)sDate.Year, (unsigned)sDate.Month, (unsigned)sDate.Date);
       uint32_t day_sec = ((uint32_t)sTime.Hours * 3600UL) +

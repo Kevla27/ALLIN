@@ -31,8 +31,15 @@ void test_nvram_load_profile_write_read(void) {
     assert(entry_read.current_r_mamps == 5230);
     assert(entry_read.crc16 == 0xF8E1);
 
-    bool invalid_write = nvram_write_load_profile_entry(LOAD_PROFILE_MAX_ENTRIES + 1, &entry_to_write);
+    bool invalid_write = nvram_write_load_profile_entry(LOAD_PROFILE_MAX_ENTRIES, &entry_to_write);
     assert(invalid_write == false);
+    assert(nvram_write_load_profile_entry(0, NULL) == false);
+    assert(nvram_read_load_profile_entry(0, NULL) == false);
+    assert(nvram_read_load_profile_entry(LOAD_PROFILE_MAX_ENTRIES, &entry_read) == false);
+    assert(nvram_save_tamper_log_snapshot(NULL) == false);
+    assert(nvram_load_tamper_log_snapshot(NULL) == false);
+    assert(nvram_save_energy_checkpoint(NULL) == false);
+    assert(nvram_load_energy_checkpoint(NULL) == false);
 
     printf("   [PASS] NVRAM Load Profile Storage Read/Write Valid!\n\n");
 }

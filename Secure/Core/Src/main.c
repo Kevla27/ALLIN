@@ -354,13 +354,15 @@ static void MX_RTC_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN RTC_Init 2 */
-  /* Inisialisasi awal tanggal/jam jika belum terkonfigurasi (tahun < 26) */
+  /* Inisialisasi awal tanggal/jam jika domain VBAT belum terkonfigurasi (belum ada magic 0xCE) atau tahun < 26 di abad 2000 */
   RTC_DateTypeDef sDateCheck = {0};
   RTC_TimeTypeDef sTimeCheck = {0};
   (void)HAL_RTC_GetTime(&hrtc, &sTimeCheck, RTC_FORMAT_BIN);
   if (HAL_RTC_GetDate(&hrtc, &sDateCheck, RTC_FORMAT_BIN) == HAL_OK)
   {
-    if (sDateCheck.Year < 26U)
+    uint32_t bkp_century = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR2);
+    if (((bkp_century & 0xFFFF0000U) != 0xCE000000U) ||
+        (((bkp_century & 0xFFFFU) == 2000U) && (sDateCheck.Year < 26U)))
     {
       /* Set baseline tanggal default ke 28 Oktober 2026 10:00:00 (1793181600) */
       SECURE_SetRTCDateTime(1793181600UL);

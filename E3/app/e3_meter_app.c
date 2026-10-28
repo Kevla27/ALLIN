@@ -676,29 +676,47 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
                              (power_relay_get_state(&s_relay_ctx) == RELAY_STATE_DISCONNECTED) ||
                              is_hardware_alarm_led;
 
+    static uint32_t s_relay_trip_ms = 0U;
     if (is_trip_commanded)
     {
-        HAL_GPIO_WritePin(RELAY_TRIP_GPIO_Port, RELAY_TRIP_Pin, GPIO_PIN_SET);
+        if (s_relay_trip_ms < 0xFFFFFFFFU - delta_ms)
+        {
+            s_relay_trip_ms += delta_ms;
+        }
+
+        /* Pulsa penggerak koil relai (100 ms) per BOARD_CFG_RELAY_PULSE_MS untuk mencegah koil terbakar */
+        if (s_relay_trip_ms <= BOARD_CFG_RELAY_PULSE_MS)
+        {
+            HAL_GPIO_WritePin(RELAY_TRIP_GPIO_Port, RELAY_TRIP_Pin, GPIO_PIN_SET);
+        }
+        else
+        {
+            HAL_GPIO_WritePin(RELAY_TRIP_GPIO_Port, RELAY_TRIP_Pin, GPIO_PIN_RESET);
+        }
+
         HAL_GPIO_WritePin(LED_ALM_GPIO_Port, LED_ALM_Pin, is_yellow_led_on ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
-        /* Validasi Feedback Relai: Jika sudah di-trip tapi kontak fisik masih terhubung -> Alarm ERR07 */
-        if (relay_closed_fb)
+        /* Validasi Feedback Relai: Berikan waktu toleransi mekanik 500 ms sebelum menyatakan relai macet (ERR07) */
+        if (s_relay_trip_ms >= 500U && relay_closed_fb)
         {
             s_internal_alarm_mask |= SPLN_ALARM_RELAY_FAIL;
             display_set_internal_alarm(&s_disp_ctx, s_internal_alarm_mask);
         }
     }
-    else if (is_ready_on)
-    {
-        /* Sesuai Desain Sistem Hal. 10 & 36: Saat READY ON, LED_ALM (Kuning) berkedip periodik 1 Hz */
-        HAL_GPIO_WritePin(RELAY_TRIP_GPIO_Port, RELAY_TRIP_Pin, GPIO_PIN_RESET);
-        GPIO_PinState blink_state = ((current_tick_ms / 500U) % 2U == 0U) ? GPIO_PIN_SET : GPIO_PIN_RESET;
-        HAL_GPIO_WritePin(LED_ALM_GPIO_Port, LED_ALM_Pin, blink_state);
-    }
     else
     {
+        s_relay_trip_ms = 0U;
         HAL_GPIO_WritePin(RELAY_TRIP_GPIO_Port, RELAY_TRIP_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(LED_ALM_GPIO_Port, LED_ALM_Pin, is_yellow_led_on ? GPIO_PIN_SET : GPIO_PIN_RESET);
+        if (is_ready_on)
+        {
+            /* Sesuai Desain Sistem Hal. 10 & 36: Saat READY ON, LED_ALM (Kuning) berkedip periodik 1 Hz */
+            GPIO_PinState blink_state = ((current_tick_ms / 500U) % 2U == 0U) ? GPIO_PIN_SET : GPIO_PIN_RESET;
+            HAL_GPIO_WritePin(LED_ALM_GPIO_Port, LED_ALM_Pin, blink_state);
+        }
+        else
+        {
+            HAL_GPIO_WritePin(LED_ALM_GPIO_Port, LED_ALM_Pin, is_yellow_led_on ? GPIO_PIN_SET : GPIO_PIN_RESET);
+        }
     }
 
     /* Non-blocking buzzer button beep timer */
