@@ -102,3 +102,8 @@ add_test(NAME Unit_E3_Board_Profile COMMAND test_board_profile)
 add_executable(test_power_mode tests/test_power_mode.c)
 target_link_libraries(test_power_mode PRIVATE e3_core)
 add_test(NAME Unit_E3_Power_Mode_Stop2 COMMAND test_power_mode)
+
+# 11. Unit Test: NVRAM Storage & Energy Checkpoint Magic Stamp
+add_executable(test_nvram_storage tests/test_nvram_storage.c)
+target_link_libraries(test_nvram_storage PRIVATE e3_core)
+add_test(NAME Unit_E3_NVRAM_Storage COMMAND test_nvram_storage)

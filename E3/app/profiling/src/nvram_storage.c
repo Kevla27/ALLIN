@@ -32,7 +32,26 @@ static void spi2_flash_write_bytes(uint32_t flash_offset, const uint8_t *data, u
     HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
     if (HAL_SPI_Transmit(&hspi2, hdr, 4U, 5U) == HAL_OK)
     {
-        (void)HAL_SPI_Transmit(&hspi2, (uint8_t *)data, len, 10U);
+        (void)HAL_SPI_Transmit(&hspi2, (uint8_t *)data, len, 20U);
+    }
+    HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
+}
+
+static void spi2_flash_read_bytes(uint32_t flash_offset, uint8_t *data, uint16_t len)
+{
+    if (data == NULL || len == 0U) return;
+
+    uint8_t hdr[4] = {
+        SPI_FLASH_CMD_READ,
+        (uint8_t)((flash_offset >> 16) & 0xFFU),
+        (uint8_t)((flash_offset >> 8) & 0xFFU),
+        (uint8_t)(flash_offset & 0xFFU)
+    };
+
+    HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
+    if (HAL_SPI_Transmit(&hspi2, hdr, 4U, 10U) == HAL_OK)
+    {
+        (void)HAL_SPI_Receive(&hspi2, data, len, 50U);
     }
     HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
 }
@@ -60,6 +79,16 @@ bool nvram_read_load_profile_entry(uint32_t entry_index, load_profile_entry_t *o
 {
     if (out_entry == NULL || entry_index >= LOAD_PROFILE_MAX_ENTRIES) return false;
 
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    uint32_t offset = 0x004000U + (entry_index * (uint32_t)sizeof(load_profile_entry_t));
+    load_profile_entry_t flash_entry = {0};
+    spi2_flash_read_bytes(offset, (uint8_t *)&flash_entry, (uint16_t)sizeof(load_profile_entry_t));
+    if (flash_entry.timestamp != 0xFFFFFFFFU && flash_entry.timestamp != 0U)
+    {
+        simulated_load_profile_flash[entry_index] = flash_entry;
+    }
+#endif
+
     *out_entry = simulated_load_profile_flash[entry_index];
     return true;
 }
@@ -80,6 +109,15 @@ bool nvram_load_tamper_log_snapshot(tamper_context_t *tamper_ctx)
 {
     if (tamper_ctx == NULL) return false;
 
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    tamper_context_t flash_tamper = {0};
+    spi2_flash_read_bytes(0x002000U, (uint8_t *)&flash_tamper, (uint16_t)sizeof(tamper_context_t));
+    if (flash_tamper.total_event_count > 0 || (flash_tamper.active_tamper_mask != 0xFFFFFFFFU && flash_tamper.active_tamper_mask != 0U))
+    {
+        simulated_tamper_log_flash = flash_tamper;
+    }
+#endif
+
     *tamper_ctx = simulated_tamper_log_flash;
     return true;
 }
@@ -89,9 +127,11 @@ bool nvram_save_energy_checkpoint(const nvram_energy_checkpoint_t *checkpoint)
     if (checkpoint == NULL) return false;
 
     simulated_energy_checkpoint_flash = *checkpoint;
+    /* Jamin stempel magic resmi NVRAM_ENERGY_CHECKPOINT_MAGIC ("ENGY" = 0x454E4759) selalu valid terisi */
+    simulated_energy_checkpoint_flash.magic = NVRAM_ENERGY_CHECKPOINT_MAGIC;
 
 #if defined(EMBEDDED_HARDWARE_TARGET)
-    spi2_flash_write_bytes(0x001000U, (const uint8_t *)checkpoint, (uint16_t)sizeof(nvram_energy_checkpoint_t));
+    spi2_flash_write_bytes(0x001000U, (const uint8_t *)&simulated_energy_checkpoint_flash, (uint16_t)sizeof(nvram_energy_checkpoint_t));
 #endif
     return true;
 }
@@ -99,6 +139,16 @@ bool nvram_save_energy_checkpoint(const nvram_energy_checkpoint_t *checkpoint)
 bool nvram_load_energy_checkpoint(nvram_energy_checkpoint_t *out_checkpoint)
 {
     if (out_checkpoint == NULL) return false;
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    nvram_energy_checkpoint_t flash_cp = {0};
+    spi2_flash_read_bytes(0x001000U, (uint8_t *)&flash_cp, (uint16_t)sizeof(nvram_energy_checkpoint_t));
+    /* Verifikasi stempel magic sebelum memulihkan data dari SPI2 Flash fisik ke RAM mirror */
+    if (flash_cp.magic == NVRAM_ENERGY_CHECKPOINT_MAGIC)
+    {
+        simulated_energy_checkpoint_flash = flash_cp;
+    }
+#endif
 
     *out_checkpoint = simulated_energy_checkpoint_flash;
     return (out_checkpoint->magic == NVRAM_ENERGY_CHECKPOINT_MAGIC);

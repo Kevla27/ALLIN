@@ -49,6 +49,40 @@ void test_nvram_tamper_log_snapshot(void) {
     printf("   [PASS] NVRAM Tamper Log Snapshot Valid!\n\n");
 }
 
+void test_nvram_energy_checkpoint_magic_stamp(void) {
+    printf("[TEST] Testing NVRAM Energy Checkpoint Save/Load & Magic Stamp...\n");
+
+    nvram_energy_checkpoint_t cp_in = {0};
+    cp_in.timestamp = 1727570400;
+    cp_in.active_energy_import_wh = 12345678;
+    cp_in.active_energy_export_wh = 87654321;
+    cp_in.reactive_energy_varh = 55555;
+    cp_in.tou_tariff_wh[0] = 5000000;
+    cp_in.tou_tariff_wh[1] = 7345678;
+    cp_in.vcap_mv_at_fail = 3250;
+    cp_in.active_tamper_mask = 0;
+
+    /* Uji auto-stamping: cp_in.magic sengaja bernilai 0 */
+    assert(cp_in.magic == 0);
+
+    bool save_ok = nvram_save_energy_checkpoint(&cp_in);
+    assert(save_ok == true);
+
+    nvram_energy_checkpoint_t cp_out = {0};
+    bool load_ok = nvram_load_energy_checkpoint(&cp_out);
+    assert(load_ok == true);
+    assert(cp_out.magic == NVRAM_ENERGY_CHECKPOINT_MAGIC);
+    assert(cp_out.timestamp == 1727570400);
+    assert(cp_out.active_energy_import_wh == 12345678);
+    assert(cp_out.active_energy_export_wh == 87654321);
+    assert(cp_out.reactive_energy_varh == 55555);
+    assert(cp_out.tou_tariff_wh[0] == 5000000);
+    assert(cp_out.tou_tariff_wh[1] == 7345678);
+    assert(cp_out.vcap_mv_at_fail == 3250);
+
+    printf("   [PASS] NVRAM Energy Checkpoint Magic Stamp 0x454E4759 Verified!\n\n");
+}
+
 /* FUNGSI MAIN UTAMA HARUS ADA DI SINI */
 int main(void) {
     printf("=========================================\n");
@@ -57,8 +91,9 @@ int main(void) {
 
     test_nvram_load_profile_write_read();
     test_nvram_tamper_log_snapshot();
+    test_nvram_energy_checkpoint_magic_stamp();
 
-    printf(">>> ALL NVRAM UNIT TESTS PASSED 100%! <<<\n");
+    printf(">>> ALL NVRAM UNIT TESTS PASSED 100%%! <<<\n");
     printf("=========================================\n");
     return 0;
 }

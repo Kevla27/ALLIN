@@ -274,6 +274,9 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
     if (nvram_load_energy_checkpoint(&energy_cp))
     {
         s_last_active_energy_wh = energy_cp.active_energy_import_wh;
+        s_disp_ctx.meas_buffer.active_energy_import_wh = energy_cp.active_energy_import_wh;
+        s_disp_ctx.meas_buffer.active_energy_wh = energy_cp.active_energy_import_wh;
+        s_disp_ctx.meas_buffer.reactive_energy_varh = energy_cp.reactive_energy_varh;
         for (int i = 0; i < E3_TOU_MAX_ZONES; i++)
         {
             s_tou_tariff_wh[i] = energy_cp.tou_tariff_wh[i];
@@ -714,6 +717,22 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         lp_entry.status_mask = tamper_get_active_mask(&s_tamper_ctx);
         load_profile_add_entry(&s_lp_ctx, &lp_entry);
         (void)nvram_write_load_profile_entry((uint32_t)(load_profile_get_count(&s_lp_ctx) - 1U), &lp_entry);
+
+        /* Simpan checkpoint energi berkala ke SPI2 Flash */
+        nvram_energy_checkpoint_t periodic_cp = {0};
+        periodic_cp.magic = NVRAM_ENERGY_CHECKPOINT_MAGIC;
+        periodic_cp.timestamp = s_now_epoch_sec;
+        periodic_cp.active_energy_import_wh = s_last_active_energy_wh;
+        periodic_cp.active_energy_export_wh = s_disp_ctx.meas_buffer.active_energy_import_wh;
+        periodic_cp.reactive_energy_varh = s_disp_ctx.meas_buffer.reactive_energy_varh;
+        periodic_cp.vcap_mv_at_fail = s_vcap_millivolts;
+        periodic_cp.active_tamper_mask = tamper_get_active_mask(&s_tamper_ctx);
+        for (int i = 0; i < E3_TOU_MAX_ZONES; i++)
+        {
+            periodic_cp.tou_tariff_wh[i] = s_tou_tariff_wh[i];
+        }
+        (void)nvram_save_energy_checkpoint(&periodic_cp);
+
         printf("[PROFILING] 15-min Load Profile entry saved. Total entries: %u\n",
                (unsigned int)load_profile_get_count(&s_lp_ctx));
     }
@@ -787,6 +806,7 @@ void e3_meter_app_on_ac_fail(bool is_power_cut)
 
         /* 1. Simpan snapshot 3 log FIFO & Checkpoint Energi (Wh & ToU) ke NVRAM (SPI2 Flash) & Kirim paket darurat Last-Gasp */
         nvram_energy_checkpoint_t energy_cp = {0};
+        energy_cp.magic = NVRAM_ENERGY_CHECKPOINT_MAGIC;
         energy_cp.timestamp = s_now_epoch_sec;
         energy_cp.active_energy_import_wh = s_last_active_energy_wh;
         energy_cp.active_energy_export_wh = s_disp_ctx.meas_buffer.active_energy_import_wh;
