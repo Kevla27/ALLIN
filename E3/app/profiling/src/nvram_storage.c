@@ -14,32 +14,81 @@ extern SPI_HandleTypeDef hspi2;
 #define SPI_FLASH_CMD_WREN  0x06U
 #define SPI_FLASH_CMD_PP    0x02U
 #define SPI_FLASH_CMD_READ  0x03U
+#define SPI_FLASH_CMD_RDSR1 0x05U
+
+static void spi2_flash_wait_busy(void)
+{
+    uint8_t cmd = SPI_FLASH_CMD_RDSR1;
+    uint8_t status = 0x01U;
+    uint32_t timeout_cycles = 100000U;
+    while (timeout_cycles-- > 0U)
+    {
+        HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
+        if (HAL_SPI_Transmit(&hspi2, &cmd, 1U, 2U) == HAL_OK)
+        {
+            (void)HAL_SPI_Receive(&hspi2, &status, 1U, 2U);
+        }
+        HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
+        if ((status & 0x01U) == 0U)
+        {
+            break;
+        }
+    }
+}
 
 static void spi2_flash_write_bytes(uint32_t flash_offset, const uint8_t *data, uint16_t len)
 {
-    uint8_t wren = SPI_FLASH_CMD_WREN;
-    uint8_t hdr[4] = {
-        SPI_FLASH_CMD_PP,
-        (uint8_t)((flash_offset >> 16) & 0xFFU),
-        (uint8_t)((flash_offset >> 8) & 0xFFU),
-        (uint8_t)(flash_offset & 0xFFU)
-    };
+    if (data == NULL || len == 0U) return;
 
-    HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
-    (void)HAL_SPI_Transmit(&hspi2, &wren, 1U, 5U);
-    HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
-
-    HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
-    if (HAL_SPI_Transmit(&hspi2, hdr, 4U, 5U) == HAL_OK)
+    while (len > 0U)
     {
-        (void)HAL_SPI_Transmit(&hspi2, (uint8_t *)data, len, 20U);
+        /* Hitung kapasitas tersisa pada halaman 256-byte saat ini agar data tidak wrap-around */
+        uint16_t page_offset = (uint16_t)(flash_offset & 0xFFU);
+        uint16_t chunk = 256U - page_offset;
+        if (chunk > len)
+        {
+            chunk = len;
+        }
+
+        /* Pastikan flash idle sebelum memulai siklus tulis berikutnya */
+        spi2_flash_wait_busy();
+
+        /* 1. Kirim Write Enable (0x06) */
+        uint8_t wren = SPI_FLASH_CMD_WREN;
+        HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
+        (void)HAL_SPI_Transmit(&hspi2, &wren, 1U, 5U);
+        HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
+
+        /* 2. Kirim Page Program (0x02) + 24-bit Flash Address */
+        uint8_t hdr[4] = {
+            SPI_FLASH_CMD_PP,
+            (uint8_t)((flash_offset >> 16) & 0xFFU),
+            (uint8_t)((flash_offset >> 8) & 0xFFU),
+            (uint8_t)(flash_offset & 0xFFU)
+        };
+
+        HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
+        if (HAL_SPI_Transmit(&hspi2, hdr, 4U, 5U) == HAL_OK)
+        {
+            (void)HAL_SPI_Transmit(&hspi2, (uint8_t *)data, chunk, 20U);
+        }
+        HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
+
+        flash_offset += chunk;
+        data         += chunk;
+        len          -= chunk;
     }
-    HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
+
+    /* Pastikan halaman terakhir selesai diprogram */
+    spi2_flash_wait_busy();
 }
 
 static void spi2_flash_read_bytes(uint32_t flash_offset, uint8_t *data, uint16_t len)
 {
     if (data == NULL || len == 0U) return;
+
+    /* Tunggu jika ada siklus tulis yang sedang berlangsung */
+    spi2_flash_wait_busy();
 
     uint8_t hdr[4] = {
         SPI_FLASH_CMD_READ,

@@ -490,15 +490,20 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
     }
 
     /* 2. Periksa Input Tamper Hardware (PC13, PE6, PE4) & Latch TrustZone Secure TAMP */
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    /* Pada hardware target STM32U5, pin PC13, PE6, PE4 dikonfigurasi sebagai Secure GPIO (TrustZone).
+     * Pembacaan status fisik pin maupun latch hardware TAMP wajib melalui gateway NSC (Non-Secure Callable).
+     * Hal ini mencegah pembacaan non-secure bernilai 0 (RAZ) yang dapat memicu false positive
+     * pada konfigurasi sakelar active-low (BOARD_CFG_TAMPER_*_LVL == 0). */
+    uint32_t sec_tamp_mask = SECURE_GetTamperStatusMask();
+    bool tamp_case = ((sec_tamp_mask & (1U << 0)) != 0U);
+    bool tamp_term = ((sec_tamp_mask & (1U << 1)) != 0U);
+    bool tamp_mag  = ((sec_tamp_mask & (1U << 2)) != 0U);
+#else
+    /* Simulasi Host Test Native (x86_64 / CTest) */
     bool tamp_case = (HAL_GPIO_ReadPin(TAMP_CASE_OPEN_GPIO_Port, TAMP_CASE_OPEN_Pin) == (BOARD_CFG_TAMPER_CASE_OPEN_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET));
     bool tamp_term = (HAL_GPIO_ReadPin(TAMP_TERM_COVER_GPIO_Port, TAMP_TERM_COVER_Pin) == (BOARD_CFG_TAMPER_TERM_OPEN_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET));
     bool tamp_mag  = (HAL_GPIO_ReadPin(SENSOR_MAGNET_GPIO_Port, SENSOR_MAGNET_Pin) == (BOARD_CFG_TAMPER_MAGNET_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET));
-
-#if defined(EMBEDDED_HARDWARE_TARGET)
-    uint32_t sec_tamp_mask = SECURE_GetTamperStatusMask();
-    if (sec_tamp_mask & 0x01U) tamp_case = true;
-    if (sec_tamp_mask & 0x02U) tamp_term = true;
-    if (sec_tamp_mask & 0x04U) tamp_mag  = true;
 #endif
 
     if (tamp_case) tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_CASE_OPEN, true, s_now_epoch_sec);

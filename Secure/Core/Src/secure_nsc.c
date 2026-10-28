@@ -159,6 +159,16 @@ CMSE_NS_ENTRY uint32_t SECURE_GetReactiveEnergyVarh(void)
   return s_sec_reactive_varh;
 }
 
+#ifndef BOARD_CFG_TAMPER_CASE_OPEN_LVL
+#define BOARD_CFG_TAMPER_CASE_OPEN_LVL  1
+#endif
+#ifndef BOARD_CFG_TAMPER_TERM_OPEN_LVL
+#define BOARD_CFG_TAMPER_TERM_OPEN_LVL  1
+#endif
+#ifndef BOARD_CFG_TAMPER_MAGNET_LVL
+#define BOARD_CFG_TAMPER_MAGNET_LVL     1
+#endif
+
 /**
   * @brief  Membaca status hardware tamper latch dari peripheral TAMP (Domain VSW)
   *         - Bit 0: PC13 (TAMP_IN1 - Case Open)
@@ -172,16 +182,16 @@ CMSE_NS_ENTRY uint32_t SECURE_GetTamperStatusMask(void)
 
   /* Periksa latch hardware TAMP->SR maupun status pin fisik Secure GPIO (PC13, PE6, PE4) */
   if (((sr & TAMP_SR_TAMP1F) != 0U) ||
-      (HAL_GPIO_ReadPin(TAMP_CASE_OPEN_GPIO_Port, TAMP_CASE_OPEN_Pin) == GPIO_PIN_SET))
+      (HAL_GPIO_ReadPin(TAMP_CASE_OPEN_GPIO_Port, TAMP_CASE_OPEN_Pin) == (BOARD_CFG_TAMPER_CASE_OPEN_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET)))
   {
     mask |= (1U << 0); /* TAMPER_VECTOR_CASE_OPEN */
   }
   if (((sr & TAMP_SR_TAMP3F) != 0U) ||
-      (HAL_GPIO_ReadPin(TAMP_TERM_COVER_GPIO_Port, TAMP_TERM_COVER_Pin) == GPIO_PIN_SET))
+      (HAL_GPIO_ReadPin(TAMP_TERM_COVER_GPIO_Port, TAMP_TERM_COVER_Pin) == (BOARD_CFG_TAMPER_TERM_OPEN_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET)))
   {
     mask |= (1U << 1); /* TAMPER_VECTOR_TERMINAL_OPEN */
   }
-  if (HAL_GPIO_ReadPin(SENSOR_MAGNET_GPIO_Port, SENSOR_MAGNET_Pin) == GPIO_PIN_SET)
+  if (HAL_GPIO_ReadPin(SENSOR_MAGNET_GPIO_Port, SENSOR_MAGNET_Pin) == (BOARD_CFG_TAMPER_MAGNET_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET))
   {
     mask |= (1U << 2); /* TAMPER_VECTOR_MAGNETIC_FIELD */
   }

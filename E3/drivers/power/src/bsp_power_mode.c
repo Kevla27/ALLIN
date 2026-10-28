@@ -243,9 +243,8 @@ meter_wakeup_reason_t bsp_power_enter_stop2(void)
         s_current_mode = METER_POWER_MODE_BATTERY_ACTIVE;
         bsp_power_set_battery_clock_msis();
     }
-    /* Cek C: Apakah sakelar proteksi tamper terpicu? (PC13, PE6, PE4) */
-    else if ((SECURE_GetTamperStatusMask() != 0U) ||
-             (HAL_GPIO_ReadPin(TAMP_CASE_OPEN_GPIO_Port, TAMP_CASE_OPEN_Pin) == GPIO_PIN_SET))
+    /* Cek C: Apakah sakelar proteksi tamper terpicu? (PC13, PE6, PE4 via Secure NSC) */
+    else if (SECURE_GetTamperStatusMask() != 0U)
     {
         reason = METER_WAKEUP_REASON_TAMPER;
         s_current_mode = METER_POWER_MODE_STOP2;
