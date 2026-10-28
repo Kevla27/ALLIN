@@ -124,9 +124,11 @@ bool power_relay_process_voltage(power_relay_context_t *ctx, uint32_t v_r_dv, ui
 
     /* 3. Pemulihan Otomatis Under-Voltage: Menutup kembali saat semua fasa > 115 V */
     if (ctx->is_under_voltage_trip && ctx->last_reason == RELAY_REASON_UNDER_VOLTAGE) {
-        bool all_above_115 = ((v_r_dv == 0 || v_r_dv > SPLN_VOLT_UNDER_RECLOSE_DV) &&
+        bool has_active_phase = (v_r_dv > 100U || v_s_dv > 100U || v_t_dv > 100U);
+        bool all_above_115 = has_active_phase &&
+                              (v_r_dv == 0 || v_r_dv > SPLN_VOLT_UNDER_RECLOSE_DV) &&
                               (v_s_dv == 0 || v_s_dv > SPLN_VOLT_UNDER_RECLOSE_DV) &&
-                              (v_t_dv == 0 || v_t_dv > SPLN_VOLT_UNDER_RECLOSE_DV));
+                              (v_t_dv == 0 || v_t_dv > SPLN_VOLT_UNDER_RECLOSE_DV);
         if (all_above_115 && !has_over_voltage) {
             ctx->relay_state = RELAY_STATE_CONNECTED;
             ctx->last_reason = RELAY_REASON_NONE;

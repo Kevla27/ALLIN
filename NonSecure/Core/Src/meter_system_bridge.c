@@ -18,6 +18,7 @@
 #include "e2_dlms_service.h"
 #include "e3_meter_app.h"
 #include "console_io.h"
+#include "nvram_storage.h"
 
 /* -------------------------------------------------------------------------- */
 /* Variabel Statis Internal                                                  */
@@ -59,6 +60,15 @@ void meter_system_bringup(UART_HandleTypeDef *huart_opt, UART_HandleTypeDef *hua
     e2_dlms_service_init(huart_opt);
     e2_dlms_service_set_modem_uart(huart_modem);
     e3_meter_app_init("54321678901", hadc_telemetry);
+
+    /* 3. Pulihkan Stand Akumulasi Energi dari NVRAM Checkpoint ke Context Pengukuran Sistem */
+    nvram_energy_checkpoint_t cp = {0};
+    if (nvram_load_energy_checkpoint(&cp))
+    {
+        s_meas.active_energy_wh        = cp.active_energy_import_wh;
+        s_meas.active_energy_import_wh = cp.active_energy_export_wh;
+        s_meas.reactive_energy_varh    = cp.reactive_energy_varh;
+    }
 
     printf("[BRIDGE] All Pillars (E1 Metrology, E2 DLMS, E3 App, FreeRTOS LowPower) initialized.\n");
 }

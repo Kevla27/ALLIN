@@ -38,6 +38,8 @@ typedef struct {
     HdlcContext          hdlc_ctx;
     HdlcFrame            rx_frame;
     AmiDlmsAssociation   assoc;
+    uint8_t              tx_buf[AMI_HDLC_MAX_FRAME_BYTES];
+    uint8_t              apdu_resp[AMI_COSEM_AXDR_ENCODED_MAX];
 } DlmsChannelState;
 
 static DlmsChannelState          s_optical_channel;
@@ -100,7 +102,7 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
     snapshot->phase_current_milliamps[2] = meas->current_t_mamps;
 
     snapshot->active_import_wh     = meas->active_energy_wh;
-    snapshot->active_export_wh     = 0ULL;
+    snapshot->active_export_wh     = meas->active_energy_import_wh;
 
     const ReactiveEnergyQuadrants_t *quads = e1_metrology_get_reactive_quadrants();
     if (quads != NULL)
@@ -110,8 +112,8 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
     }
     else
     {
-        snapshot->reactive_import_varh = meas->reactive_energy_varh;
-        snapshot->reactive_export_varh = 0ULL;
+        snapshot->reactive_import_varh = (meas->reactive_energy_exp_varh > 0ULL) ? meas->reactive_energy_exp_varh : meas->reactive_energy_varh;
+        snapshot->reactive_export_varh = meas->reactive_energy_imp_varh;
     }
 
     /* 2. Sinkronisasi Clock COSEM Class 8 langsung dari RTC Epoch Aktif */
@@ -157,8 +159,8 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
 
 static void process_channel_rx(DlmsChannelState *ch)
 {
-    uint8_t tx_buf[AMI_HDLC_MAX_FRAME_BYTES];
-    uint8_t apdu_resp[AMI_COSEM_AXDR_ENCODED_MAX];
+    uint8_t *tx_buf = ch->tx_buf;
+    uint8_t *apdu_resp = ch->apdu_resp;
     size_t  tx_len = 0;
     size_t  apdu_resp_len = 0;
 
@@ -182,7 +184,7 @@ static void process_channel_rx(DlmsChannelState *ch)
         {
             ami_dlms_association_reset(&ch->assoc);
             if (ami_dlms_hdlc_build_frame(&ch->hdlc_ctx, &ch->rx_frame, NULL, 0,
-                                          tx_buf, sizeof(tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
+                                          tx_buf, sizeof(ch->tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
             {
                 HAL_UART_Transmit(ch->huart, tx_buf, (uint16_t)tx_len, 100);
             }
@@ -190,7 +192,7 @@ static void process_channel_rx(DlmsChannelState *ch)
         else if (ch->rx_frame.type == AMI_HDLC_FRAME_RR)
         {
             if (ami_dlms_hdlc_build_frame(&ch->hdlc_ctx, &ch->rx_frame, NULL, 0,
-                                          tx_buf, sizeof(tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
+                                          tx_buf, sizeof(ch->tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
             {
                 HAL_UART_Transmit(ch->huart, tx_buf, (uint16_t)tx_len, 100);
             }
@@ -202,11 +204,11 @@ static void process_channel_rx(DlmsChannelState *ch)
             {
                 if (ami_dlms_process_aarq(&ch->assoc,
                                           ch->rx_frame.payload, ch->rx_frame.payload_length,
-                                          apdu_resp, sizeof(apdu_resp), &apdu_resp_len) == AMI_DLMS_ASSOC_OK)
+                                          apdu_resp, sizeof(ch->apdu_resp), &apdu_resp_len) == AMI_DLMS_ASSOC_OK)
                 {
                     if (ami_dlms_hdlc_build_frame(&ch->hdlc_ctx, &ch->rx_frame,
                                                   apdu_resp, apdu_resp_len,
-                                                  tx_buf, sizeof(tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
+                                                  tx_buf, sizeof(ch->tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
                     {
                         HAL_UART_Transmit(ch->huart, tx_buf, (uint16_t)tx_len, 100);
                     }
@@ -216,11 +218,11 @@ static void process_channel_rx(DlmsChannelState *ch)
             {
                 if (ami_dlms_process_get_request(&ch->assoc, &s_global_dlms_snapshot,
                                                  ch->rx_frame.payload, ch->rx_frame.payload_length,
-                                                 apdu_resp, sizeof(apdu_resp), &apdu_resp_len) == AMI_DLMS_APDU_OK)
+                                                 apdu_resp, sizeof(ch->apdu_resp), &apdu_resp_len) == AMI_DLMS_APDU_OK)
                 {
                     if (ami_dlms_hdlc_build_frame(&ch->hdlc_ctx, &ch->rx_frame,
                                                   apdu_resp, apdu_resp_len,
-                                                  tx_buf, sizeof(tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
+                                                  tx_buf, sizeof(ch->tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
                     {
                         HAL_UART_Transmit(ch->huart, tx_buf, (uint16_t)tx_len, 100);
                     }
@@ -232,7 +234,7 @@ static void process_channel_rx(DlmsChannelState *ch)
                 static const uint8_t rlre_pdu[] = { 0x63U, 0x03U, 0x80U, 0x01U, 0x00U };
                 if (ami_dlms_hdlc_build_frame(&ch->hdlc_ctx, &ch->rx_frame,
                                               rlre_pdu, sizeof(rlre_pdu),
-                                              tx_buf, sizeof(tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
+                                              tx_buf, sizeof(ch->tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
                 {
                     HAL_UART_Transmit(ch->huart, tx_buf, (uint16_t)tx_len, 100);
                 }

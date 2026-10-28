@@ -82,7 +82,8 @@ AmiHdlcStatus ami_dlms_hdlc_parse_byte(HdlcContext *c,uint8_t byte,HdlcFrame *f)
  c->frame_buffer[c->frame_length++]=byte;
  return AMI_HDLC_INCOMPLETE;
 }AmiHdlcStatus ami_dlms_hdlc_build_frame(HdlcContext *c,const HdlcFrame *r,const uint8_t *p,size_t n,uint8_t *out,size_t cap,size_t *olen){
- uint8_t control,payload[AMI_HDLC_MAX_INFO_LENGTH],ua_parameters[23];size_t payload_len;AmiHdlcStatus s;if(!c||!r||!out||!olen||(!p&&n))return AMI_HDLC_INVALID_ARGUMENT;
+ static uint8_t s_build_payload[AMI_HDLC_MAX_INFO_LENGTH];
+ uint8_t control,ua_parameters[23];size_t payload_len;AmiHdlcStatus s;if(!c||!r||!out||!olen||(!p&&n))return AMI_HDLC_INVALID_ARGUMENT;
  if(r->type==AMI_HDLC_FRAME_SNRM||r->type==AMI_HDLC_FRAME_DISC){if(n)return AMI_HDLC_INVALID_ARGUMENT;payload_len=0u;if(r->type==AMI_HDLC_FRAME_SNRM&&r->payload_length){s=make_ua_parameters(r,ua_parameters,&payload_len);if(s!=AMI_HDLC_FRAME_READY)return s;}s=ami_dlms_hdlc_encode_frame(r->source_sap,r->destination_sap,AMI_HDLC_CONTROL_UA,payload_len?ua_parameters:NULL,payload_len,out,cap,olen);if(s==AMI_HDLC_FRAME_READY){c->tx_sequence=0u;c->rx_sequence=0u;}return s;}
  if(r->type==AMI_HDLC_FRAME_RR){
   control=(uint8_t)(0x01u|((c->rx_sequence&7u)<<5)|(r->control&0x10u));
@@ -90,10 +91,10 @@ AmiHdlcStatus ami_dlms_hdlc_parse_byte(HdlcContext *c,uint8_t byte,HdlcFrame *f)
  }
  if(r->type!=AMI_HDLC_FRAME_I)return AMI_HDLC_UNSUPPORTED_CONTROL;
  control=(uint8_t)(((c->tx_sequence&7u)<<1)|((c->rx_sequence&7u)<<5)|(r->control&0x10u));
- if(n>sizeof(payload)-3u)return AMI_HDLC_INFO_TOO_LARGE;
- payload[0]=0xE6u;payload[1]=0xE7u;payload[2]=0x00u;
- if(n) { memcpy(payload+3u,p,n); }
+ if(n>sizeof(s_build_payload)-3u)return AMI_HDLC_INFO_TOO_LARGE;
+ s_build_payload[0]=0xE6u;s_build_payload[1]=0xE7u;s_build_payload[2]=0x00u;
+ if(n) { memcpy(s_build_payload+3u,p,n); }
  payload_len=n+3u;
- s=ami_dlms_hdlc_encode_frame(r->source_sap,r->destination_sap,control,payload,payload_len,out,cap,olen);if(s==AMI_HDLC_FRAME_READY)c->tx_sequence=(uint8_t)((c->tx_sequence+1u)&7u);return s;
+ s=ami_dlms_hdlc_encode_frame(r->source_sap,r->destination_sap,control,s_build_payload,payload_len,out,cap,olen);if(s==AMI_HDLC_FRAME_READY)c->tx_sequence=(uint8_t)((c->tx_sequence+1u)&7u);return s;
 }
 

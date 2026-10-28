@@ -75,9 +75,7 @@ bool tamper_process_signal(tamper_context_t *ctx, tamper_vector_t vector, bool i
          * Relai membuka pada: Pembukaan Tutup Meter (1), Tutup Terminal (2),
          * Urutan Fase Terbalik (3), Arus/Tegangan Tidak Sefase (4), Hilang Tegangan 1/2 Fase (6).
          * Catatan 4: Operasi relai TIDAK terpengaruh pada induksi medan magnet sampai 500 mT. */
-        if (is_asserted && (vector & TAMPER_MASK_RELAY_TRIP)) {
-            ctx->alarm_relay_trigger = true;
-        }
+        ctx->alarm_relay_trigger = ((ctx->active_tamper_mask & TAMPER_MASK_RELAY_TRIP) != 0);
 
         return true;
     }
@@ -110,7 +108,7 @@ bool tamper_is_alarm_pending(const tamper_context_t *ctx) {
 
 bool tamper_should_trip_relay(const tamper_context_t *ctx) {
     if (ctx == NULL) return false;
-    return ((ctx->active_tamper_mask & TAMPER_MASK_RELAY_TRIP) != 0) || ctx->alarm_relay_trigger;
+    return ((ctx->active_tamper_mask & TAMPER_MASK_RELAY_TRIP) != 0);
 }
 
 bool tamper_should_turn_on_led(const tamper_context_t *ctx) {

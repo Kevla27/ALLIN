@@ -191,14 +191,15 @@ CMSE_NS_ENTRY uint32_t SECURE_GetTamperStatusMask(void)
   {
     mask |= (1U << 1); /* TAMPER_VECTOR_TERMINAL_OPEN */
   }
-  if (HAL_GPIO_ReadPin(SENSOR_MAGNET_GPIO_Port, SENSOR_MAGNET_Pin) == (BOARD_CFG_TAMPER_MAGNET_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET))
+  if (((sr & TAMP_SR_TAMP7F) != 0U) ||
+      (HAL_GPIO_ReadPin(SENSOR_MAGNET_GPIO_Port, SENSOR_MAGNET_Pin) == (BOARD_CFG_TAMPER_MAGNET_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET)))
   {
     mask |= (1U << 2); /* TAMPER_VECTOR_MAGNETIC_FIELD */
-  }
-  else if ((sr & TAMP_SR_TAMP7F) != 0U)
-  {
-    /* Bersihkan flag latch TAMP7F saat medan magnet telah dijauhkan agar pemulihan 10s ERR25 bekerja */
-    TAMP->SCR = TAMP_SCR_CTAMP7F;
+    if (HAL_GPIO_ReadPin(SENSOR_MAGNET_GPIO_Port, SENSOR_MAGNET_Pin) != (BOARD_CFG_TAMPER_MAGNET_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET))
+    {
+      /* Bersihkan flag latch TAMP7F saat medan magnet telah dijauhkan agar pemulihan 10s ERR25 bekerja */
+      TAMP->SCR = TAMP_SCR_CTAMP7F;
+    }
   }
   return mask;
 }
@@ -253,9 +254,9 @@ CMSE_NS_ENTRY uint32_t SECURE_GetRTCDateTime(void)
     {
       /* Deteksi transisi abad otonom: Jika meter beroperasi terus menerus melintasi 2099 menuju 2100 (99 -> 00) */
       static uint8_t s_prev_rtc_year = 0xFFU;
-      if (s_prev_rtc_year == 99U && sDate.Year == 0U && century_base == 2000U)
+      if (s_prev_rtc_year == 99U && sDate.Year == 0U)
       {
-        century_base = 2100U;
+        century_base += 100U;
         secure_rtc_save_century_base(century_base);
       }
       s_prev_rtc_year = sDate.Year;
@@ -283,7 +284,7 @@ CMSE_NS_ENTRY void SECURE_SetRTCDateTime(uint32_t epoch_sec)
   uint8_t m = 10, d = 28;
   rtc_civil_from_days(epoch_sec / 86400UL, &y, &m, &d);
 
-  uint16_t new_century = (y >= 2100U) ? 2100U : 2000U;
+  uint16_t new_century = (uint16_t)((y / 100U) * 100U);
   secure_rtc_save_century_base(new_century);
 
   RTC_DateTypeDef sDate = {0};

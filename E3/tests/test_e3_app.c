@@ -137,6 +137,16 @@ void test_spln_tabel6_relay_and_led_behavior(void) {
     assert(tamper_should_trip_relay(&ctx) == true);
     assert(tamper_should_turn_on_led(&ctx) == true);
 
+    // 12. Pemulihan Sabotase: Case Open ditutup kembali & Reverse Power dinetralkan
+    tamper_process_signal(&ctx, TAMPER_VECTOR_CASE_OPEN, false, 1003);
+    assert(tamper_should_trip_relay(&ctx) == false); // Relai bebas dari blokir sabotase
+    assert(tamper_should_turn_on_led(&ctx) == true);  // Masih ada Reverse Power
+
+    tamper_process_signal(&ctx, TAMPER_VECTOR_REVERSE_POWER, false, 1004);
+    assert(tamper_should_trip_relay(&ctx) == false);
+    assert(tamper_should_turn_on_led(&ctx) == false); // Semua pulih normal
+    assert(ctx.alarm_relay_trigger == false);
+
     printf("   [PASS] SPLN D3.006:2021 Tabel 6 Relay & LED Behavior Verified!\n\n");
 }
 

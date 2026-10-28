@@ -50,6 +50,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-040**](040_perbaikan_trustzone_tamper_boundary_dan_spi_flash_page_chunking.md) | 28-10-2026 | Perbaikan TrustZone Tamper Boundary (Isolasi NSC PC13/PE6/PE4 & Safeguard Active-Low) dan SPI Flash Page-Program Chunking 256-Byte | `E3/app/e3_meter_app.c`, `E3/app/profiling/src/nvram_storage.c`, `E3/drivers/power/src/bsp_power_mode.c`, `Secure/Core/Src/secure_nsc.c` | Selesai |
 | [**LOG-041**](041_penyempurnaan_proteksi_koil_relai_century_rollover_dan_cli_crlf.md) | 28-10-2026 | Penyempurnaan Proteksi Koil Relai (ERR07 Debounce & Pulse 100ms), Century Rollover RTC Otonom, dan Filter CRLF Serial CLI | `E3/app/e3_meter_app.c`, `Secure/Core/Src/secure_nsc.c`, `Secure/Core/Src/main.c`, `E3/app/console/src/console_io.c`, `E3/tests/*` | Selesai |
 | [**LOG-042**](042_perbaikan_indikator_fasa_0v_dan_akumulasi_energi_impor_ekspor.md) | 28-10-2026 | Perbaikan Indikator Fasa 0V OLED (Header L-23) & Isolasi Akumulator Energi Impor/Ekspor Metrologi | `E3/app/display/src/display.c`, `E1/Metrology/e1_metrology_service.c`, `E3/tests/test_spln_display_tamper.c` | Selesai |
+| [**LOG-043**](043_eliminasi_overflow_stack_isr_persistece_boot_dan_perbaikan_tamper.md) | 28-10-2026 | Eliminasi Overflow Stack ISR DLMS, Persistensi Energi Saat Boot, dan Koreksi Latch Tamper Sabotase | `E2/Src/*`, `NonSecure/Core/Src/meter_system_bridge.c`, `NonSecure/STM32U585xx_FLASH_ns.ld`, `E3/app/tamper/*`, `Secure/Core/Src/*`, `E3/app/fsm/*`, `E3/tests/*` | Selesai |
 
 ---
 

@@ -63,3 +63,4 @@ Test project G:/PPPP/ALLIN/E3/build
 ### B. Kompilasi Silang ARM Cortex-M33 (GCC Bare-metal)
 * **`ALLIN_S.elf`:** ROM: 24,056 B (2.31%), RAM: 12,056 B (4.60%), ROM_NSC: 160 B (1.95%) — **0 Errors, 0 Warnings**
 * **`ALLIN_NS.elf`:** ROM: 174,464 B (16.64%), RAM: 65,344 B (12.46%) — **0 Errors, 0 Warnings**
+
