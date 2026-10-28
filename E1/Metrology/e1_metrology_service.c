@@ -16,7 +16,8 @@
 
 static volatile uint32_t s_cf1_pulse_count = 0;
 static volatile uint32_t s_cf2_pulse_count = 0;
-static uint64_t          s_energy_mj_accum = 0; /* Akumulator energi dalam Watt-ms (milliJoule) */
+static uint64_t          s_energy_exp_mj_accum = 0; /* Akumulator energi kirim/ekspor (+A) dalam Watt-ms (milliJoule) */
+static uint64_t          s_energy_imp_mj_accum = 0; /* Akumulator energi terima/impor (-A) dalam Watt-ms (milliJoule) */
 static ReactiveEnergyQuadrants_t s_reactive_quadrants = {0}; /* Akumulator energi reaktif 4-kuadran */
 
 void e1_metrology_bringup_init(void)
@@ -244,21 +245,22 @@ void e1_metrology_service_step(meter_measurements_t *meas, uint32_t delta_ms)
     meas->angle_it_deg = (raw_angl_vc_ic > 0U) ? (uint16_t)(((uint32_t)raw_angl_vc_ic * 360U) / 2048U) : 8U;
 
     /* D. Akumulasi energi aktif presisi tinggi (3.600.000 W*ms = 1 Wh) dengan anti-creep SPLN D3.006 */
-    int32_t abs_p = (meas->active_power_w < 0) ? -meas->active_power_w : meas->active_power_w;
-    if (abs_p >= 3) /* Ambang anti-creep (starting current <= 0.001 In) */
+    if (meas->active_power_w >= 3) /* Ambang anti-creep daya kirim (+A) */
     {
-        s_energy_mj_accum += ((uint64_t)abs_p * (uint64_t)delta_ms);
-        while (s_energy_mj_accum >= 3600000ULL)
+        s_energy_exp_mj_accum += ((uint64_t)meas->active_power_w * (uint64_t)delta_ms);
+        while (s_energy_exp_mj_accum >= 3600000ULL)
         {
-            if (meas->active_power_w >= 0)
-            {
-                meas->active_energy_wh++;
-            }
-            else
-            {
-                meas->active_energy_import_wh++;
-            }
-            s_energy_mj_accum -= 3600000ULL;
+            meas->active_energy_wh++;
+            s_energy_exp_mj_accum -= 3600000ULL;
+        }
+    }
+    else if (meas->active_power_w <= -3) /* Ambang anti-creep daya terima/impor (-A) */
+    {
+        s_energy_imp_mj_accum += ((uint64_t)(-meas->active_power_w) * (uint64_t)delta_ms);
+        while (s_energy_imp_mj_accum >= 3600000ULL)
+        {
+            meas->active_energy_import_wh++;
+            s_energy_imp_mj_accum -= 3600000ULL;
         }
     }
 

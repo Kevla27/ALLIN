@@ -1139,15 +1139,15 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
 
     /* Evaluasi Keberadaan Fasa Tegangan (UR, US, UT >= 110.0V) */
     frame->voltage_phases = 0x07;
-    if (ctx->meas_buffer.voltage_r_dvolts > 0 && ctx->meas_buffer.voltage_r_dvolts < 1100U) frame->voltage_phases &= ~0x01;
-    if (ctx->meas_buffer.voltage_s_dvolts > 0 && ctx->meas_buffer.voltage_s_dvolts < 1100U) frame->voltage_phases &= ~0x02;
-    if (ctx->meas_buffer.voltage_t_dvolts > 0 && ctx->meas_buffer.voltage_t_dvolts < 1100U) frame->voltage_phases &= ~0x04;
+    if (ctx->meas_buffer.voltage_r_dvolts < 1100U) frame->voltage_phases &= ~0x01;
+    if (ctx->meas_buffer.voltage_s_dvolts < 1100U) frame->voltage_phases &= ~0x02;
+    if (ctx->meas_buffer.voltage_t_dvolts < 1100U) frame->voltage_phases &= ~0x04;
 
     /* Evaluasi Keberadaan Fasa Arus (IR, IS, IT >= 20mA) */
     frame->current_phases = 0x07;
-    if (ctx->meas_buffer.current_r_mamps > 0 && ctx->meas_buffer.current_r_mamps < 20U) frame->current_phases &= ~0x01;
-    if (ctx->meas_buffer.current_s_mamps > 0 && ctx->meas_buffer.current_s_mamps < 20U) frame->current_phases &= ~0x02;
-    if (ctx->meas_buffer.current_t_mamps > 0 && ctx->meas_buffer.current_t_mamps < 20U) frame->current_phases &= ~0x04;
+    if (ctx->meas_buffer.current_r_mamps < 20U) frame->current_phases &= ~0x01;
+    if (ctx->meas_buffer.current_s_mamps < 20U) frame->current_phases &= ~0x02;
+    if (ctx->meas_buffer.current_t_mamps < 20U) frame->current_phases &= ~0x04;
 
     /* Evaluasi Kuadran Daya (P vs Q) */
     int32_t p = ctx->meas_buffer.active_power_w;

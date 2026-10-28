@@ -69,3 +69,4 @@ Test project G:/PPPP/ALLIN/E3/build
   * ROM: 174,328 B / 1 MB (16.63%)
   * RAM: 65,336 B / 512 KB (12.46%)
   * Status: 0 Errors, 0 Warnings
+

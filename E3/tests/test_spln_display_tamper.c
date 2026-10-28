@@ -599,7 +599,13 @@ int main(void) {
     assert((frame.voltage_phases & 0x01) == 0);
     assert((frame.voltage_phases & 0x02) != 0);
     assert(strstr(frame.header_symbols, "L-23") != NULL);
-    printf("  > Indikator Fasa Tegangan Dinamis (Fasa R Drop): Header '%s' [PASS]\n\n", frame.header_symbols);
+
+    /* Uji fasa R mati total (0 Volt) harus mematikan indikator fasa 1 */
+    ctx.meas_buffer.voltage_r_dvolts = 0;
+    display_render_spln_frame(&ctx, &frame);
+    assert((frame.voltage_phases & 0x01) == 0);
+    assert(strstr(frame.header_symbols, "L-23") != NULL);
+    printf("  > Indikator Fasa Tegangan Dinamis (Fasa R Drop & 0V Disconnect): Header '%s' [PASS]\n\n", frame.header_symbols);
 
     /* --------------------------------------------------------------------- */
     /* UJI 8: VERIFIKASI AUDIO CADENCE BUZZER (SPLN D3.006 Butir 6.14)      */
