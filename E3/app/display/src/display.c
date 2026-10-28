@@ -1141,6 +1141,21 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         frame->power_quadrant = 4;
     }
 
+    /* Status Relai & Tamper untuk Grafis Layar OLED */
+    frame->is_relay_ready_on = ctx->relay_ready_on;
+    frame->is_relay_closed = !ctx->relay_ready_on;
+    frame->is_tamper_active = (ctx->active_tamper_mask != 0);
+
+    /* Evaluasi Zona Tarif ToU untuk Tampilan OLED */
+    uint32_t hour_of_day = (ctx->current_time_epoch / 3600U) % 24U;
+    if (hour_of_day >= 17U && hour_of_day < 22U) {
+        frame->active_tariff_zone = 0; /* WBP */
+    } else if (hour_of_day >= 22U || hour_of_day < 6U) {
+        frame->active_tariff_zone = 1; /* LWBP1 */
+    } else {
+        frame->active_tariff_zone = 2; /* LWBP2 */
+    }
+
     char bat_sym[4] = "[B]";
     if (frame->is_battery_low && !frame->is_battery_blink_on) {
         strcpy(bat_sym, "   ");

@@ -215,6 +215,10 @@ typedef struct {
     uint8_t voltage_phases;       /* Bitmask fasa aktif: bit 0: R, bit 1: S, bit 2: T */
     uint8_t current_phases;       /* Bitmask fasa arus aktif: bit 0: R, bit 1: S, bit 2: T */
     uint8_t power_quadrant;       /* Kuadran daya aktif (1..4) */
+    bool is_relay_closed;         /* Status fisik relai kontaktor (true: Terhubung/Closed, false: Trip/Buka) */
+    bool is_relay_ready_on;       /* Status relai READY ON (siap sambung kembali dengan tombol ▲+▼) */
+    bool is_tamper_active;        /* Status sabotase terdeteksi (case open, terminal open, magnet, dll) */
+    uint8_t active_tariff_zone;   /* Zona tarif aktif (0: WBP, 1: LWBP1, 2: LWBP2) */
 } display_spln_frame_t;
 
 /**

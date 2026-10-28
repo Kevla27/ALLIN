@@ -42,6 +42,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-032**](032_integrasi_hardware_rtc_oled_dan_tou.md) | 28-10-2026 | Integrasi Hardware RTC STM32U5 ke Jam/Tanggal Layar OLED & Otomasi Tarif ToU (WBP/LWBP) | `Secure/Core/Src/*`, `E3/app/e3_meter_app.*`, `E3/app/console/*`, `E3/tests/*` | Selesai |
 | [**LOG-033**](033_prosedur_listrik_padam_last_gasp_oled.md) | 28-10-2026 | Prosedur Listrik Padam (Last Gasp) Layar OLED, Emergency Flash Checkpoint, Off-Power Standby 10 Detik & CLI Simulasi (`acfail` & `button`) | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/app/profiling/*`, `E3/app/e3_meter_app.*`, `E3/app/console/*`, `E3/tests/*` | Selesai |
 | [**LOG-034**](034_arsitektur_sakelar_beban_tiruan_metrologi.md) | 28-10-2026 | Arsitektur Sakelar Diagnostik Metrologi Tiruan (Synthetic Load Generator) via CLI (`load`, `volt`, `curr`, `synth`) & Isolasi Bersih 0-Byte Produksi Massal | `E3/app/board_profile_config.h`, `E3/app/console/*`, `E3/app/e3_meter_app.*`, `NonSecure/Core/Src/meter_system_bridge.c`, `E3/tests/*` | Selesai |
+| [**LOG-035**](035_visualisasi_ikon_grafis_layar_oled.md) | 28-10-2026 | Visualisasi Ikon Grafis Status Bar Khusus Layar OLED (Relai Kontaktor, Baterai Gauge, Tamper Warning Triangle & Tarif ToU Badge) | `E3/app/display/*`, `E3/drivers/oled/*` | Selesai |
 
 ---
 
