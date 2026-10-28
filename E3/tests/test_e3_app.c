@@ -239,22 +239,32 @@ void test_spln_butir12_3_three_fifo_registers(void) {
 
     printf("   Alarm Log FIFO (30 entries overflow, FIFO rolling, selective access) [PASS]\n");
 
-    /* 2. Pengujian Register 2: Event Log FIFO (12 jenis, min. 30 entri) */
+    /* 2. Pengujian Register 2: Event Log FIFO (12 jenis Sesuai SPLN D3.006: 2021 Tabel 5) */
     assert(ctx.event_log_fifo.count == 0);
-    spln_log_record_event(&ctx, SPLN_LOG_EVENT_POWER_FAILURE, true, 2001, 0);
-    spln_log_record_event(&ctx, SPLN_LOG_EVENT_POWER_UP, true, 2002, 0);
-    spln_log_record_event(&ctx, SPLN_LOG_EVENT_ASYMMETRIC_POWER, true, 2003, 45); // 45% deviasi
-    spln_log_record_event(&ctx, SPLN_LOG_EVENT_POWER_LIMIT_EXC, true, 2004, 7500); // 7500 W
-    assert(ctx.event_log_fifo.count == 4);
-    assert(ctx.event_log_fifo.total_events == 4);
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_POWER_FAILURE,    true, 2001, 0);     /* No 1 */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_POWER_UP,         true, 2002, 0);     /* No 2 */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_TOU_CHANGE,       true, 2003, 0);     /* No 3 */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_NON_TOU_CHANGE,   true, 2004, 101);   /* No 4 */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_STOP_MEASUREMENT, true, 2005, 0);     /* No 5 */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_IO_CHANGE,        true, 2006, 1);     /* No 7 */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_RELAY_CHANGE,     true, 2007, 0);     /* No 8 */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_METER_RESET,      true, 2008, 0);     /* No 9 */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_TIME_CHANGE,      true, 2009, 1000);  /* No 10 */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_ASYMMETRIC_POWER, true, 2010, 45);    /* No 11: 45% deviasi */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_READY_RECONNECT,  true, 2011, 0);     /* No 12 */
+    spln_log_record_event(&ctx, SPLN_LOG_EVENT_POWER_LIMIT_EXC,  true, 2012, 7500);   /* No 13: 7500 W */
 
-    spln_standard_log_entry_t event_entries[10];
+    assert(ctx.event_log_fifo.count == 12);
+    assert(ctx.event_log_fifo.total_events == 12);
+
+    spln_standard_log_entry_t event_entries[15];
     size_t event_count = 0;
-    spln_log_get_entries(&ctx.event_log_fifo, event_entries, 10, &event_count);
-    assert(event_count == 4);
+    spln_log_get_entries(&ctx.event_log_fifo, event_entries, 15, &event_count);
+    assert(event_count == 12);
     assert(event_entries[0].event_code == SPLN_LOG_EVENT_POWER_FAILURE);
-    assert(event_entries[2].parameter_val == 45); // Asymmetric deviation 45%
-    printf("   Event Log FIFO (Power failure, Power up, Asymmetry, Limiter) [PASS]\n");
+    assert(event_entries[9].parameter_val == 45); // Asymmetric deviation 45%
+    assert(event_entries[11].parameter_val == 7500); // 7500 W
+    printf("   Event Log FIFO: 100%% Seluruh 12 Kejadian SPLN D3.006 Tabel 5 Terverifikasi [PASS]\n");
 
     /* 3. Pengujian Register 3: Tamper Log FIFO (9 jenis, min. 30 entri) */
     assert(ctx.tamper_log_fifo.count == 0);

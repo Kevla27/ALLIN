@@ -292,6 +292,9 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
     tamper_init(&s_tamper_ctx);
     (void)nvram_load_tamper_log_snapshot(&s_tamper_ctx);
 
+    /* SPLN D3.006: 2021 Tabel 5 No. 9: Meter reset -> Rekam data ke Event Log FIFO */
+    spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_METER_RESET, true, s_now_epoch_sec, 0);
+
     /* Muat stand energi kWh dan ToU dari Checkpoint Flash NVRAM jika valid */
     nvram_energy_checkpoint_t energy_cp = {0};
     if (nvram_load_energy_checkpoint(&energy_cp))
@@ -1105,7 +1108,11 @@ static void log_internal_alarm_events(uint32_t newly_asserted_alarms, uint32_t e
     if (newly_asserted_alarms & SPLN_ALARM_MCU_ERROR)
         spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_MCU_ERROR, true, epoch_sec, 0);
     if (newly_asserted_alarms & SPLN_ALARM_ADC_ERROR)
+    {
         spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_ADC_ERROR, true, epoch_sec, 0);
+        /* SPLN D3.006: 2021 Tabel 5 No. 5: Stop-measurement (anomali sampling berhenti) */
+        spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_STOP_MEASUREMENT, true, epoch_sec, 0);
+    }
     if (newly_asserted_alarms & SPLN_ALARM_SUPERCAP_FAIL)
         spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_SUPERCAP_FAIL, true, epoch_sec, s_vcap_millivolts);
     if (newly_asserted_alarms & SPLN_ALARM_RELAY_FAIL)
@@ -1127,7 +1134,10 @@ static void log_internal_alarm_recovery(uint32_t newly_cleared_alarms, uint32_t 
     if (newly_cleared_alarms & SPLN_ALARM_MCU_ERROR)
         spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_MCU_ERROR, false, epoch_sec, 0);
     if (newly_cleared_alarms & SPLN_ALARM_ADC_ERROR)
+    {
         spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_ADC_ERROR, false, epoch_sec, 0);
+        spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_STOP_MEASUREMENT, false, epoch_sec, 0);
+    }
     if (newly_cleared_alarms & SPLN_ALARM_SUPERCAP_FAIL)
         spln_log_record_alarm(&s_tamper_ctx, SPLN_LOG_ALARM_SUPERCAP_FAIL, false, epoch_sec, s_vcap_millivolts);
     if (newly_cleared_alarms & SPLN_ALARM_RELAY_FAIL)
@@ -1176,4 +1186,22 @@ const tamper_context_t* e3_meter_app_get_tamper_context(void)
 void e3_meter_app_notify_modem_activity(void)
 {
     s_modem_active_timer_ms = 3000U; /* Ikon telepon menyala selama 3 detik saat bertransaksi modem */
+}
+
+void e3_meter_app_notify_tou_change(void)
+{
+    /* SPLN D3.006: 2021 Tabel 5 No. 3: Perubahan setting time-of-use (ToU) */
+    spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_TOU_CHANGE, true, s_now_epoch_sec, 0);
+}
+
+void e3_meter_app_notify_setting_change(uint32_t setting_id)
+{
+    /* SPLN D3.006: 2021 Tabel 5 No. 4: Perubahan setting (selain ToU) */
+    spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_NON_TOU_CHANGE, true, s_now_epoch_sec, setting_id);
+}
+
+void e3_meter_app_notify_stop_measurement(bool is_stopped, uint32_t reason)
+{
+    /* SPLN D3.006: 2021 Tabel 5 No. 5: Stop-measurement */
+    spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_STOP_MEASUREMENT, is_stopped, s_now_epoch_sec, reason);
 }

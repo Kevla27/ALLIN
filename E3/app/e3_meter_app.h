@@ -142,6 +142,27 @@ const tamper_context_t* e3_meter_app_get_tamper_context(void);
  */
 void e3_meter_app_notify_modem_activity(void);
 
+/**
+ * @brief Notifikasi perubahan konfigurasi jadwal Time-of-Use (SPLN D3.006: 2021 Tabel 5 No. 3)
+ *        Merekam kejadian SPLN_LOG_EVENT_TOU_CHANGE ke Event Log FIFO
+ */
+void e3_meter_app_notify_tou_change(void);
+
+/**
+ * @brief Notifikasi perubahan parameter/setting selain ToU (SPLN D3.006: 2021 Tabel 5 No. 4)
+ *        Merekam kejadian SPLN_LOG_EVENT_NON_TOU_CHANGE ke Event Log FIFO
+ * @param setting_id Identifier parameter yang diubah (misal IDPEL, batas daya, baudrate)
+ */
+void e3_meter_app_notify_setting_change(uint32_t setting_id);
+
+/**
+ * @brief Notifikasi kejadian Stop-Measurement / Anomali Pengukuran (SPLN D3.006: 2021 Tabel 5 No. 5)
+ *        Merekam kejadian SPLN_LOG_EVENT_STOP_MEASUREMENT ke Event Log FIFO
+ * @param is_stopped true jika sampling/pengukuran berhenti, false jika pulih
+ * @param reason Kode penyebab anomali
+ */
+void e3_meter_app_notify_stop_measurement(bool is_stopped, uint32_t reason);
+
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
 #include "console_io.h"
 
