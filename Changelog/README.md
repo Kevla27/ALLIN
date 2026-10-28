@@ -53,6 +53,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-043**](043_eliminasi_overflow_stack_isr_persistece_boot_dan_perbaikan_tamper.md) | 28-10-2026 | Eliminasi Overflow Stack ISR DLMS, Persistensi Energi Saat Boot, dan Koreksi Latch Tamper Sabotase | `E2/Src/*`, `NonSecure/Core/Src/meter_system_bridge.c`, `NonSecure/STM32U585xx_FLASH_ns.ld`, `E3/app/tamper/*`, `Secure/Core/Src/*`, `E3/app/fsm/*`, `E3/tests/*` | Selesai |
 | [**LOG-044**](044_penyesuaian_indikator_fasa_ur_us_ut_oled_spln.md) | 28-10-2026 | Penyesuaian Indikator Fasa Layar OLED dan Frame Tampilan Sesuai Standar SPLN D3.006:2021 (UR, US, UT dan IR, IS, IT) | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/tests/*`, `E3/docs/*` | Selesai |
 | [**LOG-045**](045_implementasi_ikon_grafis_kuadran_daya_oled_spln.md) | 28-10-2026 | Implementasi Render Ikon Grafis Kuadran Daya 4-Kuadran pada Layar OLED Sesuai SPLN D3.006:2021 (Butir 6.11 & Lampiran A) | `E3/drivers/oled/*`, `E3/app/display/*`, `E3/tests/*`, `E3/docs/*` | Selesai |
+| [**LOG-046**](046_implementasi_ikon_grafis_panah_aliran_daya_dan_baterai_spln.md) | 28-10-2026 | Implementasi Ikon Grafis Panah Arah Aliran Energi Aktif dan Penyempurnaan Indikator Baterai Layar OLED (SPLN D3.006:2021 Butir 6.11 Gambar 6) | `E3/drivers/oled/*`, `E3/docs/*` | Selesai |
 
 ---
 
