@@ -21,6 +21,7 @@ typedef struct {
     void (*init)(void);
     void (*render_frame)(const display_spln_frame_t *frame);
     void (*show_boot_screen)(const char *title, const char *subtitle);
+    void (*set_power_mode)(bool sleep_mode);
 } display_driver_interface_t;
 
 /**

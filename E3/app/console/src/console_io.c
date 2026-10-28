@@ -39,6 +39,8 @@ static int cmd_echo(int argc, char *argv[]);
 static int cmd_clear(int argc, char *argv[]);
 static int cmd_time(int argc, char *argv[]);
 static int cmd_set_time(int argc, char *argv[]);
+static int cmd_acfail(int argc, char *argv[]);
+static int cmd_button(int argc, char *argv[]);
 
 /* Tabel pendaftaran perintah CLI */
 static const console_cmd_entry_t s_cmd_table[] = {
@@ -54,6 +56,8 @@ static const console_cmd_entry_t s_cmd_table[] = {
     {"demand",   "Status Maximum Demand 15-menit & reset", cmd_demand},
     {"time",     "Status kalender RTC & zona tarif ToU",   cmd_time},
     {"set_time", "Atur waktu RTC (sintaks: set_time <epoch>)", cmd_set_time},
+    {"acfail",   "Simulasi listrik PLN padam/pulih (sintaks: acfail [0|1])", cmd_acfail},
+    {"button",   "Simulasi tombol fisik OLED (sintaks: button <up|down|both>)", cmd_button},
     {"mute",     "Mode senyap konsol proteksi biner DLMS", cmd_mute},
     {"echo",     "Mencetak kembali teks yang diinputkan",  cmd_echo},
     {"clear",    "Membersihkan layar terminal konsol",     cmd_clear},
@@ -144,6 +148,10 @@ static int cmd_help(int argc, char *argv[]) {
     printf("  alarm clear           : Reset semua alarm internal ke nol\n");
     printf("  log <alarm|event|tamper>: Baca rekaman FIFO non-volatile\n");
     printf("  demand reset          : Reset MD 15-menit berjalan ke CMD\n");
+    printf("  time                  : Baca status RTC & zona tarif ToU aktif\n");
+    printf("  set_time <epoch>      : Set waktu hardware RTC (UNIX epoch)\n");
+    printf("  acfail <1|0>          : Simulasi padam (1) atau pulih (0) listrik PLN\n");
+    printf("  button <up|down|both> : Simulasi penekanan tombol navigasi fisik\n");
     printf("  mute <1|0>            : 1=Senyap (proteksi DLMS), 0=Aktif\n");
     printf("===================================================================\n\n");
     return 0;
@@ -227,6 +235,11 @@ static int cmd_status(int argc, char *argv[]) {
                 printf("NORMAL (115V .. 276V)\n");
             }
         }
+    }
+
+    /* Status Suplai Daya PLN (AC Power) */
+    if (s_hooks_registered && s_hooks.is_ac_failed != NULL) {
+        printf("  Suplai Daya PLN : %s\n", s_hooks.is_ac_failed() ? "PADAM / MATI LAMPU (AC FAIL - EMERGENCY STANDBY)" : "NORMAL (AC MAINS ACTIVE)");
     }
 
     printf("  Proteksi Konsol : %s\n\n", s_console_is_muted ? "MUTED (DLMS SAFE)" : "ACTIVE");
@@ -612,6 +625,81 @@ static int cmd_set_time(int argc, char *argv[]) {
     s_hooks.set_time(new_epoch);
     printf("[CLI] Waktu hardware RTC & OLED berhasil diatur ke epoch: %lu\n", (unsigned long)new_epoch);
     return cmd_time(1, argv);
+}
+
+static int cmd_acfail(int argc, char *argv[]) {
+    if (!s_hooks_registered) {
+        printf("[CLI] Error: Hooks meter belum terdaftar.\n");
+        return -1;
+    }
+
+    if (argc < 2) {
+        bool is_fail = (s_hooks.is_ac_failed != NULL) ? s_hooks.is_ac_failed() : false;
+        printf("\n--- STATUS SUPLAI DAYA LISTRIK PLN (AC POWER) ---\n");
+        printf("  Status: %s\n", is_fail ? "PADAM / MATI LAMPU (AC FAIL - EMERGENCY STANDBY)" : "NORMAL (AC MAINS ACTIVE)");
+        printf("  Petunjuk: Ketik 'acfail 1' untuk simulasi padam, atau 'acfail 0' untuk pemulihan normal.\n\n");
+        return 0;
+    }
+
+    if (s_hooks.set_ac_fail == NULL) {
+        printf("[CLI] Error: Hook set_ac_fail belum terdaftar.\n");
+        return -2;
+    }
+
+    if (str_equals_ignore_case(argv[1], "1") || str_equals_ignore_case(argv[1], "on") ||
+        str_equals_ignore_case(argv[1], "cut") || str_equals_ignore_case(argv[1], "fail")) {
+        s_hooks.set_ac_fail(true);
+        printf("[CLI] SIMULASI: Listrik PLN PADAM (AC FAIL) diaktifkan!\n");
+        printf("      - Checkpoint energi tersimpan di NVRAM Flash\n");
+        printf("      - Snapshot 3 Log FIFO tersimpan di NVRAM\n");
+        printf("      - Paket DLMS Last-Gasp terkirim\n");
+        printf("      - Layar OLED dimatikan (Sleep 0xAE)\n");
+        printf("      - Power gating periferal aktif (LCD_PWR_EN=0, RS232=0, Modem=0)\n");
+    } else if (str_equals_ignore_case(argv[1], "0") || str_equals_ignore_case(argv[1], "off") ||
+               str_equals_ignore_case(argv[1], "restore") || str_equals_ignore_case(argv[1], "normal")) {
+        s_hooks.set_ac_fail(false);
+        printf("[CLI] SIMULASI: Listrik PLN PULIH NORMAL (AC RESTORED)!\n");
+        printf("      - Log event Power Up tercatat\n");
+        printf("      - Rail daya diaktifkan kembali\n");
+        printf("      - Layar OLED diaktifkan kembali\n");
+    } else {
+        printf("[CLI] Penggunaan: acfail [0|1|off|on|restore]\n");
+        return -3;
+    }
+    return 0;
+}
+
+static int cmd_button(int argc, char *argv[]) {
+    if (!s_hooks_registered || s_hooks.button_press == NULL) {
+        printf("[CLI] Error: Hook button_press belum terdaftar.\n");
+        return -1;
+    }
+
+    if (argc < 2) {
+        printf("[CLI] Penggunaan: button <up|down|both>\n");
+        return -1;
+    }
+
+    button_dir_t dir;
+    if (str_equals_ignore_case(argv[1], "up")) {
+        dir = BUTTON_DIR_UP;
+    } else if (str_equals_ignore_case(argv[1], "down")) {
+        dir = BUTTON_DIR_DOWN;
+    } else if (str_equals_ignore_case(argv[1], "both")) {
+        dir = BUTTON_DIR_BOTH;
+    } else {
+        printf("[CLI] Tombol tidak valid: '%s'. Gunakan: up, down, atau both.\n", argv[1]);
+        return -2;
+    }
+
+    s_hooks.button_press(dir);
+    bool is_fail = (s_hooks.is_ac_failed != NULL) ? s_hooks.is_ac_failed() : false;
+    if (is_fail) {
+        printf("[CLI] Tombol '%s' ditekan saat PLN PADAM -> Layar OLED aktif sementara (10 detik standby).\n", argv[1]);
+    } else {
+        printf("[CLI] Tombol '%s' ditekan -> Halaman UI OLED diperbarui.\n", argv[1]);
+    }
+    return 0;
 }
 
 /* ========================================================================= */

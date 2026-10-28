@@ -167,6 +167,18 @@ static uint8_t cli_get_active_tariff(void) {
     return e3_meter_app_get_active_tariff_zone();
 }
 
+static void cli_button_press(button_dir_t dir) {
+    e3_meter_app_on_button(dir);
+}
+
+static void cli_set_ac_fail(bool is_power_cut) {
+    e3_meter_app_on_ac_fail(is_power_cut);
+}
+
+static bool cli_is_ac_failed(void) {
+    return s_is_ac_failed;
+}
+
 void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetry)
 {
     s_hadc_telemetry = hadc_telemetry;
@@ -200,6 +212,18 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
 #endif
     tamper_init(&s_tamper_ctx);
     (void)nvram_load_tamper_log_snapshot(&s_tamper_ctx);
+
+    /* Muat stand energi kWh dan ToU dari Checkpoint Flash NVRAM jika valid */
+    nvram_energy_checkpoint_t energy_cp = {0};
+    if (nvram_load_energy_checkpoint(&energy_cp))
+    {
+        s_last_active_energy_wh = energy_cp.active_energy_import_wh;
+        for (int i = 0; i < E3_TOU_MAX_ZONES; i++)
+        {
+            s_tou_tariff_wh[i] = energy_cp.tou_tariff_wh[i];
+        }
+    }
+
     power_relay_init(&s_relay_ctx, 11000, 5, 30);
     load_profile_init(&s_lp_ctx);
     max_demand_init(&s_md_tracker, LOAD_PROFILE_INTERVAL_SEC);
@@ -222,7 +246,10 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
         .reset_max_demand = cli_reset_max_demand,
         .get_time = cli_get_time,
         .set_time = cli_set_time,
-        .get_active_tariff = cli_get_active_tariff
+        .get_active_tariff = cli_get_active_tariff,
+        .button_press = cli_button_press,
+        .set_ac_fail = cli_set_ac_fail,
+        .is_ac_failed = cli_is_ac_failed
     };
     console_cli_init(&cli_hooks);
 
@@ -254,6 +281,13 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         if (delta_ms >= s_lcd_wakeup_timer_ms)
         {
             s_lcd_wakeup_timer_ms = 0U;
+#if defined(EMBEDDED_HARDWARE_TARGET)
+            const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
+            if (oled_drv != NULL && oled_drv->set_power_mode != NULL)
+            {
+                oled_drv->set_power_mode(true); /* Sleep OLED (SSD1306 0xAE) */
+            }
+#endif
             HAL_GPIO_WritePin(LCD_BL_CTRL_GPIO_Port, LCD_BL_CTRL_Pin, GPIO_PIN_RESET);
             HAL_GPIO_WritePin(LCD_PWR_EN_GPIO_Port, LCD_PWR_EN_Pin, GPIO_PIN_RESET);
         }
@@ -580,6 +614,13 @@ void e3_meter_app_on_button(button_dir_t dir)
     {
         HAL_GPIO_WritePin(LCD_PWR_EN_GPIO_Port, LCD_PWR_EN_Pin, GPIO_PIN_SET);
         HAL_GPIO_WritePin(LCD_BL_CTRL_GPIO_Port, LCD_BL_CTRL_Pin, GPIO_PIN_SET);
+#if defined(EMBEDDED_HARDWARE_TARGET)
+        const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
+        if (oled_drv != NULL && oled_drv->set_power_mode != NULL)
+        {
+            oled_drv->set_power_mode(false); /* Bangunkan OLED SSD1306 (0xAF) */
+        }
+#endif
         s_lcd_wakeup_timer_ms = BOARD_CFG_DISPLAY_WAKE_MS;
     }
 
@@ -599,6 +640,20 @@ void e3_meter_app_on_button(button_dir_t dir)
 
     display_handle_button_press(&s_disp_ctx, dir);
     s_last_disp_print_ms = 0; /* Refresh tampilan seketika saat tombol ditekan */
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    if (s_is_ac_failed)
+    {
+        display_spln_frame_t spln_frame;
+        display_render_spln_frame(&s_disp_ctx, &spln_frame);
+        const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
+        if (oled_drv != NULL && oled_drv->render_frame != NULL)
+        {
+            oled_drv->render_frame(&spln_frame);
+        }
+    }
+#endif
+
     if (!s_is_ac_failed)
     {
         s_button_beep_ms = 50U;   /* Feedback beep 50ms (hanya saat suplai daya aktif) */
@@ -616,11 +671,30 @@ void e3_meter_app_on_ac_fail(bool is_power_cut)
         /* Catat kejadian ke Event Log FIFO (SPLN Tabel 18 No. 9: Power supply failure) */
         spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_POWER_FAILURE, true, s_now_epoch_sec, 0);
 
-        /* 1. Simpan snapshot 3 log FIFO (Alarm, Event, Tamper) ke NVRAM (SPI2 Flash) & Kirim paket darurat Last-Gasp */
+        /* 1. Simpan snapshot 3 log FIFO & Checkpoint Energi (Wh & ToU) ke NVRAM (SPI2 Flash) & Kirim paket darurat Last-Gasp */
+        nvram_energy_checkpoint_t energy_cp = {0};
+        energy_cp.timestamp = s_now_epoch_sec;
+        energy_cp.active_energy_import_wh = s_last_active_energy_wh;
+        energy_cp.active_energy_export_wh = s_disp_ctx.meas_buffer.active_energy_import_wh;
+        energy_cp.reactive_energy_varh = s_disp_ctx.meas_buffer.reactive_energy_varh;
+        energy_cp.vcap_mv_at_fail = s_vcap_millivolts;
+        energy_cp.active_tamper_mask = tamper_get_active_mask(&s_tamper_ctx);
+        for (int i = 0; i < E3_TOU_MAX_ZONES; i++)
+        {
+            energy_cp.tou_tariff_wh[i] = s_tou_tariff_wh[i];
+        }
+        (void)nvram_save_energy_checkpoint(&energy_cp);
         (void)nvram_save_tamper_log_snapshot(&s_tamper_ctx);
         (void)e2_dlms_send_last_gasp_push(s_now_epoch_sec, s_last_active_energy_wh);
 
-        /* 2. Matikan beban berdaya tinggi saat padam (Power Gating: LCD, Backlight, RS-232, Modem 12V, Buzzer) */
+        /* 2. Matikan beban berdaya tinggi saat padam (Power Gating: OLED sleep command 0xAE dulu, baru rail LCD, Backlight, RS-232, Modem 12V, Buzzer) */
+#if defined(EMBEDDED_HARDWARE_TARGET)
+        const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
+        if (oled_drv != NULL && oled_drv->set_power_mode != NULL)
+        {
+            oled_drv->set_power_mode(true); /* Sleep SSD1306 0xAE sebelum power rail diputus */
+        }
+#endif
         HAL_GPIO_WritePin(LCD_PWR_EN_GPIO_Port, LCD_PWR_EN_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(LCD_BL_CTRL_GPIO_Port, LCD_BL_CTRL_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(RS232_PWR_EN_GPIO_Port, RS232_PWR_EN_Pin, GPIO_PIN_RESET);
@@ -641,6 +715,14 @@ void e3_meter_app_on_ac_fail(bool is_power_cut)
         HAL_GPIO_WritePin(LCD_BL_CTRL_GPIO_Port, LCD_BL_CTRL_Pin, GPIO_PIN_SET);
         HAL_GPIO_WritePin(RS232_PWR_EN_GPIO_Port, RS232_PWR_EN_Pin, GPIO_PIN_SET);
         HAL_GPIO_WritePin(MODEM_12V_EN_GPIO_Port, MODEM_12V_EN_Pin, GPIO_PIN_SET);
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+        const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
+        if (oled_drv != NULL && oled_drv->set_power_mode != NULL)
+        {
+            oled_drv->set_power_mode(false); /* Bangunkan OLED SSD1306 */
+        }
+#endif
     }
 }
 

@@ -117,10 +117,21 @@ static void bsp_oled_render_frame(const display_spln_frame_t *spln_frame) {
     ssd1306_UpdateScreen();
 }
 
+static void bsp_oled_set_power_mode(bool sleep_mode) {
+    if (sleep_mode) {
+        /* Segera matikan internal DC-DC charge pump & matriks panel OLED via I2C */
+        ssd1306_SetDisplayOn(0);
+    } else {
+        ssd1306_Init();
+        ssd1306_SetDisplayOn(1);
+    }
+}
+
 static const display_driver_interface_t s_bsp_oled_driver = {
     .init              = bsp_oled_init,
     .render_frame      = bsp_oled_render_frame,
-    .show_boot_screen  = bsp_oled_show_boot_screen
+    .show_boot_screen  = bsp_oled_show_boot_screen,
+    .set_power_mode    = bsp_oled_set_power_mode
 };
 
 const display_driver_interface_t* bsp_display_oled_get_driver(void) {

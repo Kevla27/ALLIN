@@ -48,6 +48,9 @@ typedef struct {
     uint32_t                    (*get_time)(void);
     void                        (*set_time)(uint32_t epoch_sec);
     uint8_t                     (*get_active_tariff)(void);
+    void                        (*button_press)(button_dir_t dir);
+    void                        (*set_ac_fail)(bool is_fail);
+    bool                        (*is_ac_failed)(void);
 } console_meter_hooks_t;
 
 /**

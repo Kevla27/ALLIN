@@ -18,6 +18,9 @@ static max_demand_tracker_t s_mock_demand_tracker;
 
 static uint32_t             s_mock_time_epoch = 1793181600;
 static uint8_t              s_mock_tariff_zone = 0;
+static bool                 s_mock_ac_failed = false;
+static button_dir_t         s_mock_last_button = BUTTON_DIR_DOWN;
+static int                  s_mock_button_count = 0;
 
 /* Mock Hook Implementations */
 static const meter_measurements_t* mock_get_meas(void) {
@@ -91,6 +94,19 @@ static uint8_t mock_get_tariff(void) {
     return s_mock_tariff_zone;
 }
 
+static void mock_button_press(button_dir_t dir) {
+    s_mock_last_button = dir;
+    s_mock_button_count++;
+}
+
+static void mock_set_ac_fail(bool is_fail) {
+    s_mock_ac_failed = is_fail;
+}
+
+static bool mock_is_ac_failed(void) {
+    return s_mock_ac_failed;
+}
+
 /* Inisialisasi Mock Environment */
 static void init_mock_env(void) {
     memset(&s_mock_meas, 0, sizeof(s_mock_meas));
@@ -125,6 +141,10 @@ static void init_mock_env(void) {
     spln_log_record_alarm(&s_mock_tamper_ctx, SPLN_LOG_ALARM_CLOCK_LOSS, 1, 1727570410, 0x1234);
     spln_log_record_event(&s_mock_tamper_ctx, SPLN_LOG_EVENT_POWER_FAILURE, 1, 1727570420, 0);
     spln_log_record_tamper(&s_mock_tamper_ctx, SPLN_LOG_TAMPER_CASE_OPEN, 1, 1727570430, 0);
+
+    s_mock_ac_failed = false;
+    s_mock_last_button = BUTTON_DIR_DOWN;
+    s_mock_button_count = 0;
 }
 
 void test_cli_core_commands(void) {
@@ -146,7 +166,10 @@ void test_cli_core_commands(void) {
         .reset_max_demand = mock_reset_demand,
         .get_time = mock_get_time,
         .set_time = mock_set_time,
-        .get_active_tariff = mock_get_tariff
+        .get_active_tariff = mock_get_tariff,
+        .button_press = mock_button_press,
+        .set_ac_fail = mock_set_ac_fail,
+        .is_ac_failed = mock_is_ac_failed
     };
 
     console_cli_init(&hooks);
@@ -248,7 +271,34 @@ void test_cli_core_commands(void) {
     assert(console_cli_execute_command(cmd_buf) == 0);
     assert(s_mock_time_epoch == 1793184000);
 
-    /* 11. Uji Perintah Invalid dan Baris Kosong */
+    /* 12. Uji AC Fail & Button (Off-Power Standby) */
+    strcpy(cmd_buf, "acfail");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
+    strcpy(cmd_buf, "acfail 1");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_ac_failed == true);
+
+    strcpy(cmd_buf, "button up");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_last_button == BUTTON_DIR_UP);
+    assert(s_mock_button_count == 1);
+
+    strcpy(cmd_buf, "button down");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_last_button == BUTTON_DIR_DOWN);
+    assert(s_mock_button_count == 2);
+
+    strcpy(cmd_buf, "button both");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_last_button == BUTTON_DIR_BOTH);
+    assert(s_mock_button_count == 3);
+
+    strcpy(cmd_buf, "acfail 0");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(s_mock_ac_failed == false);
+
+    /* 13. Uji Perintah Invalid dan Baris Kosong */
     strcpy(cmd_buf, "perintah_ngawur_xyz");
     assert(console_cli_execute_command(cmd_buf) == -1);
 
@@ -277,7 +327,10 @@ void test_cli_rx_stream_and_editing(void) {
         .reset_max_demand = mock_reset_demand,
         .get_time = mock_get_time,
         .set_time = mock_set_time,
-        .get_active_tariff = mock_get_tariff
+        .get_active_tariff = mock_get_tariff,
+        .button_press = mock_button_press,
+        .set_ac_fail = mock_set_ac_fail,
+        .is_ac_failed = mock_is_ac_failed
     };
 
     console_cli_init(&hooks);

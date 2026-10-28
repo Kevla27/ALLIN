@@ -40,6 +40,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-030**](030_arsitektur_board_profile_config.md) | 28-10-2026 | Arsitektur Fleksibilitas Perangkat Keras via Board Profile Configuration (HAL) untuk Penggantian Display (OLED vs Segment LCD), Relai, NVRAM & Sensor Tamper | `E3/app/board_profile_config.h`, `E3/app/e3_meter_app.*`, `E3/CMakeLists.txt`, `E3/tests/test_board_profile.c` | Selesai |
 | [**LOG-031**](031_pemindahan_glue_code_meter_system_bridge.md) | 28-10-2026 | Pemisahan Glue Code dari main.c ke Dedicated System Bridge Module (`meter_system_bridge`) | `NonSecure/Core/Inc/meter_system_bridge.h`, `NonSecure/Core/Src/meter_system_bridge.c`, `NonSecure/Core/Src/main.c`, `NonSecure/CMakeLists.txt` | Selesai |
 | [**LOG-032**](032_integrasi_hardware_rtc_oled_dan_tou.md) | 28-10-2026 | Integrasi Hardware RTC STM32U5 ke Jam/Tanggal Layar OLED & Otomasi Tarif ToU (WBP/LWBP) | `Secure/Core/Src/*`, `E3/app/e3_meter_app.*`, `E3/app/console/*`, `E3/tests/*` | Selesai |
+| [**LOG-033**](033_prosedur_listrik_padam_last_gasp_oled.md) | 28-10-2026 | Prosedur Listrik Padam (Last Gasp) Layar OLED, Emergency Flash Checkpoint, Off-Power Standby 10 Detik & CLI Simulasi (`acfail` & `button`) | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/app/profiling/*`, `E3/app/e3_meter_app.*`, `E3/app/console/*`, `E3/tests/*` | Selesai |
 
 ---
 

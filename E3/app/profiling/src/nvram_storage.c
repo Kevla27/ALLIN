@@ -39,8 +39,9 @@ static void spi2_flash_write_bytes(uint32_t flash_offset, const uint8_t *data, u
 #endif
 
 /* Buffer NVRAM Backing Store untuk menjamin integritas baca/tulis pada Spin 1 & Unit Test */
-static load_profile_entry_t simulated_load_profile_flash[LOAD_PROFILE_MAX_ENTRIES];
-static tamper_context_t     simulated_tamper_log_flash;
+static load_profile_entry_t     simulated_load_profile_flash[LOAD_PROFILE_MAX_ENTRIES];
+static tamper_context_t         simulated_tamper_log_flash;
+static nvram_energy_checkpoint_t simulated_energy_checkpoint_flash = {0};
 
 bool nvram_write_load_profile_entry(uint32_t entry_index, const load_profile_entry_t *entry)
 {
@@ -81,4 +82,24 @@ bool nvram_load_tamper_log_snapshot(tamper_context_t *tamper_ctx)
 
     *tamper_ctx = simulated_tamper_log_flash;
     return true;
+}
+
+bool nvram_save_energy_checkpoint(const nvram_energy_checkpoint_t *checkpoint)
+{
+    if (checkpoint == NULL) return false;
+
+    simulated_energy_checkpoint_flash = *checkpoint;
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    spi2_flash_write_bytes(0x001000U, (const uint8_t *)checkpoint, (uint16_t)sizeof(nvram_energy_checkpoint_t));
+#endif
+    return true;
+}
+
+bool nvram_load_energy_checkpoint(nvram_energy_checkpoint_t *out_checkpoint)
+{
+    if (out_checkpoint == NULL) return false;
+
+    *out_checkpoint = simulated_energy_checkpoint_flash;
+    return (out_checkpoint->magic == NVRAM_ENERGY_CHECKPOINT_MAGIC);
 }
