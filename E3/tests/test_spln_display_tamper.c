@@ -41,83 +41,180 @@ int main(void) {
     printf("  > Page 01 (IDPEL): OK | zz: %s | Val: %s | OBIS: %s [PASS]\n",
            frame.scroll_index_zz, frame.main_value, frame.obis_code);
 
-    /* Cek Halaman Tegangan R */
-    ctx.current_page = DISP_PAGE_VOLTAGE_R;
-    ctx.meas_buffer.voltage_r_dvolts = 2300; /* 230.0 V */
+    /* Cek 14 Halaman Tampilan Otomatis (Tabel E.1) */
+    /* 1. ID Pelanggan (IDPEL) */
+    ctx.current_page = DISP_PAGE_IDPEL;
     display_render_spln_frame(&ctx, &frame);
     assert(frame.is_alarm_active == false);
-    assert(strcmp(frame.scroll_index_zz, "02") == 0);
-    assert(strcmp(frame.main_value, "230.0") == 0);
-    assert(strcmp(frame.unit, "V") == 0);
-    assert(strcmp(frame.obis_code, "32.07") == 0);
-    assert(strcmp(frame.reg_info, "UR") == 0);
-    assert(frame.is_large_font == true);
-    printf("  > Page 02 (Volt R - UR): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
-           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
+    assert(strcmp(frame.alarm_code, "OK") == 0);
+    assert(strcmp(frame.scroll_index_zz, "01") == 0);
+    assert(strcmp(frame.main_value, "530000000001") == 0);
+    assert(strcmp(frame.obis_code, "96.01") == 0);
+    printf("  > Page 01 (IDPEL): OK | zz: %s | Val: %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.obis_code);
 
-    /* Cek Halaman Arus R (3 Desimal sesuai SPLN Tabel E.1) */
-    ctx.current_page = DISP_PAGE_CURRENT_R;
-    ctx.meas_buffer.current_r_mamps = 11946; /* 11.946 A */
-    display_render_spln_frame(&ctx, &frame);
-    assert(strcmp(frame.scroll_index_zz, "05") == 0);
-    assert(strcmp(frame.main_value, "11.946") == 0);
-    assert(strcmp(frame.unit, "A") == 0);
-    assert(strcmp(frame.obis_code, "31.07") == 0);
-    assert(strcmp(frame.reg_info, "IR") == 0);
-    printf("  > Page 05 (Arus R - IR - 3 Desimal): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
-           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
-
-    /* Cek Halaman Energi Aktif Tarif 1 WBP (DISP_PAGE_ENERGY_WBP) - SPLN Tabel E.1 No 2 */
+    /* 2. Energi aktif kirim Tarif 1 WBP (EA_EXP1) */
     ctx.current_page = DISP_PAGE_ENERGY_WBP;
     ctx.meas_buffer.active_energy_wbp_wh = 10500; /* 10.500 kWh */
     display_render_spln_frame(&ctx, &frame);
     assert(frame.is_alarm_active == false);
-    assert(strcmp(frame.scroll_index_zz, "15") == 0);
+    assert(strcmp(frame.scroll_index_zz, "02") == 0);
     assert(strcmp(frame.main_value, "10.500") == 0);
     assert(strcmp(frame.unit, "kWh") == 0);
     assert(strcmp(frame.obis_code, "01.08.1") == 0);
-    assert(frame.is_large_font == true);
-    printf("  > Page 15 (Energi WBP Tarif 1 - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
+    assert(strcmp(frame.reg_info, "EA_EXP1") == 0);
+    printf("  > Page 02 (EA_EXP1 Tarif 1 - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
            frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
 
-    /* Cek Halaman Energi Aktif Tarif 2 LWBP (DISP_PAGE_ENERGY_LWBP) - SPLN Tabel E.1 No 3 */
+    /* 3. Energi aktif kirim Tarif 2 LWBP1 (EA_EXP2) */
     ctx.current_page = DISP_PAGE_ENERGY_LWBP;
     ctx.meas_buffer.active_energy_lwbp_wh = 25250; /* 25.250 kWh */
     display_render_spln_frame(&ctx, &frame);
     assert(frame.is_alarm_active == false);
-    assert(strcmp(frame.scroll_index_zz, "16") == 0);
+    assert(strcmp(frame.scroll_index_zz, "03") == 0);
     assert(strcmp(frame.main_value, "25.250") == 0);
     assert(strcmp(frame.unit, "kWh") == 0);
     assert(strcmp(frame.obis_code, "01.08.2") == 0);
-    assert(frame.is_large_font == true);
-    printf("  > Page 16 (Energi LWBP Tarif 2 - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
+    assert(strcmp(frame.reg_info, "EA_EXP2") == 0);
+    printf("  > Page 03 (EA_EXP2 Tarif 2 - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
            frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
 
-    /* Cek Halaman Energi Aktif Tarif 3 LWBP2 (DISP_PAGE_ENERGY_LWBP2) - SPLN Tabel E.1 No 4 */
+    /* 4. Energi aktif kirim Tarif 3 LWBP2 (EA_EXP3) */
     ctx.current_page = DISP_PAGE_ENERGY_LWBP2;
     ctx.meas_buffer.active_energy_lwbp2_wh = 14750; /* 14.750 kWh */
     display_render_spln_frame(&ctx, &frame);
     assert(frame.is_alarm_active == false);
-    assert(strcmp(frame.scroll_index_zz, "25") == 0);
+    assert(strcmp(frame.scroll_index_zz, "04") == 0);
     assert(strcmp(frame.main_value, "14.750") == 0);
     assert(strcmp(frame.unit, "kWh") == 0);
     assert(strcmp(frame.obis_code, "01.08.3") == 0);
-    assert(frame.is_large_font == true);
-    printf("  > Page 25 (Energi LWBP2 Tarif 3 - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
+    assert(strcmp(frame.reg_info, "EA_EXP3") == 0);
+    printf("  > Page 04 (EA_EXP3 Tarif 3 - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
            frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
 
-    /* Cek Halaman Energi Aktif Terima / Impor (DISP_PAGE_ENERGY_IMPORT) - SPLN Tabel E.1 No 6 */
+    /* 5. Energi aktif kirim (EA_EXP) */
+    ctx.current_page = DISP_PAGE_ACTIVE_ENERGY;
+    ctx.meas_buffer.active_energy_wh = 50500; /* 50.500 kWh */
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.is_alarm_active == false);
+    assert(strcmp(frame.scroll_index_zz, "05") == 0);
+    assert(strcmp(frame.main_value, "50.500") == 0);
+    assert(strcmp(frame.unit, "kWh") == 0);
+    assert(strcmp(frame.obis_code, "01.08") == 0);
+    assert(strcmp(frame.reg_info, "EA_EXP") == 0);
+    printf("  > Page 05 (EA_EXP Kirim - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
+
+    /* 6. Energi aktif terima (EA_IMP) */
     ctx.current_page = DISP_PAGE_ENERGY_IMPORT;
     ctx.meas_buffer.active_energy_import_wh = 5200; /* 5.200 kWh */
     display_render_spln_frame(&ctx, &frame);
     assert(frame.is_alarm_active == false);
-    assert(strcmp(frame.scroll_index_zz, "26") == 0);
+    assert(strcmp(frame.scroll_index_zz, "06") == 0);
     assert(strcmp(frame.main_value, "5.200") == 0);
     assert(strcmp(frame.unit, "kWh") == 0);
     assert(strcmp(frame.obis_code, "02.08") == 0);
-    assert(frame.is_large_font == true);
-    printf("  > Page 26 (Energi Impor EA_IMP - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
+    assert(strcmp(frame.reg_info, "EA_IMP") == 0);
+    printf("  > Page 06 (EA_IMP Terima - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
            frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
+
+    /* 7. Energi reaktif billing kompensasi (ER_BIL) */
+    ctx.current_page = DISP_PAGE_REACTIVE_ENERGY;
+    ctx.meas_buffer.reactive_energy_varh = 125450; /* 125.450 kVARh */
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.is_alarm_active == false);
+    assert(strcmp(frame.scroll_index_zz, "07") == 0);
+    assert(strcmp(frame.main_value, "125.450") == 0);
+    assert(strcmp(frame.unit, "kVARh") == 0);
+    assert(strcmp(frame.obis_code, "03.08") == 0);
+    assert(strcmp(frame.reg_info, "ER_BIL") == 0);
+    printf("  > Page 07 (ER_BIL Billing - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
+
+    /* 8. Tegangan fase R (UR) */
+    ctx.current_page = DISP_PAGE_VOLTAGE_R;
+    ctx.meas_buffer.voltage_r_dvolts = 2300; /* 230.0 V */
+    display_render_spln_frame(&ctx, &frame);
+    assert(frame.is_alarm_active == false);
+    assert(strcmp(frame.scroll_index_zz, "08") == 0);
+    assert(strcmp(frame.main_value, "230.0") == 0);
+    assert(strcmp(frame.unit, "V") == 0);
+    assert(strcmp(frame.obis_code, "32.07") == 0);
+    assert(strcmp(frame.reg_info, "UR") == 0);
+    printf("  > Page 08 (Volt R - UR - 1 Desimal): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
+
+    /* 9. Tegangan fase S (US) */
+    ctx.current_page = DISP_PAGE_VOLTAGE_S;
+    ctx.meas_buffer.voltage_s_dvolts = 2300; /* 230.0 V */
+    display_render_spln_frame(&ctx, &frame);
+    assert(strcmp(frame.scroll_index_zz, "09") == 0);
+    assert(strcmp(frame.main_value, "230.0") == 0);
+    assert(strcmp(frame.unit, "V") == 0);
+    assert(strcmp(frame.obis_code, "52.07") == 0);
+    assert(strcmp(frame.reg_info, "US") == 0);
+    printf("  > Page 09 (Volt S - US - 1 Desimal): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
+
+    /* 10. Tegangan fase T (UT) */
+    ctx.current_page = DISP_PAGE_VOLTAGE_T;
+    ctx.meas_buffer.voltage_t_dvolts = 2300; /* 230.0 V */
+    display_render_spln_frame(&ctx, &frame);
+    assert(strcmp(frame.scroll_index_zz, "10") == 0);
+    assert(strcmp(frame.main_value, "230.0") == 0);
+    assert(strcmp(frame.unit, "V") == 0);
+    assert(strcmp(frame.obis_code, "72.07") == 0);
+    assert(strcmp(frame.reg_info, "UT") == 0);
+    printf("  > Page 10 (Volt T - UT - 1 Desimal): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
+
+    /* 11. Arus fase R (IR) */
+    ctx.current_page = DISP_PAGE_CURRENT_R;
+    ctx.meas_buffer.current_r_mamps = 11946; /* 11.946 A */
+    display_render_spln_frame(&ctx, &frame);
+    assert(strcmp(frame.scroll_index_zz, "11") == 0);
+    assert(strcmp(frame.main_value, "11.946") == 0);
+    assert(strcmp(frame.unit, "A") == 0);
+    assert(strcmp(frame.obis_code, "31.07") == 0);
+    assert(strcmp(frame.reg_info, "IR") == 0);
+    printf("  > Page 11 (Arus R - IR - 3 Desimal): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
+
+    /* 12. Arus fase S (IS) */
+    ctx.current_page = DISP_PAGE_CURRENT_S;
+    ctx.meas_buffer.current_s_mamps = 11946; /* 11.946 A */
+    display_render_spln_frame(&ctx, &frame);
+    assert(strcmp(frame.scroll_index_zz, "12") == 0);
+    assert(strcmp(frame.main_value, "11.946") == 0);
+    assert(strcmp(frame.unit, "A") == 0);
+    assert(strcmp(frame.obis_code, "51.07") == 0);
+    assert(strcmp(frame.reg_info, "IS") == 0);
+    printf("  > Page 12 (Arus S - IS - 3 Desimal): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
+
+    /* 13. Arus fase T (IT) */
+    ctx.current_page = DISP_PAGE_CURRENT_T;
+    ctx.meas_buffer.current_t_mamps = 11946; /* 11.946 A */
+    display_render_spln_frame(&ctx, &frame);
+    assert(strcmp(frame.scroll_index_zz, "13") == 0);
+    assert(strcmp(frame.main_value, "11.946") == 0);
+    assert(strcmp(frame.unit, "A") == 0);
+    assert(strcmp(frame.obis_code, "71.07") == 0);
+    assert(strcmp(frame.reg_info, "IT") == 0);
+    printf("  > Page 13 (Arus T - IT - 3 Desimal): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
+
+    /* 14. Arus netral (IN) */
+    ctx.current_page = DISP_PAGE_CURRENT_N;
+    ctx.meas_buffer.current_n_mamps = 2389; /* 2.389 A */
+    display_render_spln_frame(&ctx, &frame);
+    assert(strcmp(frame.scroll_index_zz, "14") == 0);
+    assert(strcmp(frame.main_value, "2.389") == 0);
+    assert(strcmp(frame.unit, "A") == 0);
+    assert(strcmp(frame.obis_code, "91.07") == 0);
+    assert(strcmp(frame.reg_info, "IN") == 0);
+    printf("  > Page 14 (Arus Netral - IN - 3 Desimal): OK | zz: %s | Val: %s %s | Reg: %s | OBIS: %s [PASS]\n",
+           frame.scroll_index_zz, frame.main_value, frame.unit, frame.reg_info, frame.obis_code);
 
     /* Cek Halaman Maximum Demand (DISP_PAGE_MAX_DEMAND) - SPLN Tabel E.1 No 4 */
     ctx.current_page = DISP_PAGE_MAX_DEMAND;
@@ -161,19 +258,6 @@ int main(void) {
     assert(strcmp(frame.unit, "RST") == 0);
     assert(strcmp(frame.obis_code, "01.01") == 0);
     printf("  > Page 20 (MD Reset Counter): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
-           frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
-
-    /* Cek Halaman Energi Reaktif (DISP_PAGE_REACTIVE_ENERGY) - SPLN Tabel E.1 No 8 */
-    ctx.current_page = DISP_PAGE_REACTIVE_ENERGY;
-    ctx.meas_buffer.reactive_energy_varh = 125450; /* 125.450 kvarh */
-    display_render_spln_frame(&ctx, &frame);
-    assert(frame.is_alarm_active == false);
-    assert(strcmp(frame.scroll_index_zz, "21") == 0);
-    assert(strcmp(frame.main_value, "125.450") == 0);
-    assert(strcmp(frame.unit, "kvarh") == 0);
-    assert(strcmp(frame.obis_code, "03.08") == 0);
-    assert(frame.is_large_font == true);
-    printf("  > Page 21 (Energi Reaktif - 3 Desimal): OK | zz: %s | Val: %s %s | OBIS: %s [PASS]\n",
            frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
 
     /* Cek Halaman Jam dan Waktu (DISP_PAGE_TIME) - SPLN Butir 6.11 & Tabel E.1 No 9 */
@@ -314,8 +398,8 @@ int main(void) {
     assert(strcmp(frame.obis_code, "96.01.0") == 0);
     printf("  > Seluruh Halaman Tambahan Tabel E.2 (Daya Impor, Sudut Fasa, MD Semu, EoB, Unit PLN) Lulus Verifikasi! [PASS]\n");
 
-    /* Cek Carousel Wrap saat Normal: Dari Page 23 (Date) harus langsung ke Page 01 (IDPEL) */
-    ctx.current_page = DISP_PAGE_DATE;
+    /* Cek Carousel Wrap saat Normal: Dari Page 14 (IN) harus langsung ke Page 01 (IDPEL) */
+    ctx.current_page = DISP_PAGE_CURRENT_N;
     display_process_tick(&ctx, 2000);
     assert(ctx.current_page == DISP_PAGE_IDPEL);
     printf("  > Carousel Skip Test (Normal tidak menampilkan halaman sabotase): [PASS]\n\n");
@@ -332,7 +416,7 @@ int main(void) {
     display_render_spln_frame(&ctx, &frame);
     assert(frame.is_alarm_active == true);
     assert(strcmp(frame.alarm_code, "!ALM") == 0);
-    printf("  > Banner Alarm Tersemat di Page 02: Respon Alarm = '%s' [PASS]\n", frame.alarm_code);
+    printf("  > Banner Alarm Tersemat di Page 08: Respon Alarm = '%s' [PASS]\n", frame.alarm_code);
 
     /* Cek Halaman Khusus Darurat Sabotase (DISP_PAGE_TAMPER_ALARM) - SPLN Tabel 6 No 1 */
     ctx.current_page = DISP_PAGE_TAMPER_ALARM;
@@ -346,8 +430,8 @@ int main(void) {
     printf("  > SPLN Tabel 6 No 1 (Case Open): Header: '%s' | zz: '%s' | Teks: '%s' | Kode: '%s' | OBIS: '%s' [PASS]\n",
            frame.alarm_code, frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
 
-    /* Cek Siklus Carousel saat Alarm: Dari Page 23 (Date) harus masuk ke DISP_PAGE_TAMPER_ALARM */
-    ctx.current_page = DISP_PAGE_DATE;
+    /* Cek Siklus Carousel saat Alarm: Dari Page 14 (IN) harus masuk ke DISP_PAGE_TAMPER_ALARM */
+    ctx.current_page = DISP_PAGE_CURRENT_N;
     display_process_tick(&ctx, 2000);
     assert(ctx.current_page == DISP_PAGE_TAMPER_ALARM);
     printf("  > Carousel Inclusion Test (Halaman sabotase masuk dalam siklus carousel): [PASS]\n");

@@ -17,12 +17,15 @@ void test_display_carousel(void) {
     assert(ok);
     assert(disp.current_page == DISP_PAGE_IDPEL);
 
-    meter_measurements_t meas = { .voltage_r_dvolts = 2205 }; // 220.5 V
+    meter_measurements_t meas = { 
+        .voltage_r_dvolts = 2205,         // 220.5 V
+        .active_energy_wbp_wh = 15250      // 15.250 kWh
+    };
     display_update_measurements(&disp, &meas);
 
-    // Simulasi 3 detik -> Carousel bergulir ke VOLTAGE_R
+    // Simulasi 3 detik -> Carousel bergulir ke Halaman 2: EA_EXP1 (ENERGY_WBP)
     display_process_tick(&disp, 3000);
-    assert(disp.current_page == DISP_PAGE_VOLTAGE_R);
+    assert(disp.current_page == DISP_PAGE_ENERGY_WBP);
 
     char l1[64], l2[64], l3[64];
     display_render_frame(&disp, l1, l2, l3, sizeof(l1));
@@ -31,6 +34,14 @@ void test_display_carousel(void) {
     printf("   Render Line 2: %s\n", l2);
     printf("   Render Line 3: %s\n", l3);
 
+    assert(strstr(l3, "15.250 kWh") != NULL);
+
+    // Bergulir 6 halaman berikutnya (ke Halaman 8: VOLTAGE_R / UR)
+    for (int step = 0; step < 6; step++) {
+        display_process_tick(&disp, 3000);
+    }
+    assert(disp.current_page == DISP_PAGE_VOLTAGE_R);
+    display_render_frame(&disp, l1, l2, l3, sizeof(l1));
     assert(strstr(l3, "220.5 V") != NULL);
 
     /* Pastikan display_update_measurements tidak menimpa konfigurasi statis Tabel E.2 dengan 0 */

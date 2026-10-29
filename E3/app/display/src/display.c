@@ -123,25 +123,22 @@ void display_process_tick(display_context_t *ctx, uint32_t elapsed_ms) {
         if (ctx->timer_accumulator_ms >= ctx->carousel_interval_ms) {
             ctx->timer_accumulator_ms = 0;
             display_page_id_t next_page;
-            if (ctx->current_page == DISP_PAGE_DATE) {
+            if (ctx->current_page == DISP_AUTO_PAGE_LAST) {
                 if (ctx->alarm_icon_active) {
                     next_page = DISP_PAGE_TAMPER_ALARM;
                 } else if (ctx->relay_ready_on) {
                     next_page = DISP_PAGE_RELAY_READY_ON;
                 } else {
-                    next_page = DISP_PAGE_IDPEL;
+                    next_page = DISP_AUTO_PAGE_FIRST;
                 }
             } else if (ctx->current_page == DISP_PAGE_TAMPER_ALARM) {
-                next_page = (ctx->relay_ready_on) ? DISP_PAGE_RELAY_READY_ON : DISP_PAGE_IDPEL;
+                next_page = (ctx->relay_ready_on) ? DISP_PAGE_RELAY_READY_ON : DISP_AUTO_PAGE_FIRST;
             } else if (ctx->current_page == DISP_PAGE_RELAY_READY_ON) {
-                next_page = DISP_PAGE_IDPEL;
+                next_page = DISP_AUTO_PAGE_FIRST;
+            } else if (ctx->current_page < DISP_AUTO_PAGE_LAST) {
+                next_page = (display_page_id_t)(ctx->current_page + 1);
             } else {
-                next_page = (display_page_id_t)((ctx->current_page + 1) % DISP_PAGE_COUNT);
-                if (next_page > DISP_PAGE_DATE && next_page < DISP_PAGE_TAMPER_ALARM) {
-                    next_page = (ctx->alarm_icon_active) ? DISP_PAGE_TAMPER_ALARM : ((ctx->relay_ready_on) ? DISP_PAGE_RELAY_READY_ON : DISP_PAGE_IDPEL);
-                } else if (!ctx->alarm_icon_active && next_page == DISP_PAGE_TAMPER_ALARM) {
-                    next_page = (ctx->relay_ready_on) ? DISP_PAGE_RELAY_READY_ON : DISP_PAGE_IDPEL;
-                }
+                next_page = (ctx->alarm_icon_active) ? DISP_PAGE_TAMPER_ALARM : ((ctx->relay_ready_on) ? DISP_PAGE_RELAY_READY_ON : DISP_AUTO_PAGE_FIRST);
             }
             ctx->current_page = next_page;
         }
@@ -149,7 +146,7 @@ void display_process_tick(display_context_t *ctx, uint32_t elapsed_ms) {
         if (ctx->timer_accumulator_ms >= ctx->manual_timeout_ms) {
             ctx->timer_accumulator_ms = 0;
             ctx->mode = DISPLAY_MODE_AUTO_CAROUSEL;
-            ctx->current_page = DISP_PAGE_IDPEL;
+            ctx->current_page = DISP_AUTO_PAGE_FIRST;
         }
     }
 }
@@ -689,7 +686,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_VOLTAGE_R: {
             obis_code = "32.07";
             reg_info = "UR";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "02");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "08");
             uint32_t v = ctx->meas_buffer.voltage_r_dvolts;
             display_voltage_status_t st = display_get_voltage_status(v);
             if (st == DISPLAY_VOLT_LOW && ((ctx->timer_accumulator_ms / 1500U) % 2 == 0)) {
@@ -709,7 +706,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_VOLTAGE_S: {
             obis_code = "52.07";
             reg_info = "US";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "03");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "09");
             uint32_t v = ctx->meas_buffer.voltage_s_dvolts;
             display_voltage_status_t st = display_get_voltage_status(v);
             if (st == DISPLAY_VOLT_LOW && ((ctx->timer_accumulator_ms / 1500U) % 2 == 0)) {
@@ -729,7 +726,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_VOLTAGE_T: {
             obis_code = "72.07";
             reg_info = "UT";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "04");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "10");
             uint32_t v = ctx->meas_buffer.voltage_t_dvolts;
             display_voltage_status_t st = display_get_voltage_status(v);
             if (st == DISPLAY_VOLT_LOW && ((ctx->timer_accumulator_ms / 1500U) % 2 == 0)) {
@@ -749,7 +746,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_CURRENT_R:
             obis_code = "31.07";
             reg_info = "IR";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "05");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "11");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.current_r_mamps / 1000),
                      (unsigned long)(ctx->meas_buffer.current_r_mamps % 1000));
@@ -758,7 +755,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_CURRENT_S:
             obis_code = "51.07";
             reg_info = "IS";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "06");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "12");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.current_s_mamps / 1000),
                      (unsigned long)(ctx->meas_buffer.current_s_mamps % 1000));
@@ -767,7 +764,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_CURRENT_T:
             obis_code = "71.07";
             reg_info = "IT";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "07");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "13");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.current_t_mamps / 1000),
                      (unsigned long)(ctx->meas_buffer.current_t_mamps % 1000));
@@ -776,7 +773,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_CURRENT_N:
             obis_code = "91.07";
             reg_info = "IN";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "08");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "14");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.current_n_mamps / 1000),
                      (unsigned long)(ctx->meas_buffer.current_n_mamps % 1000));
@@ -838,16 +835,16 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_ACTIVE_ENERGY:
             obis_code = "01.08";
             reg_info = "EA_EXP";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "14");
-            snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%02lu",
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "05");
+            snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.active_energy_wh / 1000),
-                     (unsigned long)((ctx->meas_buffer.active_energy_wh % 1000) / 10));
+                     (unsigned long)(ctx->meas_buffer.active_energy_wh % 1000));
             snprintf(frame->unit, sizeof(frame->unit), "kWh");
             break;
         case DISP_PAGE_ENERGY_WBP:
             obis_code = "01.08.1";
             reg_info = "EA_EXP1";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "15");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "02");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.active_energy_wbp_wh / 1000),
                      (unsigned long)(ctx->meas_buffer.active_energy_wbp_wh % 1000));
@@ -856,7 +853,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_ENERGY_LWBP:
             obis_code = "01.08.2";
             reg_info = "EA_EXP2";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "16");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "03");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.active_energy_lwbp_wh / 1000),
                      (unsigned long)(ctx->meas_buffer.active_energy_lwbp_wh % 1000));
@@ -865,7 +862,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_ENERGY_LWBP2:
             obis_code = "01.08.3";
             reg_info = "EA_EXP3";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "25");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "04");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.active_energy_lwbp2_wh / 1000),
                      (unsigned long)(ctx->meas_buffer.active_energy_lwbp2_wh % 1000));
@@ -874,7 +871,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_ENERGY_IMPORT:
             obis_code = "02.08";
             reg_info = "EA_IMP";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "26");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "06");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.active_energy_import_wh / 1000),
                      (unsigned long)(ctx->meas_buffer.active_energy_import_wh % 1000));
@@ -925,11 +922,11 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_REACTIVE_ENERGY:
             obis_code = "03.08";
             reg_info = "ER_BIL";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "21");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "07");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.reactive_energy_varh / 1000),
                      (unsigned long)(ctx->meas_buffer.reactive_energy_varh % 1000));
-            snprintf(frame->unit, sizeof(frame->unit), "kvarh");
+            snprintf(frame->unit, sizeof(frame->unit), "kVARh");
             break;
         case DISP_PAGE_TIME: {
             obis_code = "01.00";

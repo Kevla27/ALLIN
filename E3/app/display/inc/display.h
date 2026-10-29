@@ -28,32 +28,39 @@ typedef enum {
 } button_dir_t;
 
 typedef enum {
-    DISP_PAGE_IDPEL = 0,
-    DISP_PAGE_VOLTAGE_R,
-    DISP_PAGE_VOLTAGE_S,
-    DISP_PAGE_VOLTAGE_T,
-    DISP_PAGE_CURRENT_R,
-    DISP_PAGE_CURRENT_S,
-    DISP_PAGE_CURRENT_T,
-    DISP_PAGE_CURRENT_N,
-    DISP_PAGE_ACTIVE_POWER,
-    DISP_PAGE_REACTIVE_POWER,
-    DISP_PAGE_APPARENT_POWER,
-    DISP_PAGE_POWER_FACTOR,
-    DISP_PAGE_FREQUENCY,
-    DISP_PAGE_ACTIVE_ENERGY,       /* zz: 14, OBIS: 01.08   (Total kWh) - Tabel E.1 No 1 / 5 */
-    DISP_PAGE_ENERGY_WBP,          /* zz: 15, OBIS: 01.08.1 (Tarif 1 WBP, kWh 3 desimal) - Tabel E.1 No 2 */
-    DISP_PAGE_ENERGY_LWBP,         /* zz: 16, OBIS: 01.08.2 (Tarif 2 LWBP1, kWh 3 desimal) - Tabel E.1 No 3 */
-    DISP_PAGE_ENERGY_LWBP2,        /* zz: 25, OBIS: 01.08.3 (Tarif 3 LWBP2, kWh 3 desimal) - Tabel E.1 No 4 */
-    DISP_PAGE_ENERGY_IMPORT,       /* zz: 26, OBIS: 02.08   (Energi Impor/Terima PLTS, kWh 3 desimal) - Tabel E.1 No 6 */
-    DISP_PAGE_MAX_DEMAND,          /* zz: 17, OBIS: 01.06   (P_MAX, kW 3 desimal) - Tabel E.1 No 4 */
-    DISP_PAGE_MD_TIME,             /* zz: 18, OBIS: 01.06.0 (Tanggal & Jam MD) - Tabel E.1 No 5 */
-    DISP_PAGE_CMD,                 /* zz: 19, OBIS: 01.02   (Kumulatif MD, kW 3 desimal) - Tabel E.1 No 6 */
-    DISP_PAGE_MD_RESET_COUNT,      /* zz: 20, OBIS: 01.01   (Counter Reset MD) - Tabel E.1 No 7 */
-    DISP_PAGE_REACTIVE_ENERGY,     /* zz: 21, OBIS: 03.08   (ER_BIL, kvarh 3 desimal) - Tabel E.1 No 8 */
-    DISP_PAGE_TIME,                /* zz: 22, OBIS: 01.00   (Jam:Menit:Detik WIB) - Tabel E.1 No 9 */
-    DISP_PAGE_DATE,                /* zz: 23, OBIS: 00.09.02(Tanggal DD-MM-YYYY) - Tabel E.1 No 10 */
-    /* Parameter Tambahan Scrolling Manual (SPLN D3.006:2021 Tabel E.2) */
+    /* ========================================================================= */
+    /* 14 Halaman Layar Tampilan Otomatis (Auto Carousel) Sesuai Tabel E.1       */
+    /* "Informasi layar tampilan otomatis" (No. 1 s.d 14 - Tanpa Kurang / Tambah)*/
+    /* ========================================================================= */
+    DISP_PAGE_IDPEL = 0,           /* 01: ID Pelanggan (IDPEL) */
+    DISP_PAGE_ENERGY_WBP,          /* 02: Energi aktif kirim Tarif 1 WBP (EA_EXP1, kWh, 3 desimal) */
+    DISP_PAGE_ENERGY_LWBP,         /* 03: Energi aktif kirim Tarif 2 LWBP1 (EA_EXP2, kWh, 3 desimal) */
+    DISP_PAGE_ENERGY_LWBP2,        /* 04: Energi aktif kirim Tarif 3 LWBP2 (EA_EXP3, kWh, 3 desimal) */
+    DISP_PAGE_ACTIVE_ENERGY,       /* 05: Energi aktif kirim (EA_EXP, kWh, 3 desimal) */
+    DISP_PAGE_ENERGY_IMPORT,       /* 06: Energi aktif terima (EA_IMP, kWh, 3 desimal) */
+    DISP_PAGE_REACTIVE_ENERGY,     /* 07: Energi reaktif billing kompensasi (ER_BIL, kVARh, 3 desimal) */
+    DISP_PAGE_VOLTAGE_R,           /* 08: Tegangan fase R (UR, V, 1 desimal) */
+    DISP_PAGE_VOLTAGE_S,           /* 09: Tegangan fase S (US, V, 1 desimal) */
+    DISP_PAGE_VOLTAGE_T,           /* 10: Tegangan fase T (UT, V, 1 desimal) */
+    DISP_PAGE_CURRENT_R,           /* 11: Arus fase R (IR, A, 3 desimal) */
+    DISP_PAGE_CURRENT_S,           /* 12: Arus fase S (IS, A, 3 desimal) */
+    DISP_PAGE_CURRENT_T,           /* 13: Arus fase T (IT, A, 3 desimal) */
+    DISP_PAGE_CURRENT_N,           /* 14: Arus netral (IN, A, 3 desimal) */
+
+    /* ========================================================================= */
+    /* Parameter Tambahan Scrolling Manual (Tabel E.2 / Diagnostik / Rekayasa)   */
+    /* ========================================================================= */
+    DISP_PAGE_ACTIVE_POWER,        /* Daya Aktif Total (kW) */
+    DISP_PAGE_REACTIVE_POWER,      /* Daya Reaktif Total (kvar) */
+    DISP_PAGE_APPARENT_POWER,      /* Daya Semu Total (kVA) */
+    DISP_PAGE_POWER_FACTOR,        /* Faktor Daya (PF) */
+    DISP_PAGE_FREQUENCY,           /* Frekuensi Jala-Jala (Hz) */
+    DISP_PAGE_MAX_DEMAND,          /* Kebutuhan Maksimum Aktif (P_MAX, kW) */
+    DISP_PAGE_MD_TIME,             /* Waktu Kebutuhan Maksimum (TS_MAX) */
+    DISP_PAGE_CMD,                 /* Kumulatif Max Demand (CMD, kW) */
+    DISP_PAGE_MD_RESET_COUNT,      /* Counter Reset MD */
+    DISP_PAGE_TIME,                /* Jam Waktu Nyata (TIME, WIB) */
+    DISP_PAGE_DATE,                /* Tanggal Waktu Nyata (DATE, WIB) */
     DISP_PAGE_TEST_DISPLAY,        /* zz: 00, Uji Layar Segmen '88888888' - Tabel E.2 No 1 */
     DISP_PAGE_METER_ID,            /* zz: 02, OBIS: 96.02   (METERID) - Tabel E.2 No 2 */
     DISP_PAGE_ACTIVE_POWER_IMP,    /* zz: 27, OBIS: 02.07   (P_IMP Daya Aktif Terima) - Tabel E.2 No 4 */
@@ -80,6 +87,10 @@ typedef enum {
     DISP_PAGE_RELAY_READY_ON,      /* zz: on, Status Relai Reconnect - Tabel E.2 No 40 */
     DISP_PAGE_COUNT
 } display_page_id_t;
+
+#define DISP_AUTO_PAGE_COUNT  14U
+#define DISP_AUTO_PAGE_FIRST  DISP_PAGE_IDPEL
+#define DISP_AUTO_PAGE_LAST   DISP_PAGE_CURRENT_N
 
 typedef struct {
     uint32_t voltage_r_dvolts;

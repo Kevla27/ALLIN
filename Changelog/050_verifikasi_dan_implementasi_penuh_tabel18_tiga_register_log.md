@@ -91,3 +91,4 @@ Tabel 18 mengelompokkan 29 jenis rekaman ke dalam 3 register log FIFO terpisah:
    * Memvalidasi pemulihan status (*deassertion*) membersihkan bit Error Register secara otomatis.
 2. **Hasil CTest:** 12/12 Test Suites Lulus 100% (0 Failed).
 3. **Kompilasi Firmware Target ARM Cortex-M33:** `ALLIN_S.elf` dan `ALLIN_NS.elf` sukses ter-link 100% bersih.
+
