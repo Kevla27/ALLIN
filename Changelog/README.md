@@ -59,6 +59,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-049**](049_implementasi_penuh_12_kejadian_event_tabel5_spln.md) | 28-10-2026 | Verifikasi dan Implementasi Penuh 12 Kejadian Event Sesuai SPLN D3.006:2021 Tabel 5 (Halaman 45) | `E3/app/e3_meter_app.*`, `E3/app/tamper/*`, `E3/tests/*`, `Changelog/*` | Selesai |
 | [**LOG-050**](050_verifikasi_dan_implementasi_penuh_tabel18_tiga_register_log.md) | 28-10-2026 | Audit dan Verifikasi Penuh Tiga Register Log (Alarm, Event, Tamper) Sesuai SPLN D3.006:2021 Butir 12.3 Tabel 18 (Halaman 57-58) | `E3/app/tamper/*`, `E3/tests/*`, `Changelog/*` | Selesai |
 | [**LOG-051**](051_penyesuaian_14_halaman_auto_scroll_tabel_e1_spln.md) | 29-10-2026 | Penyesuaian 14 Halaman Auto-Scroll Layar Tampilan Otomatis Sesuai Tabel E.1 SPLN ("Jangan Kurang Jangan Tambah") | `E3/app/display/*`, `E3/tests/*`, `Changelog/*` | Selesai |
+| [**LOG-052**](052_integrasi_revisi_tampilan_informasi_register_dan_fasa_dinamis_oled.md) | 29-10-2026 | Integrasi Revisi Tampilan Informasi Register dan Indikator Fasa Dinamis Layar OLED | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/tests/*`, `Changelog/*` | Selesai |
 
 ---
 

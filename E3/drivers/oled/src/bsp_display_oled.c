@@ -297,21 +297,98 @@ static void bsp_oled_render_frame(const display_spln_frame_t *spln_frame) {
     oled_draw_quadrant_icon(41, 1, spln_frame->power_quadrant);
     oled_draw_tariff_badge(49, 1, spln_frame->active_tariff_zone);
 
-    /* Indikator Fasa Tegangan URST (SPLN D3.006:2021 Butir 6.11 Gambar 6) di X = 56 */
-    char v_str[5] = "U---";
-    v_str[1] = (spln_frame->voltage_phases & 0x01) ? 'R' : '-';
-    v_str[2] = (spln_frame->voltage_phases & 0x02) ? 'S' : '-';
-    v_str[3] = (spln_frame->voltage_phases & 0x04) ? 'T' : '-';
-    ssd1306_SetCursor(56, 0);
-    ssd1306_WriteString(v_str, Font_6x8, White);
+    /* BARIS 1 STATUS BAR: Indikator Fasa Tegangan & Arus Sesuai Opsi A (Mengikuti Halaman Aktif) */
+    char v_str[5] = "";
+    char i_str[5] = "";
 
-    /* Indikator Fasa Arus IRST (SPLN Gambar 6) di X = 81 */
-    char i_str[5] = "I---";
-    i_str[1] = (spln_frame->current_phases & 0x01) ? 'R' : '-';
-    i_str[2] = (spln_frame->current_phases & 0x02) ? 'S' : '-';
-    i_str[3] = (spln_frame->current_phases & 0x04) ? 'T' : '-';
-    ssd1306_SetCursor(81, 0);
-    ssd1306_WriteString(i_str, Font_6x8, White);
+    switch (spln_frame->page_id) {
+        /* 1. Pengukuran Terkait Fasa R: Hanya fasa R yang menyala */
+        case DISP_PAGE_VOLTAGE_R:
+        case DISP_PAGE_CURRENT_R:
+        case DISP_PAGE_ANGLE_UR:
+        case DISP_PAGE_ANGLE_IR:
+            if (spln_frame->voltage_phases & 0x01) {
+                strcpy(v_str, "UR  ");
+            }
+            if (spln_frame->current_phases & 0x01) {
+                strcpy(i_str, "IR  ");
+            }
+            break;
+
+        /* 2. Pengukuran Terkait Fasa S: Hanya fasa S yang menyala */
+        case DISP_PAGE_VOLTAGE_S:
+        case DISP_PAGE_CURRENT_S:
+        case DISP_PAGE_ANGLE_US:
+        case DISP_PAGE_ANGLE_IS:
+            if (spln_frame->voltage_phases & 0x02) {
+                strcpy(v_str, "U S ");
+            }
+            if (spln_frame->current_phases & 0x02) {
+                strcpy(i_str, "I S ");
+            }
+            break;
+
+        /* 3. Pengukuran Terkait Fasa T: Hanya fasa T yang menyala */
+        case DISP_PAGE_VOLTAGE_T:
+        case DISP_PAGE_CURRENT_T:
+        case DISP_PAGE_ANGLE_UT:
+        case DISP_PAGE_ANGLE_IT:
+            if (spln_frame->voltage_phases & 0x04) {
+                strcpy(v_str, "U  T");
+            }
+            if (spln_frame->current_phases & 0x04) {
+                strcpy(i_str, "I  T");
+            }
+            break;
+
+        /* 4. Arus Netral */
+        case DISP_PAGE_CURRENT_N:
+            strcpy(i_str, "IN");
+            break;
+
+        /* 5. Halaman Non-Metrologi / Informasi Umum: Tidak menampilkan fasa agar baris 1 lapang */
+        case DISP_PAGE_IDPEL:
+        case DISP_PAGE_METER_ID:
+        case DISP_PAGE_TIME:
+        case DISP_PAGE_DATE:
+        case DISP_PAGE_TEST_DISPLAY:
+        case DISP_PAGE_CHECKSUM:
+        case DISP_PAGE_PLN_UNIT:
+        case DISP_PAGE_TAMPER_ALARM:
+        case DISP_PAGE_RELAY_READY_ON:
+            v_str[0] = '\0';
+            i_str[0] = '\0';
+            break;
+
+        /* 6. Halaman Metrologi Total 3-Fasa (Energi Aktif, Reaktif, Daya Total, PF, Freq, dll) */
+        default:
+            v_str[0] = 'U';
+            v_str[1] = (spln_frame->voltage_phases & 0x01) ? 'R' : '-';
+            v_str[2] = (spln_frame->voltage_phases & 0x02) ? 'S' : '-';
+            v_str[3] = (spln_frame->voltage_phases & 0x04) ? 'T' : '-';
+            v_str[4] = '\0';
+
+            if (spln_frame->is_reverse_power) {
+                strcpy(i_str, " REV");
+            } else {
+                i_str[0] = 'I';
+                i_str[1] = (spln_frame->current_phases & 0x01) ? 'R' : '-';
+                i_str[2] = (spln_frame->current_phases & 0x02) ? 'S' : '-';
+                i_str[3] = (spln_frame->current_phases & 0x04) ? 'T' : '-';
+                i_str[4] = '\0';
+            }
+            break;
+    }
+
+    if (v_str[0] != '\0') {
+        ssd1306_SetCursor(56, 0);
+        ssd1306_WriteString(v_str, Font_6x8, White);
+    }
+
+    if (i_str[0] != '\0') {
+        ssd1306_SetCursor(81, 0);
+        ssd1306_WriteString(i_str, Font_6x8, White);
+    }
 
     /* Kode Register SPLN Lampiran E (UR, US, UT, dll) bergantian dengan OBIS (32.07, dll) di X = 106..127 */
     const char *code_str = spln_frame->obis_code;
@@ -320,7 +397,8 @@ static void bsp_oled_render_frame(const display_spln_frame_t *spln_frame) {
     }
     int code_len = (int)strlen(code_str);
     int x_code = 127 - (code_len * 6);
-    if (x_code < 106) x_code = 106;
+    int min_x_code = (i_str[0] != '\0') ? 106 : 56;
+    if (x_code < min_x_code) x_code = min_x_code;
     ssd1306_SetCursor((uint8_t)x_code, 0);
     ssd1306_WriteString((char *)code_str, Font_6x8, White);
 
@@ -341,15 +419,35 @@ static void bsp_oled_render_frame(const display_spln_frame_t *spln_frame) {
     if (spln_frame->is_large_font) {
         /* Nilai angka besar (Font_11x18 di Y: 13..31) */
         int val_len = (int)strlen(spln_frame->main_value);
-        int x_val = 18 + (76 - (val_len * 11)) / 2;
-        if (x_val < 16) x_val = 16;
+        int x_val = 46 + (50 - (val_len * 11)) / 2;
+        if (x_val < 46) x_val = 46;
         ssd1306_SetCursor((uint8_t)x_val, 13);
         ssd1306_WriteString((char *)spln_frame->main_value, Font_11x18, White);
     } else {
         /* Teks khusus / IDPEL panjang / SABOTASE (Font_7x10 di Y: 17) */
         int val_len = (int)strlen(spln_frame->main_value);
-        int x_val = 18 + (82 - (val_len * 7)) / 2;
-        if (x_val < 16) x_val = 16;
+        int text_width = val_len * 7;
+        int zz_len = (int)strlen(spln_frame->scroll_index_zz);
+        int zz_end_x = (zz_len > 0) ? (1 + zz_len * 6) : 0;
+        int unit_len = (int)strlen(spln_frame->unit);
+        int unit_start_x = (unit_len > 0) ? (127 - unit_len * 6) : 127;
+        int available_width = unit_start_x - zz_end_x;
+
+        int x_val;
+        if (text_width <= (available_width - 4)) {
+            /* Posisikan di tengah area antara label zz dan unit agar tidak tertimpa */
+            x_val = zz_end_x + 3 + (available_width - 4 - text_width) / 2;
+        } else {
+            /* Jika teks sangat panjang, geser ke kanan label zz dengan batas kanan */
+            x_val = zz_end_x + 3;
+            if (x_val + text_width > 127) {
+                x_val = 127 - text_width;
+            }
+        }
+        if (x_val < zz_end_x + 2) {
+            x_val = zz_end_x + 2;
+        }
+
         ssd1306_SetCursor((uint8_t)x_val, 17);
         ssd1306_WriteString((char *)spln_frame->main_value, Font_7x10, White);
     }

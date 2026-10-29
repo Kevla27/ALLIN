@@ -214,8 +214,9 @@ display_voltage_status_t display_get_voltage_status(uint32_t v_dvolts);
  * @brief Struktur data representasi frame tampilan fisik LCD SPLN D3.006:2021 Gambar 4
  */
 typedef struct {
+    display_page_id_t page_id;   /* ID halaman untuk indikator fasa dinamis OLED */
     char header_symbols[32];      /* Baris 1: Simbol indikator dinamis */
-    char scroll_index_zz[4];      /* zz: Indeks scrolling (01..38, AL, on) */
+    char scroll_index_zz[16];     /* Informasi Register (IDPEL, UR, US, UT, EA_EXP1, dll) / zz */
     char main_value[32];          /* Baris 2: Nilai utama numerik / teks status */
     char unit[16];                /* Baris 3: Satuan metrologi (V, A, kW, kvarh, kWh) / kode ERR */
     char obis_code[16];           /* OBIS identifier sesuai SPLN */
