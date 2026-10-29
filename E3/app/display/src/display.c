@@ -678,7 +678,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_IDPEL:
             obis_code = "96.01";
             reg_info = "IDPEL";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "01");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "IDPEL");
             snprintf(frame->main_value, sizeof(frame->main_value), "%s", ctx->customer_id);
             frame->unit[0] = '\0';
             frame->is_large_font = false; /* 12 digit IDPEL menggunakan Font 7x10 */
@@ -686,7 +686,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_VOLTAGE_R: {
             obis_code = "32.07";
             reg_info = "UR";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "08");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "UR");
             uint32_t v = ctx->meas_buffer.voltage_r_dvolts;
             display_voltage_status_t st = display_get_voltage_status(v);
             if (st == DISPLAY_VOLT_LOW && ((ctx->timer_accumulator_ms / 1500U) % 2 == 0)) {
@@ -706,7 +706,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_VOLTAGE_S: {
             obis_code = "52.07";
             reg_info = "US";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "09");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "US");
             uint32_t v = ctx->meas_buffer.voltage_s_dvolts;
             display_voltage_status_t st = display_get_voltage_status(v);
             if (st == DISPLAY_VOLT_LOW && ((ctx->timer_accumulator_ms / 1500U) % 2 == 0)) {
@@ -726,7 +726,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_VOLTAGE_T: {
             obis_code = "72.07";
             reg_info = "UT";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "10");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "UT");
             uint32_t v = ctx->meas_buffer.voltage_t_dvolts;
             display_voltage_status_t st = display_get_voltage_status(v);
             if (st == DISPLAY_VOLT_LOW && ((ctx->timer_accumulator_ms / 1500U) % 2 == 0)) {
@@ -746,7 +746,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_CURRENT_R:
             obis_code = "31.07";
             reg_info = "IR";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "11");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "IR");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.current_r_mamps / 1000),
                      (unsigned long)(ctx->meas_buffer.current_r_mamps % 1000));
@@ -755,7 +755,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_CURRENT_S:
             obis_code = "51.07";
             reg_info = "IS";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "12");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "IS");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.current_s_mamps / 1000),
                      (unsigned long)(ctx->meas_buffer.current_s_mamps % 1000));
@@ -764,7 +764,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_CURRENT_T:
             obis_code = "71.07";
             reg_info = "IT";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "13");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "IT");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.current_t_mamps / 1000),
                      (unsigned long)(ctx->meas_buffer.current_t_mamps % 1000));
@@ -773,7 +773,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_CURRENT_N:
             obis_code = "91.07";
             reg_info = "IN";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "14");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "IN");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.current_n_mamps / 1000),
                      (unsigned long)(ctx->meas_buffer.current_n_mamps % 1000));
@@ -835,7 +835,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_ACTIVE_ENERGY:
             obis_code = "01.08";
             reg_info = "EA_EXP";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "05");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "EA_EXP");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.active_energy_wh / 1000),
                      (unsigned long)(ctx->meas_buffer.active_energy_wh % 1000));
@@ -844,7 +844,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_ENERGY_WBP:
             obis_code = "01.08.1";
             reg_info = "EA_EXP1";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "02");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "EA_EXP1");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.active_energy_wbp_wh / 1000),
                      (unsigned long)(ctx->meas_buffer.active_energy_wbp_wh % 1000));
@@ -853,7 +853,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_ENERGY_LWBP:
             obis_code = "01.08.2";
             reg_info = "EA_EXP2";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "03");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "EA_EXP2");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.active_energy_lwbp_wh / 1000),
                      (unsigned long)(ctx->meas_buffer.active_energy_lwbp_wh % 1000));
@@ -862,7 +862,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_ENERGY_LWBP2:
             obis_code = "01.08.3";
             reg_info = "EA_EXP3";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "04");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "EA_EXP3");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.active_energy_lwbp2_wh / 1000),
                      (unsigned long)(ctx->meas_buffer.active_energy_lwbp2_wh % 1000));
@@ -871,7 +871,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_ENERGY_IMPORT:
             obis_code = "02.08";
             reg_info = "EA_IMP";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "06");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "EA_IMP");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.active_energy_import_wh / 1000),
                      (unsigned long)(ctx->meas_buffer.active_energy_import_wh % 1000));
@@ -922,7 +922,7 @@ void display_render_spln_frame(const display_context_t *ctx, display_spln_frame_
         case DISP_PAGE_REACTIVE_ENERGY:
             obis_code = "03.08";
             reg_info = "ER_BIL";
-            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "07");
+            snprintf(frame->scroll_index_zz, sizeof(frame->scroll_index_zz), "ER_BIL");
             snprintf(frame->main_value, sizeof(frame->main_value), "%lu.%03lu",
                      (unsigned long)(ctx->meas_buffer.reactive_energy_varh / 1000),
                      (unsigned long)(ctx->meas_buffer.reactive_energy_varh % 1000));

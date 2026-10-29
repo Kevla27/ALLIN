@@ -49,3 +49,4 @@ Parameter-parameter lainnya (seperti Daya Total, Frekuensi, Jam RTC, Sudut Fasa,
 ## 4. Hasil Verifikasi & Kompilasi
 - **CTest Suite:** 12/12 Test Suites Lulus 100% (0 Failed).
 - **Target ARM Cortex-M33 Build:** `ALLIN_S.elf` dan `ALLIN_NS.elf` sukses terkompilasi dan tertaut bersih (`RAM: 13.16%`, `ROM: 16.90%`).
+
