@@ -120,6 +120,16 @@ void display_process_tick(display_context_t *ctx, uint32_t elapsed_ms) {
     ctx->current_time_epoch += (elapsed_ms / 1000);
 
     if (ctx->mode == DISPLAY_MODE_AUTO_CAROUSEL) {
+        if (ctx->alarm_icon_active) {
+            ctx->current_page = DISP_PAGE_TAMPER_ALARM;
+            ctx->timer_accumulator_ms = 0;
+            return;
+        }
+        if (ctx->relay_ready_on) {
+            ctx->current_page = DISP_PAGE_RELAY_READY_ON;
+            ctx->timer_accumulator_ms = 0;
+            return;
+        }
         if (ctx->timer_accumulator_ms >= ctx->carousel_interval_ms) {
             ctx->timer_accumulator_ms = 0;
             display_page_id_t next_page;
@@ -146,7 +156,7 @@ void display_process_tick(display_context_t *ctx, uint32_t elapsed_ms) {
         if (ctx->timer_accumulator_ms >= ctx->manual_timeout_ms) {
             ctx->timer_accumulator_ms = 0;
             ctx->mode = DISPLAY_MODE_AUTO_CAROUSEL;
-            ctx->current_page = DISP_AUTO_PAGE_FIRST;
+            ctx->current_page = ctx->alarm_icon_active ? DISP_PAGE_TAMPER_ALARM : (ctx->relay_ready_on ? DISP_PAGE_RELAY_READY_ON : DISP_AUTO_PAGE_FIRST);
         }
     }
 }
