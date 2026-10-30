@@ -201,12 +201,26 @@ void display_set_tamper_status(display_context_t *ctx, uint32_t active_tamper_ma
     if (ctx == NULL) return;
     ctx->active_tamper_mask = active_tamper_mask;
     ctx->alarm_icon_active = (active_tamper_mask != 0 || ctx->active_alarm_mask != 0);
+    if (ctx->mode == DISPLAY_MODE_AUTO_CAROUSEL){
+        if (ctx->alarm_icon_active) {
+            ctx->current_page = DISP_PAGE_TAMPER_ALARM;
+        } else if (ctx->current_page == DISP_PAGE_TAMPER_ALARM) {
+            ctx->current_page = ctx->relay_ready_on ? DISP_PAGE_RELAY_READY_ON : DISP_AUTO_PAGE_FIRST;
+        }
+    }
 }
 
 void display_set_internal_alarm(display_context_t *ctx, uint32_t active_alarm_mask) {
     if (ctx == NULL) return;
     ctx->active_alarm_mask = active_alarm_mask;
     ctx->alarm_icon_active = (ctx->active_tamper_mask != 0 || active_alarm_mask != 0);
+    if (ctx->mode == DISPLAY_MODE_AUTO_CAROUSEL){
+        if (ctx->alarm_icon_active) {
+            ctx->current_page = DISP_PAGE_TAMPER_ALARM;
+        } else if (ctx->current_page == DISP_PAGE_TAMPER_ALARM) {
+            ctx->current_page = ctx->relay_ready_on ? DISP_PAGE_RELAY_READY_ON : DISP_AUTO_PAGE_FIRST;
+        }
+    }
 }
 
 uint32_t display_get_internal_alarm(const display_context_t *ctx) {
