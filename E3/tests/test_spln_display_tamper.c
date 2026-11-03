@@ -250,6 +250,17 @@ int main(void) {
     assert(strcmp(frame.obis_code, "96.02") == 0);
     printf("  > Manual Scroll METERID (Tabel E.2 No 2): OK | zz: %s | Val: %s [PASS]\n",
            frame.scroll_index_zz, frame.main_value);
+    /* Verifikasi update dinamis ID Pelanggan dan Meter ID dari DLMS */
+    display_update_customer_id(&ctx, "531234567890");
+    ctx.current_page = DISP_PAGE_IDPEL;
+    display_render_spln_frame(&ctx, &frame);
+    assert(strcmp(frame.main_value, "531234567890") == 0);
+
+    display_update_meter_id(&ctx, "MTR2026110301");
+    ctx.current_page = DISP_PAGE_METER_ID;
+    display_render_spln_frame(&ctx, &frame);
+    assert(strcmp(frame.main_value, "MTR2026110301") == 0);
+    printf("  > Dynamic Update IDPEL & METERID: OK [PASS]\n");
 
     ctx.current_page = DISP_PAGE_CHECKSUM;
     display_render_spln_frame(&ctx, &frame);

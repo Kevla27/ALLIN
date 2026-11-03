@@ -307,3 +307,13 @@ const char* meter_system_bridge_get_customer_id(void)
     return e3_meter_app_get_customer_id();
 }
 
+bool meter_system_bridge_set_meter_id(const char *meter_id)
+{
+    return e3_meter_app_set_meter_id(meter_id);
+}
+
+const char* meter_system_bridge_get_meter_id(void)
+{
+    return e3_meter_app_get_meter_id();
+}
+

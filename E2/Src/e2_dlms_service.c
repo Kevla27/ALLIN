@@ -228,6 +228,21 @@ static void process_channel_rx(DlmsChannelState *ch)
                     }
                 }
             }
+            else if (tag == 0xC1U) /* SET-Request (e.g. IDPEL/MeterID) */
+            {
+                (void)ami_dlms_process_set_request(&ch->assoc,
+                                                   ch->rx_frame.payload, ch->rx_frame.payload_length,
+                                                   apdu_resp, sizeof(ch->apdu_resp), &apdu_resp_len);
+                if (apdu_resp_len > 0)
+                {
+                    if (ami_dlms_hdlc_build_frame(&ch->hdlc_ctx, &ch->rx_frame,
+                                                  apdu_resp, apdu_resp_len,
+                                                  tx_buf, sizeof(ch->tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
+                    {
+                        HAL_UART_Transmit(ch->huart, tx_buf, (uint16_t)tx_len, 100);
+                    }
+                }
+            }
             else if (tag == 0x62U) /* RLRQ (Release Request) */
             {
                 ami_dlms_association_reset(&ch->assoc);

@@ -59,6 +59,18 @@ bool meter_system_bridge_set_customer_id(const char *customer_id);
  */
 const char* meter_system_bridge_get_customer_id(void);
 
+/**
+ * @brief Meneruskan penulisan Nomor Seri Meter (Meter ID) dari pesan DLMS Port Optik (E2) ke Aplikasi Meter (E3)
+ * @param meter_id String Nomor Seri Meter
+ * @return true jika valid dan tersimpan, false jika invalid
+ */
+bool meter_system_bridge_set_meter_id(const char *meter_id);
+
+/**
+ * @brief Mengambil Nomor Seri Meter aktif
+ */
+const char* meter_system_bridge_get_meter_id(void);
+
 #ifdef __cplusplus
 }
 #endif

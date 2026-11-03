@@ -68,6 +68,17 @@ AmiDlmsApduStatus ami_dlms_process_get_request(
     size_t response_capacity,
     size_t *response_length);
 
+/**
+ * @brief Processes SET-Request-Normal (C1 01) for configurable parameters (e.g. IDPEL & Meter ID).
+ */
+AmiDlmsApduStatus ami_dlms_process_set_request(
+    const AmiDlmsAssociation *association,
+    const uint8_t *request,
+    size_t request_length,
+    uint8_t *response,
+    size_t response_capacity,
+    size_t *response_length);
+
 /* For an HLS-associated session, accepts only glo-get-request (C8) or
  * glo-set-request (C9), decrypts/authenticates, checks replay, dispatches the
  * read-only service, and returns a ciphered glo-* response (CC/CD). workspace

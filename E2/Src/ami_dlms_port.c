@@ -93,12 +93,10 @@ static AmiDlmsPortStatus dispatch_i_frame(AmiDlmsPortContext *ctx, const HdlcFra
             return AMI_DLMS_PORT_FRAME_ERROR;
         }
     } else if (apdu[0] == 0xC1u) {
-        /* SET-Request -> SetResponseNormal with read-write-denied (3) */
-        apdu_response[0] = 0xC5u;
-        apdu_response[1] = 0x01u;
-        apdu_response[2] = apdu_len > 2u ? apdu[2] : 0u;
-        apdu_response[3] = 0x03u;
-        apdu_resp_len = 4u;
+        /* SET-Request -> Delegate to APDU handler for configurable parameters */
+        (void)ami_dlms_process_set_request(&ctx->association, apdu, apdu_len,
+                                           apdu_response, sizeof(apdu_response),
+                                           &apdu_resp_len);
     } else if (apdu[0] == 0xC3u) {
         /* Action-Request -> ActionResponseNormal with read-write-denied (3) */
         apdu_response[0] = 0xC7u;

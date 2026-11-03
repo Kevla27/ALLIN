@@ -540,6 +540,88 @@ AmiDlmsApduStatus ami_dlms_process_get_request(
         response, response_capacity, response_length, 0);
 }
 
+/* Forward declaration of external system bridge handlers for configurable parameters */
+extern int meter_system_bridge_set_customer_id(const char *customer_id);
+extern int meter_system_bridge_set_meter_id(const char *meter_id);
+
+AmiDlmsApduStatus ami_dlms_process_set_request(
+    const AmiDlmsAssociation *association,
+    const uint8_t *request,
+    size_t request_length,
+    uint8_t *response,
+    size_t response_capacity,
+    size_t *response_length)
+{
+    if (response_length == NULL) return AMI_DLMS_APDU_INVALID_ARGUMENT;
+    *response_length = 0u;
+
+    if (request == NULL || response == NULL) return AMI_DLMS_APDU_INVALID_ARGUMENT;
+    if (response_capacity < 4u) return AMI_DLMS_APDU_BUFFER_TOO_SMALL;
+
+    /* Minimum SET-Request-Normal length:
+     * Tag(1) + Choice(1) + InvokeId(1) + ClassId(2) + OBIS(6) + AttrId(1) + DataTag(1)... = 14 bytes */
+    if (request_length < 14u || request[0] != 0xC1u || request[1] != 0x01u) {
+        response[0] = 0xC5u; /* SetResponseNormal */
+        response[1] = 0x01u;
+        response[2] = request_length > 2u ? request[2] : 0u;
+        response[3] = 0x01u; /* hardware-fault / malformed */
+        *response_length = 4u;
+        return AMI_DLMS_APDU_MALFORMED;
+    }
+
+    uint8_t invoke_id = request[2];
+    uint16_t class_id = (uint16_t)(((uint16_t)request[3] << 8) | request[4]);
+    const uint8_t *obis = &request[5];
+    uint8_t attr_id = request[11];
+
+    /* OBIS ID Pelanggan (0.0.96.1.2.255) & Meter ID (0.0.96.1.0.255) */
+    static const uint8_t idpel_obis[6]    = {0u, 0u, 96u, 1u, 2u, 255u};
+    static const uint8_t meter_id_obis[6] = {0u, 0u, 96u, 1u, 0u, 255u};
+
+    response[0] = 0xC5u; /* SetResponseNormal */
+    response[1] = 0x01u;
+    response[2] = invoke_id;
+
+    if (class_id == 1u && attr_id == 2u &&
+        (memcmp(obis, idpel_obis, 6) == 0 || memcmp(obis, meter_id_obis, 6) == 0)) {
+        /* Parse VisibleString (0x0A) or OctetString (0x09) */
+        size_t offset = 12u;
+        if (request[offset] == 0x00u) {
+            /* Null data or optional access selection */
+            offset++;
+        }
+        if (offset + 2u <= request_length && (request[offset] == 0x0Au || request[offset] == 0x09u)) {
+            uint8_t str_len = request[offset + 1u];
+            if (offset + 2u + str_len <= request_length && str_len < 16u) {
+                char str_buf[16];
+                memcpy(str_buf, &request[offset + 2u], str_len);
+                str_buf[str_len] = '\0';
+                
+                int success = 0;
+                if (memcmp(obis, idpel_obis, 6) == 0) {
+                    success = meter_system_bridge_set_customer_id(str_buf);
+                } else {
+                    success = meter_system_bridge_set_meter_id(str_buf);
+                }
+
+                if (success) {
+                    response[3] = 0x00u; /* SUCCESS */
+                    *response_length = 4u;
+                    return AMI_DLMS_APDU_OK;
+                }
+            }
+        }
+        response[3] = 0x02u; /* type-unmatched / temporary-failure */
+        *response_length = 4u;
+        return AMI_DLMS_APDU_ACCESS_ERROR;
+    }
+
+    /* Parameter lain: read-write-denied (3) */
+    response[3] = 0x03u;
+    *response_length = 4u;
+    return AMI_DLMS_APDU_ACCESS_ERROR;
+}
+
 static uint32_t read_u32_be(const uint8_t *bytes)
 {
     return ((uint32_t)bytes[0] << 24) | ((uint32_t)bytes[1] << 16) |
