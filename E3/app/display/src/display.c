@@ -4,6 +4,7 @@
  */
 
 #include "display.h"
+#include "board_profile_config.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -63,7 +64,7 @@ bool display_init(display_context_t *ctx, const char *customer_id, const char *m
     if (customer_id != NULL) {
         strncpy(ctx->customer_id, customer_id, sizeof(ctx->customer_id) - 1);
     } else {
-        strncpy(ctx->customer_id, "12345678901", sizeof(ctx->customer_id) - 1);
+        strncpy(ctx->customer_id, METER_CONFIG_CUSTOMER_ID, sizeof(ctx->customer_id) - 1);
     }
     
     ctx->customer_id[sizeof(ctx->customer_id)-1]='\0';
@@ -71,7 +72,7 @@ bool display_init(display_context_t *ctx, const char *customer_id, const char *m
     if (meter_id != NULL) {
         strncpy(ctx->meter_id, meter_id, sizeof(ctx->meter_id) - 1);
     } else {
-        strncpy(ctx->meter_id, "MTR1234567890", sizeof(ctx->meter_id) - 1);
+        strncpy(ctx->meter_id, METER_CONFIG_METER_ID, sizeof(ctx->meter_id) - 1);
     }
     ctx->meter_id[sizeof(ctx->meter_id)-1]='\0';
 

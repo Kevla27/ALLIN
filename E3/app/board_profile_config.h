@@ -20,6 +20,18 @@ extern "C" {
 #include <stdbool.h>
 
 /* ====================================================================
+ * 0. IDENTITAS PELANGGAN & NOMOR SERI METER (IDPEL & METER ID)
+ *    Pusat Pengaturan Tunggal (Single Source of Truth)
+ * ==================================================================== */
+#ifndef METER_CONFIG_CUSTOMER_ID
+#define METER_CONFIG_CUSTOMER_ID        "54321678901"   /**< ID Pelanggan PLN (IDPEL, 11-12 digit) */
+#endif
+
+#ifndef METER_CONFIG_METER_ID
+#define METER_CONFIG_METER_ID           "530000000001"  /**< ID Meter / Nomor Seri Meter (Meter ID, 12 digit) */
+#endif
+
+/* ====================================================================
  * 1. DEFINISI PILIHAN PROFIL PAPAN (BOARD PROFILE SELECTOR)
  * ==================================================================== */
 #define BOARD_PROFILE_PROTOTYPE_OLED     1  /**< Papan purwarupa/dev board: Layar OLED 128x32 SSD1306, SPI Flash W25Qxx */

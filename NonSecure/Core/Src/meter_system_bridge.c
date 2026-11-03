@@ -59,7 +59,7 @@ void meter_system_bringup(UART_HandleTypeDef *huart_opt, UART_HandleTypeDef *hua
     e1_metrology_service_init();
     e2_dlms_service_init(huart_opt);
     e2_dlms_service_set_modem_uart(huart_modem);
-    e3_meter_app_init("54321678901", hadc_telemetry);
+    e3_meter_app_init(METER_CONFIG_CUSTOMER_ID, hadc_telemetry);
 
     /* 3. Pulihkan Stand Akumulasi Energi dari NVRAM Checkpoint ke Context Pengukuran Sistem */
     nvram_energy_checkpoint_t cp = {0};

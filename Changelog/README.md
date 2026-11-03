@@ -62,6 +62,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-052**](052_integrasi_revisi_tampilan_informasi_register_dan_fasa_dinamis_oled.md) | 29-10-2026 | Integrasi Revisi Tampilan Informasi Register dan Indikator Fasa Dinamis Layar OLED | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/tests/*`, `Changelog/*` | Selesai |
 | [**LOG-053**](053_penghilangan_kode_obis_dan_sinkronisasi_revisi_hmi.md) | 03-11-2026 | Penghilangan Kode OBIS dari Layar Tampilan SPLN Gambar 4 dan Sinkronisasi Revisi HMI | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/tests/*`, `Revision/*`, `Changelog/*` | Selesai |
 | [**LOG-054**](054_pembaruan_pilar_e2_dlms_cosem_katalog_obis_dan_security.md) | 03-11-2026 | Pembaruan Pilar E2 (DLMS/COSEM): Katalog OBIS Masif, Security Suite AES-GCM, dan Modul Port | `E2/*`, `Changelog/*` | Selesai |
+| [**LOG-055**](055_sentralisasi_konfigurasi_idpel_dan_meter_id.md) | 03-11-2026 | Sentralisasi Konfigurasi IDPEL dan Meter ID ke Single Source of Truth (`board_profile_config.h`) | `E3/app/board_profile_config.h`, `NonSecure/Core/Src/meter_system_bridge.c`, `E3/app/e3_meter_app.c`, `E3/app/display/src/display.c` | Selesai |
 
 ---
 
