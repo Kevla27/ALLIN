@@ -124,7 +124,19 @@ static const ExtendedRegisterDefinition extended_registers[] = {
     EXT(1,0,67,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
     EXT(1,0,28,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
     EXT(1,0,48,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
-    EXT(1,0,68,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH)
+    EXT(1,0,68,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
+    /* Total Reactive Energy per Quadrant Q1..Q4 (1.0.5.8.0.255 s/d 1.0.8.8.0.255) */
+    EXT(1,0,5,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
+    EXT(1,0,6,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
+    EXT(1,0,7,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
+    EXT(1,0,8,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
+    /* Total Active Energy per Tariff Export & Import (1.0.1.8.1..3.255 & 1.0.2.8.1..3.255) */
+    EXT(1,0,1,8,1,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH),
+    EXT(1,0,1,8,2,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH),
+    EXT(1,0,1,8,3,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH),
+    EXT(1,0,2,8,1,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH),
+    EXT(1,0,2,8,2,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH),
+    EXT(1,0,2,8,3,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH)
 };
 #undef EXT
 #undef OBIS
@@ -498,6 +510,10 @@ static uint64_t read_source(const AmiCosemRegisterSnapshot *snapshot,
     return 0;
 }
 
+__attribute__((weak)) const char* meter_system_bridge_get_customer_id(void) { return "54321678901"; }
+__attribute__((weak)) const char* meter_system_bridge_get_meter_id(void) { return "MTR54321678901"; }
+__attribute__((weak)) uint32_t e3_meter_app_get_internal_alarm(void) { return 0U; }
+
 AmiCosemStatus ami_cosem_register_read_selected(
     const AmiCosemRegisterSnapshot *snapshot,
     uint16_t class_id,
@@ -554,6 +570,115 @@ AmiCosemStatus ami_cosem_register_read_selected(
                 out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
                 out->length = sizeof(fw_version) - 1u;
                 memcpy(out->value.octets, fw_version, out->length);
+                return AMI_COSEM_OK;
+            }
+            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
+        }
+
+        static const uint8_t meter_id_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 1, 0, 255};
+        if (memcmp(logical_name, meter_id_ln, sizeof(meter_id_ln)) == 0) {
+            if (attribute_id == 1u) {
+                out->type = AMI_COSEM_TYPE_OCTET_STRING;
+                out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
+                memcpy(out->value.logical_name, meter_id_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
+                return AMI_COSEM_OK;
+            }
+            if (attribute_id == 2u) {
+                const char *m_id = meter_system_bridge_get_meter_id();
+                if (m_id == NULL || m_id[0] == '\0') m_id = "MTR54321678901";
+                out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
+                out->length = (uint8_t)strlen(m_id);
+                memcpy(out->value.octets, m_id, out->length);
+                return AMI_COSEM_OK;
+            }
+            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
+        }
+
+        static const uint8_t idpel_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 1, 2, 255};
+        if (memcmp(logical_name, idpel_ln, sizeof(idpel_ln)) == 0) {
+            if (attribute_id == 1u) {
+                out->type = AMI_COSEM_TYPE_OCTET_STRING;
+                out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
+                memcpy(out->value.logical_name, idpel_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
+                return AMI_COSEM_OK;
+            }
+            if (attribute_id == 2u) {
+                const char *c_id = meter_system_bridge_get_customer_id();
+                if (c_id == NULL || c_id[0] == '\0') c_id = "54321678901";
+                out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
+                out->length = (uint8_t)strlen(c_id);
+                memcpy(out->value.octets, c_id, out->length);
+                return AMI_COSEM_OK;
+            }
+            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
+        }
+
+        static const uint8_t meter_type_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 1, 1, 255};
+        if (memcmp(logical_name, meter_type_ln, sizeof(meter_type_ln)) == 0) {
+            if (attribute_id == 1u) {
+                out->type = AMI_COSEM_TYPE_OCTET_STRING;
+                out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
+                memcpy(out->value.logical_name, meter_type_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
+                return AMI_COSEM_OK;
+            }
+            if (attribute_id == 2u) {
+                static const char m_type[] = "ALLIN-3P-4W";
+                out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
+                out->length = sizeof(m_type) - 1u;
+                memcpy(out->value.octets, m_type, out->length);
+                return AMI_COSEM_OK;
+            }
+            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
+        }
+
+        static const uint8_t hw_ver_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 96, 0, 255};
+        if (memcmp(logical_name, hw_ver_ln, sizeof(hw_ver_ln)) == 0) {
+            if (attribute_id == 1u) {
+                out->type = AMI_COSEM_TYPE_OCTET_STRING;
+                out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
+                memcpy(out->value.logical_name, hw_ver_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
+                return AMI_COSEM_OK;
+            }
+            if (attribute_id == 2u) {
+                static const char hw_ver[] = "HW-STM32U585-REV1";
+                out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
+                out->length = sizeof(hw_ver) - 1u;
+                memcpy(out->value.octets, hw_ver, out->length);
+                return AMI_COSEM_OK;
+            }
+            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
+        }
+
+        static const uint8_t unit_pln_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 1, 3, 255};
+        if (memcmp(logical_name, unit_pln_ln, sizeof(unit_pln_ln)) == 0) {
+            if (attribute_id == 1u) {
+                out->type = AMI_COSEM_TYPE_OCTET_STRING;
+                out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
+                memcpy(out->value.logical_name, unit_pln_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
+                return AMI_COSEM_OK;
+            }
+            if (attribute_id == 2u) {
+                static const char pln_unit[] = "PLN UID";
+                out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
+                out->length = sizeof(pln_unit) - 1u;
+                memcpy(out->value.octets, pln_unit, out->length);
+                return AMI_COSEM_OK;
+            }
+            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
+        }
+
+        static const uint8_t status_reg_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 10, 4, 255};
+        if (memcmp(logical_name, status_reg_ln, sizeof(status_reg_ln)) == 0) {
+            if (attribute_id == 1u) {
+                out->type = AMI_COSEM_TYPE_OCTET_STRING;
+                out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
+                memcpy(out->value.logical_name, status_reg_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
+                return AMI_COSEM_OK;
+            }
+            if (attribute_id == 2u) {
+                out->type = AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED;
+                out->length = sizeof(uint32_t);
+                out->value.double_long_unsigned = e3_meter_app_get_internal_alarm();
                 return AMI_COSEM_OK;
             }
             return AMI_COSEM_ATTRIBUTE_NOT_FOUND;

@@ -80,6 +80,9 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/../E2/Src/ami_dlms_association.c
     ${CMAKE_SOURCE_DIR}/../E2/Src/ami_dlms_hdlc.c
     ${CMAKE_SOURCE_DIR}/../E2/Src/ami_security.c
+    ${CMAKE_SOURCE_DIR}/../E2/Src/ami_dlms_cipher.c
+    ${CMAKE_SOURCE_DIR}/../E2/Src/ami_dlms_port.c
+    ${CMAKE_SOURCE_DIR}/../E2/Src/ami_ade9000.c
     ${CMAKE_SOURCE_DIR}/../E3/app/display/src/display.c
     ${CMAKE_SOURCE_DIR}/../E3/app/tamper/src/tamper_manager.c
     ${CMAKE_SOURCE_DIR}/../E3/app/fsm/src/power_relay_manager.c

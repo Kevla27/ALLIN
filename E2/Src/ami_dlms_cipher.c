@@ -1,7 +1,8 @@
 #include "ami_dlms_cipher.h"
+#include "ami_security.h"
 #include <string.h>
 
-#if defined(STM32U585xx)
+#if defined(STM32U585xx) && defined(SECURE_HARDWARE_SAES_ENABLED)
 #include "secure_nsc.h"
 #endif
 
@@ -32,7 +33,7 @@ static AmiSecStatus suite0_decrypt_cb(void *user, uint8_t security_control,
     aad[0] = security_control;
     memcpy(&aad[1], ctx->authentication_key, AMI_DLMS_KEY_LENGTH);
 
-#if defined(STM32U585xx)
+#if defined(STM32U585xx) && defined(SECURE_HARDWARE_SAES_ENABLED)
     /* Hardware-isolated Secure World SAES via TrustZone CMSE */
     SECURE_AesGcmParamsTypeDef params = {
         .key_id = SECURE_KEY_GUEK,
@@ -95,7 +96,7 @@ static AmiSecStatus suite0_encrypt_cb(void *user, uint8_t security_control,
     aad[0] = security_control;
     memcpy(&aad[1], ctx->authentication_key, AMI_DLMS_KEY_LENGTH);
 
-#if defined(STM32U585xx)
+#if defined(STM32U585xx) && defined(SECURE_HARDWARE_SAES_ENABLED)
     SECURE_AesGcmParamsTypeDef params = {
         .key_id = SECURE_KEY_GUEK,
         .is_encrypt = 1,
@@ -268,7 +269,7 @@ int ami_dlms_cipher_suite0_build_glo_request(
     uint8_t *ciphertext = out_wire + 6u;
     uint8_t *tag = ciphertext + plain_len;
 
-#if defined(STM32U585xx)
+#if defined(STM32U585xx) && defined(SECURE_HARDWARE_SAES_ENABLED)
     SECURE_AesGcmParamsTypeDef params = {
         .key_id = SECURE_KEY_GUEK,
         .is_encrypt = 1,

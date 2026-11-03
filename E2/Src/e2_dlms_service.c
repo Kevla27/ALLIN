@@ -140,7 +140,7 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
                            AMI_COSEM_VALID_REACTIVE_IMPORT | AMI_COSEM_VALID_REACTIVE_EXPORT |
                            AMI_COSEM_VALID_CLOCK;
 
-    /* 3. Isi Katalog Sampel Pengukuran Tambahan SPLN D3.006 (Frekuensi, IN, PF, Daya) */
+    /* 3. Isi Katalog Sampel Pengukuran Tambahan SPLN D3.006 (Frekuensi, IN, PF, Daya, Kuadran & Tarif) */
     snapshot->measurement_sample_count = 0U;
     static const uint8_t obis_freq[6]   = AMI_OBIS_FREQUENCY;
     static const uint8_t obis_in[6]     = AMI_OBIS_CURRENT_NEUTRAL;
@@ -149,12 +149,48 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
     static const uint8_t obis_q_imp[6]  = AMI_OBIS_REACTIVE_POWER_IMPORT_TOTAL;
     static const uint8_t obis_s_imp[6]  = AMI_OBIS_APPARENT_POWER_IMPORT_TOTAL;
 
-    add_measurement_sample(snapshot, obis_freq,  (uint64_t)(meas->frequency_mhz / 10U), 0);
+    /* Koreksi Frekuensi: scaler adalah -3 (10^-3 Hz), sehingga 50000 mHz terbaca 50.000 Hz */
+    add_measurement_sample(snapshot, obis_freq,  (uint64_t)meas->frequency_mhz, 0);
     add_measurement_sample(snapshot, obis_in,    (uint64_t)meas->current_n_mamps, 0);
     add_measurement_sample(snapshot, obis_pf,    (uint64_t)meas->power_factor_ppm, (int32_t)meas->power_factor_ppm);
     add_measurement_sample(snapshot, obis_p_imp, (uint64_t)((meas->active_power_w > 0) ? meas->active_power_w : 0), meas->active_power_w);
     add_measurement_sample(snapshot, obis_q_imp, (uint64_t)((meas->reactive_power_var > 0) ? meas->reactive_power_var : 0), meas->reactive_power_var);
     add_measurement_sample(snapshot, obis_s_imp, (uint64_t)meas->apparent_power_va, (int32_t)meas->apparent_power_va);
+
+    /* Energi Reaktif 4-Kuadran Total (1.0.5.8.0.255 s/d 1.0.8.8.0.255) */
+    static const uint8_t obis_q1[6] = {1u, 0u, 5u, 8u, 0u, 255u};
+    static const uint8_t obis_q2[6] = {1u, 0u, 6u, 8u, 0u, 255u};
+    static const uint8_t obis_q3[6] = {1u, 0u, 7u, 8u, 0u, 255u};
+    static const uint8_t obis_q4[6] = {1u, 0u, 8u, 8u, 0u, 255u};
+    if (quads != NULL)
+    {
+        add_measurement_sample(snapshot, obis_q1, (uint64_t)quads->q1_varh, 0);
+        add_measurement_sample(snapshot, obis_q2, (uint64_t)quads->q2_varh, 0);
+        add_measurement_sample(snapshot, obis_q3, (uint64_t)quads->q3_varh, 0);
+        add_measurement_sample(snapshot, obis_q4, (uint64_t)quads->q4_varh, 0);
+    }
+
+    /* Energi Aktif per Tarif Ekspor & Impor (1.0.1.8.1..3.255 & 1.0.2.8.1..3.255) */
+    static const uint8_t obis_ea_exp_t1[6] = {1u, 0u, 1u, 8u, 1u, 255u};
+    static const uint8_t obis_ea_exp_t2[6] = {1u, 0u, 1u, 8u, 2u, 255u};
+    static const uint8_t obis_ea_exp_t3[6] = {1u, 0u, 1u, 8u, 3u, 255u};
+    static const uint8_t obis_ea_imp_t1[6] = {1u, 0u, 2u, 8u, 1u, 255u};
+    static const uint8_t obis_ea_imp_t2[6] = {1u, 0u, 2u, 8u, 2u, 255u};
+    static const uint8_t obis_ea_imp_t3[6] = {1u, 0u, 2u, 8u, 3u, 255u};
+    add_measurement_sample(snapshot, obis_ea_exp_t1, meas->active_energy_wbp_wh, 0);
+    add_measurement_sample(snapshot, obis_ea_exp_t2, meas->active_energy_lwbp_wh, 0);
+    add_measurement_sample(snapshot, obis_ea_exp_t3, meas->active_energy_lwbp2_wh, 0);
+    add_measurement_sample(snapshot, obis_ea_imp_t1, meas->active_energy_imp_wbp_wh, 0);
+    add_measurement_sample(snapshot, obis_ea_imp_t2, meas->active_energy_imp_lwbp1_wh, 0);
+    add_measurement_sample(snapshot, obis_ea_imp_t3, meas->active_energy_imp_lwbp2_wh, 0);
+
+    /* Faktor Daya per Fasa (1.0.33.7.0.255, 1.0.53.7.0.255, 1.0.73.7.0.255) */
+    static const uint8_t obis_pf_r[6] = {1u, 0u, 33u, 7u, 0u, 255u};
+    static const uint8_t obis_pf_s[6] = {1u, 0u, 53u, 7u, 0u, 255u};
+    static const uint8_t obis_pf_t[6] = {1u, 0u, 73u, 7u, 0u, 255u};
+    add_measurement_sample(snapshot, obis_pf_r, (uint64_t)meas->power_factor_ppm, (int32_t)meas->power_factor_ppm);
+    add_measurement_sample(snapshot, obis_pf_s, (uint64_t)meas->power_factor_ppm, (int32_t)meas->power_factor_ppm);
+    add_measurement_sample(snapshot, obis_pf_t, (uint64_t)meas->power_factor_ppm, (int32_t)meas->power_factor_ppm);
 }
 
 static void process_channel_rx(DlmsChannelState *ch)
@@ -233,6 +269,24 @@ static void process_channel_rx(DlmsChannelState *ch)
                 (void)ami_dlms_process_set_request(&ch->assoc,
                                                    ch->rx_frame.payload, ch->rx_frame.payload_length,
                                                    apdu_resp, sizeof(ch->apdu_resp), &apdu_resp_len);
+                if (apdu_resp_len > 0)
+                {
+                    if (ami_dlms_hdlc_build_frame(&ch->hdlc_ctx, &ch->rx_frame,
+                                                  apdu_resp, apdu_resp_len,
+                                                  tx_buf, sizeof(ch->tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
+                    {
+                        HAL_UART_Transmit(ch->huart, tx_buf, (uint16_t)tx_len, 100);
+                    }
+                }
+            }
+            else if (tag == 0xC8U || tag == 0xC9U || tag == 0xCBU) /* glo-get (C8), glo-set (C9), glo-action (CB) */
+            {
+                static uint8_t cipher_ws[AMI_HDLC_MAX_INFO_LENGTH];
+                (void)ami_dlms_process_ciphered_request(&ch->assoc, &s_global_dlms_snapshot,
+                                                       NULL /* default suite-0 */,
+                                                       ch->rx_frame.payload, ch->rx_frame.payload_length,
+                                                       cipher_ws, sizeof(cipher_ws),
+                                                       apdu_resp, sizeof(ch->apdu_resp), &apdu_resp_len);
                 if (apdu_resp_len > 0)
                 {
                     if (ami_dlms_hdlc_build_frame(&ch->hdlc_ctx, &ch->rx_frame,
