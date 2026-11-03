@@ -4,7 +4,6 @@
 
 #define AMI_MAX_INPUT_BYTES 0x7fffffffu
 
-#if !defined(STM32U585xx) && !defined(USE_HAL_DRIVER)
 /* Standard DLMS HLS 5 GMAC mechanism OID: 2.16.756.5.8.2.5 */
 static const uint8_t dlms_hls5_gmac_oid[] = {
     0x60u, 0x85u, 0x74u, 0x05u, 0x08u, 0x02u, 0x05u
@@ -51,7 +50,6 @@ static int constant_time_memcmp(const void *a, const void *b, size_t len)
     }
     return diff == 0u;
 }
-#endif
 
 static int bytes_ok(const uint8_t *p, size_t n)
 {
@@ -64,7 +62,6 @@ static int supported_algorithm(AmiAeadAlgorithm algorithm)
            algorithm == AMI_AEAD_AES_256_GCM;
 }
 
-#if !defined(STM32U585xx) && !defined(USE_HAL_DRIVER)
 /* ========================================================================= */
 /* AES-128 Core Functions                                                    */
 /* ========================================================================= */
@@ -560,7 +557,6 @@ AmiSecStatus ami_sec_init_software_backend(AmiSecBackend *backend, const uint8_t
     backend->aead_decrypt = sw_aead_decrypt;
     return AMI_SEC_OK;
 }
-#endif
 
 AmiSecStatus ami_sec_backend_validate(const AmiSecBackend *backend)
 {

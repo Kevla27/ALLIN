@@ -7,12 +7,17 @@
 #include "e1_metrology_service.h"
 #include "e3_meter_app.h"
 #include "ami_obis_catalog.h"
+#include "ami_dlms_cipher.h"
 #include <string.h>
 
 #define CLI_RX_FIFO_SIZE 64U
 static volatile uint8_t s_cli_rx_fifo[CLI_RX_FIFO_SIZE];
 static volatile uint8_t s_cli_rx_head = 0U;
 static volatile uint8_t s_cli_rx_tail = 0U;
+
+static AmiDlmsSecuritySuite0Context s_cipher_ctx;
+static AmiDlmsCipherBackend         s_cipher_backend;
+static bool                         s_cipher_initialized = false;
 
 static void dlms_epoch_to_civil(uint32_t epoch, uint16_t *out_y, uint8_t *out_m, uint8_t *out_d, uint8_t *out_dow)
 {
@@ -30,6 +35,26 @@ static void dlms_epoch_to_civil(uint32_t epoch, uint16_t *out_y, uint8_t *out_m,
     if (out_m) *out_m = (uint8_t)m;
     if (out_d) *out_d = (uint8_t)d;
     if (out_dow) *out_dow = (uint8_t)(((epoch / 86400UL) + 3UL) % 7UL + 1UL);
+}
+
+static void epoch_to_cosem_datetime(uint32_t epoch, AmiCosemDateTime *dt)
+{
+    if (dt == NULL) return;
+    memset(dt, 0, sizeof(*dt));
+    uint16_t yr = 2026U;
+    uint8_t mo = 10U, dy = 28U, dow = 3U;
+    dlms_epoch_to_civil(epoch, &yr, &mo, &dy, &dow);
+    dt->year[0] = (uint8_t)(yr >> 8);
+    dt->year[1] = (uint8_t)(yr & 0xFFU);
+    dt->month   = mo;
+    dt->day     = dy;
+    dt->day_of_week = dow;
+    uint32_t sec_of_day = epoch % 86400UL;
+    dt->hour    = (uint8_t)((sec_of_day / 3600UL) % 24UL);
+    dt->minute  = (uint8_t)((sec_of_day / 60UL) % 60UL);
+    dt->second  = (uint8_t)(sec_of_day % 60UL);
+    dt->deviation[0] = 0x01U; /* +420 menit (WIB) */
+    dt->deviation[1] = 0xA4U;
 }
 
 typedef struct {
@@ -80,6 +105,20 @@ void e2_dlms_service_init(UART_HandleTypeDef *optical_huart)
     memcpy(s_global_dlms_snapshot.server_system_title, "ALLINMTR", 8);
     s_global_dlms_snapshot.clock_time_zone_minutes = 420; /* UTC+7 (WIB) */
 
+    /* Inisialisasi Security Suite 0 Cipher Backend untuk sesi terenkripsi (HLS/glo-*) */
+    static const uint8_t default_ek[16] = {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F};
+    static const uint8_t default_ak[16] = {0xD0,0xD1,0xD2,0xD3,0xD4,0xD5,0xD6,0xD7,0xD8,0xD9,0xDA,0xDB,0xDC,0xDD,0xDE,0xDF};
+    static const uint8_t client_title[8] = {'P','L','N','C','L','I','0','1'};
+    static const uint8_t server_title[8] = {'A','L','L','I','N','M','T','R'};
+
+    if (ami_dlms_cipher_suite0_init(&s_cipher_ctx, default_ek, default_ak, client_title, server_title, 1u) == 0)
+    {
+        if (ami_dlms_cipher_suite0_get_backend(&s_cipher_ctx, &s_cipher_backend) == 0)
+        {
+            s_cipher_initialized = true;
+        }
+    }
+
     init_dlms_channel(&s_optical_channel, optical_huart);
 }
 
@@ -118,20 +157,7 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
 
     /* 2. Sinkronisasi Clock COSEM Class 8 langsung dari RTC Epoch Aktif */
     uint32_t now_epoch = e3_meter_app_get_epoch();
-    uint16_t yr = 2026U;
-    uint8_t mo = 10U, dy = 28U, dow = 3U;
-    dlms_epoch_to_civil(now_epoch, &yr, &mo, &dy, &dow);
-    snapshot->clock_date_time.year[0] = (uint8_t)(yr >> 8);
-    snapshot->clock_date_time.year[1] = (uint8_t)(yr & 0xFFU);
-    snapshot->clock_date_time.month   = mo;
-    snapshot->clock_date_time.day     = dy;
-    snapshot->clock_date_time.day_of_week = dow;
-    uint32_t sec_of_day = now_epoch % 86400UL;
-    snapshot->clock_date_time.hour    = (uint8_t)((sec_of_day / 3600UL) % 24UL);
-    snapshot->clock_date_time.minute  = (uint8_t)((sec_of_day / 60UL) % 60UL);
-    snapshot->clock_date_time.second  = (uint8_t)(sec_of_day % 60UL);
-    snapshot->clock_date_time.deviation[0] = 0x01U; /* +420 menit (WIB) */
-    snapshot->clock_date_time.deviation[1] = 0xA4U;
+    epoch_to_cosem_datetime(now_epoch, &snapshot->clock_date_time);
 
     snapshot->valid_mask = AMI_COSEM_VALID_VOLTAGE_A | AMI_COSEM_VALID_VOLTAGE_B |
                            AMI_COSEM_VALID_VOLTAGE_C | AMI_COSEM_VALID_CURRENT_A |
@@ -191,6 +217,41 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
     add_measurement_sample(snapshot, obis_pf_r, (uint64_t)meas->power_factor_ppm, (int32_t)meas->power_factor_ppm);
     add_measurement_sample(snapshot, obis_pf_s, (uint64_t)meas->power_factor_ppm, (int32_t)meas->power_factor_ppm);
     add_measurement_sample(snapshot, obis_pf_t, (uint64_t)meas->power_factor_ppm, (int32_t)meas->power_factor_ppm);
+
+    /* 4. Sinkronisasi Event Log Tamper E3 ke Snapshot DLMS (OBIS 0.0.99.98.0.255) */
+    const tamper_context_t *t_ctx = e3_meter_app_get_tamper_context();
+    if (t_ctx != NULL && t_ctx->tamper_log_fifo.count > 0)
+    {
+        size_t n = t_ctx->tamper_log_fifo.count;
+        if (n > AMI_COSEM_PROFILE_MAX_ENTRIES) n = AMI_COSEM_PROFILE_MAX_ENTRIES;
+        snapshot->event_log_count = n;
+        for (size_t i = 0; i < n; i++)
+        {
+            size_t idx = (t_ctx->tamper_log_fifo.head + SPLN_LOG_FIFO_MAX_ENTRIES - t_ctx->tamper_log_fifo.count + i) % SPLN_LOG_FIFO_MAX_ENTRIES;
+            const spln_standard_log_entry_t *rec = &t_ctx->tamper_log_fifo.records[idx];
+            epoch_to_cosem_datetime(rec->timestamp_epoch, &snapshot->event_log[i].timestamp);
+            snapshot->event_log[i].event_code = (uint8_t)(rec->event_code & 0xFFU);
+        }
+        snapshot->valid_mask |= AMI_COSEM_VALID_EVENT_LOG;
+    }
+
+    /* 5. Sinkronisasi Histori Billing E3 ke Snapshot DLMS (OBIS 1.0.98.1.0.255) */
+    const billing_snapshot_ctx_t *b_ctx = e3_meter_app_get_billing_snapshots();
+    if (b_ctx != NULL && b_ctx->count > 0)
+    {
+        size_t n = b_ctx->count;
+        if (n > AMI_COSEM_PROFILE_MAX_ENTRIES) n = AMI_COSEM_PROFILE_MAX_ENTRIES;
+        snapshot->billing_history_count = n;
+        for (size_t i = 0; i < n; i++)
+        {
+            size_t idx = (b_ctx->head + BILLING_MAX_SNAPSHOTS - b_ctx->count + i) % BILLING_MAX_SNAPSHOTS;
+            const billing_snapshot_entry_t *b_rec = &b_ctx->entries[idx];
+            epoch_to_cosem_datetime(b_rec->billing_epoch_sec, &snapshot->billing_history[i].billing_timestamp);
+            snapshot->billing_history[i].active_import_wh = b_rec->active_energy_import_wh;
+            snapshot->billing_history[i].active_export_wh = 0ULL;
+        }
+        snapshot->valid_mask |= AMI_COSEM_VALID_BILLING_PROFILE;
+    }
 }
 
 static void process_channel_rx(DlmsChannelState *ch)
@@ -283,7 +344,7 @@ static void process_channel_rx(DlmsChannelState *ch)
             {
                 static uint8_t cipher_ws[AMI_HDLC_MAX_INFO_LENGTH];
                 (void)ami_dlms_process_ciphered_request(&ch->assoc, &s_global_dlms_snapshot,
-                                                       NULL /* default suite-0 */,
+                                                       s_cipher_initialized ? &s_cipher_backend : NULL,
                                                        ch->rx_frame.payload, ch->rx_frame.payload_length,
                                                        cipher_ws, sizeof(cipher_ws),
                                                        apdu_resp, sizeof(ch->apdu_resp), &apdu_resp_len);

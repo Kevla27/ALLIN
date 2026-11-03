@@ -718,21 +718,22 @@ AmiDlmsApduStatus ami_dlms_process_ciphered_request(
             plaintext_length, workspace, workspace_capacity,
             &response_plain_length, 1);
     } else if (expected_plain_tag == SET_REQUEST_TAG) {
-        /* Sprint 1 exposes read-only COSEM objects; SET is authenticated but denied. */
-        if (plaintext_length < 14u || workspace[1] != 0x01u || workspace[12] != 0u) {
-            secure_zeroize(workspace, workspace_capacity);
-            return AMI_DLMS_APDU_MALFORMED;
+        /* Delegate to ami_dlms_process_set_request() so configurable parameters (IDPEL/MeterID) work over ciphered sessions! */
+        uint8_t set_resp[64];
+        size_t set_resp_len = 0u;
+        service_status = ami_dlms_process_set_request(association, workspace, plaintext_length,
+                                                      set_resp, sizeof(set_resp), &set_resp_len);
+        if (set_resp_len > 0u && set_resp_len <= workspace_capacity) {
+            memcpy(workspace, set_resp, set_resp_len);
+            response_plain_length = set_resp_len;
+        } else {
+            workspace[0] = SET_RESPONSE_TAG;
+            workspace[1] = 0x01u;
+            workspace[2] = plaintext_length > 2u ? workspace[2] : 0u;
+            workspace[3] = 3u; /* read-write-denied */
+            response_plain_length = 4u;
+            service_status = AMI_DLMS_APDU_ACCESS_ERROR;
         }
-        if (workspace_capacity < 4u) {
-            secure_zeroize(workspace, workspace_capacity);
-            return AMI_DLMS_APDU_BUFFER_TOO_SMALL;
-        }
-        workspace[0] = SET_RESPONSE_TAG;
-        workspace[1] = 0x01u;
-        /* workspace[2] already holds the invoke-id. */
-        workspace[3] = 3u; /* read-write-denied: meter is read-only */
-        response_plain_length = 4u;
-        service_status = AMI_DLMS_APDU_ACCESS_ERROR;
     } else {
         service_status = process_security_key_transfer(association, cipher, workspace,
             plaintext_length, workspace_capacity, &response_plain_length);
