@@ -52,6 +52,10 @@ static void test_default_board_profile_oled(void) {
     assert(BOARD_CFG_BUZZER_ALARM_OFF_MS == 200U);
     assert(BOARD_CFG_BUZZER_KEY_BEEP_MS == 50U);
 
+    /* Verifikasi single source of truth IDPEL & Meter ID */
+    assert(strcmp(METER_CONFIG_CUSTOMER_ID, "54321678901") == 0);
+    assert(strcmp(METER_CONFIG_METER_ID, "530000000001") == 0);
+
     /* Verifikasi port komunikasi */
     assert(BOARD_CFG_OPTICAL_BAUDRATE == 9600U);
     assert(BOARD_CFG_MODEM_BAUDRATE == 19200U);

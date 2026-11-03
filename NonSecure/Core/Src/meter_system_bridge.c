@@ -297,3 +297,13 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
     }
 }
 
+bool meter_system_bridge_set_customer_id(const char *customer_id)
+{
+    return e3_meter_app_set_customer_id(customer_id);
+}
+
+const char* meter_system_bridge_get_customer_id(void)
+{
+    return e3_meter_app_get_customer_id();
+}
+

@@ -292,6 +292,20 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
     tamper_init(&s_tamper_ctx);
     (void)nvram_load_tamper_log_snapshot(&s_tamper_ctx);
 
+    /* Muat konfigurasi ID Pelanggan dan Meter ID dari NVRAM jika sudah pernah diprogram oleh PLN */
+    nvram_device_config_t dev_cfg = {0};
+    if (nvram_load_device_config(&dev_cfg))
+    {
+        if (dev_cfg.customer_id[0] != '\0')
+        {
+            display_update_customer_id(&s_disp_ctx, dev_cfg.customer_id);
+        }
+        if (dev_cfg.meter_id[0] != '\0')
+        {
+            display_update_meter_id(&s_disp_ctx, dev_cfg.meter_id);
+        }
+    }
+
     /* SPLN D3.006: 2021 Tabel 5 No. 9: Meter reset -> Rekam data ke Event Log FIFO */
     spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_METER_RESET, true, s_now_epoch_sec, 0);
 
@@ -1198,6 +1212,80 @@ void e3_meter_app_notify_setting_change(uint32_t setting_id)
 {
     /* SPLN D3.006: 2021 Tabel 5 No. 4: Perubahan setting (selain ToU) */
     spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_NON_TOU_CHANGE, true, s_now_epoch_sec, setting_id);
+}
+
+bool e3_meter_app_set_customer_id(const char *customer_id)
+{
+    if (customer_id == NULL) return false;
+
+    /* Validasi panjang: IDPEL PLN umumnya 11 s.d 12 digit numerik */
+    size_t len = strlen(customer_id);
+    if (len < 8 || len > 15) return false;
+
+    /* Validasi isi karakter: wajib numerik (0-9) */
+    for (size_t i = 0; i < len; i++)
+    {
+        if (customer_id[i] < '0' || customer_id[i] > '9')
+        {
+            return false;
+        }
+    }
+
+    /* 1. Perbarui teks pada konteks display HMI (Carousel No. 1) */
+    display_update_customer_id(&s_disp_ctx, customer_id);
+
+    /* 2. Simpan permanen ke memori non-volatile (SPI2 Flash) */
+    nvram_device_config_t dev_cfg = {0};
+    (void)nvram_load_device_config(&dev_cfg);
+    strncpy(dev_cfg.customer_id, customer_id, sizeof(dev_cfg.customer_id) - 1);
+    dev_cfg.customer_id[sizeof(dev_cfg.customer_id) - 1] = '\0';
+    if (dev_cfg.meter_id[0] == '\0')
+    {
+        strncpy(dev_cfg.meter_id, s_disp_ctx.meter_id, sizeof(dev_cfg.meter_id) - 1);
+        dev_cfg.meter_id[sizeof(dev_cfg.meter_id) - 1] = '\0';
+    }
+    (void)nvram_save_device_config(&dev_cfg);
+
+    /* 3. Catat event pergantian konfigurasi (SPLN D3.006: 2021 Tabel 5 No. 4) */
+    e3_meter_app_notify_setting_change(0x960102U); /* OBIS 0.0.96.1.2.255 */
+    return true;
+}
+
+const char* e3_meter_app_get_customer_id(void)
+{
+    return s_disp_ctx.customer_id;
+}
+
+bool e3_meter_app_set_meter_id(const char *meter_id)
+{
+    if (meter_id == NULL) return false;
+
+    size_t len = strlen(meter_id);
+    if (len < 6 || len > 15) return false;
+
+    /* 1. Perbarui teks pada konteks display HMI */
+    display_update_meter_id(&s_disp_ctx, meter_id);
+
+    /* 2. Simpan permanen ke memori non-volatile (SPI2 Flash) */
+    nvram_device_config_t dev_cfg = {0};
+    (void)nvram_load_device_config(&dev_cfg);
+    strncpy(dev_cfg.meter_id, meter_id, sizeof(dev_cfg.meter_id) - 1);
+    dev_cfg.meter_id[sizeof(dev_cfg.meter_id) - 1] = '\0';
+    if (dev_cfg.customer_id[0] == '\0')
+    {
+        strncpy(dev_cfg.customer_id, s_disp_ctx.customer_id, sizeof(dev_cfg.customer_id) - 1);
+        dev_cfg.customer_id[sizeof(dev_cfg.customer_id) - 1] = '\0';
+    }
+    (void)nvram_save_device_config(&dev_cfg);
+
+    /* 3. Catat event pergantian konfigurasi (SPLN D3.006: 2021 Tabel 5 No. 4) */
+    e3_meter_app_notify_setting_change(0x960100U); /* OBIS 0.0.96.1.0.255 */
+    return true;
+}
+
+const char* e3_meter_app_get_meter_id(void)
+{
+    return s_disp_ctx.meter_id;
 }
 
 void e3_meter_app_notify_stop_measurement(bool is_stopped, uint32_t reason)

@@ -110,6 +110,7 @@ static void spi2_flash_read_bytes(uint32_t flash_offset, uint8_t *data, uint16_t
 static load_profile_entry_t     simulated_load_profile_flash[LOAD_PROFILE_MAX_ENTRIES];
 static tamper_context_t         simulated_tamper_log_flash;
 static nvram_energy_checkpoint_t simulated_energy_checkpoint_flash = {0};
+static nvram_device_config_t     simulated_device_config_flash = {0};
 
 bool nvram_write_load_profile_entry(uint32_t entry_index, const load_profile_entry_t *entry)
 {
@@ -201,4 +202,35 @@ bool nvram_load_energy_checkpoint(nvram_energy_checkpoint_t *out_checkpoint)
 
     *out_checkpoint = simulated_energy_checkpoint_flash;
     return (out_checkpoint->magic == NVRAM_ENERGY_CHECKPOINT_MAGIC);
+}
+
+bool nvram_save_device_config(const nvram_device_config_t *config)
+{
+    if (config == NULL) return false;
+
+    simulated_device_config_flash = *config;
+    simulated_device_config_flash.magic = NVRAM_DEVICE_CONFIG_MAGIC;
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    /* Alokasi sektor konfigurasi perangkat pada offset 0x000800U (2 KB) */
+    spi2_flash_write_bytes(0x000800U, (const uint8_t *)&simulated_device_config_flash, (uint16_t)sizeof(nvram_device_config_t));
+#endif
+    return true;
+}
+
+bool nvram_load_device_config(nvram_device_config_t *out_config)
+{
+    if (out_config == NULL) return false;
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    nvram_device_config_t flash_cfg = {0};
+    spi2_flash_read_bytes(0x000800U, (uint8_t *)&flash_cfg, (uint16_t)sizeof(nvram_device_config_t));
+    if (flash_cfg.magic == NVRAM_DEVICE_CONFIG_MAGIC)
+    {
+        simulated_device_config_flash = flash_cfg;
+    }
+#endif
+
+    *out_config = simulated_device_config_flash;
+    return (out_config->magic == NVRAM_DEVICE_CONFIG_MAGIC);
 }

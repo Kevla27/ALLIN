@@ -38,6 +38,16 @@ extern "C" {
 #endif
 
 #define NVRAM_ENERGY_CHECKPOINT_MAGIC      0x454E4759U /* "ENGY" */
+#define NVRAM_DEVICE_CONFIG_MAGIC          0x43464944U /* "CFID" (Config ID) */
+
+/**
+ * @brief Struktur Data Konfigurasi Identitas Meter Non-Volatile
+ */
+typedef struct {
+    uint32_t magic;                    /**< 0x43464944 ("CFID") */
+    char customer_id[16];              /**< ID Pelanggan PLN (IDPEL, 11-12 digit) */
+    char meter_id[16];                 /**< Nomor Seri Meter (Meter ID, 12 digit) */
+} nvram_device_config_t;
 
 /**
  * @brief Struktur Data Checkpoint Energi & Status Darurat (Last-Gasp Backup)
@@ -83,6 +93,16 @@ bool nvram_save_energy_checkpoint(const nvram_energy_checkpoint_t *checkpoint);
  * @brief Memuat kembali checkpoint stand energi darurat saat booting
  */
 bool nvram_load_energy_checkpoint(nvram_energy_checkpoint_t *out_checkpoint);
+
+/**
+ * @brief Menyimpan konfigurasi ID Pelanggan & Meter ID ke memori non-volatile (SPI2 Flash)
+ */
+bool nvram_save_device_config(const nvram_device_config_t *config);
+
+/**
+ * @brief Memuat konfigurasi ID Pelanggan & Meter ID dari memori non-volatile
+ */
+bool nvram_load_device_config(nvram_device_config_t *out_config);
 
 #ifdef __cplusplus
 }

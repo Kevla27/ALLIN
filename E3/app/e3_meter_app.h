@@ -156,6 +156,34 @@ void e3_meter_app_notify_tou_change(void);
 void e3_meter_app_notify_setting_change(uint32_t setting_id);
 
 /**
+ * @brief Penerima string ID Pelanggan (IDPEL) baru dari port optik DLMS/COSEM (Pilar E2)
+ *        Memvalidasi string, menyimpan permanen ke NVRAM Flash, memperbarui layar HMI,
+ *        dan mencatat kejadian pergantian setting (SPLN Tabel 5 No. 4)
+ * @param customer_id String ID Pelanggan (11-12 digit numerik)
+ * @return true jika valid dan berhasil diproses, false jika invalid
+ */
+bool e3_meter_app_set_customer_id(const char *customer_id);
+
+/**
+ * @brief Memperoleh string ID Pelanggan (IDPEL) saat ini
+ * @return Pointer ke string ID Pelanggan
+ */
+const char* e3_meter_app_get_customer_id(void);
+
+/**
+ * @brief Penerima string Meter ID (Nomor Seri) baru dari port optik DLMS/COSEM (Pilar E2)
+ * @param meter_id String Nomor Seri Meter (12 digit)
+ * @return true jika valid dan berhasil diproses, false jika invalid
+ */
+bool e3_meter_app_set_meter_id(const char *meter_id);
+
+/**
+ * @brief Memperoleh string Meter ID (Nomor Seri) saat ini
+ * @return Pointer ke string Meter ID
+ */
+const char* e3_meter_app_get_meter_id(void);
+
+/**
  * @brief Notifikasi kejadian Stop-Measurement / Anomali Pengukuran (SPLN D3.006: 2021 Tabel 5 No. 5)
  *        Merekam kejadian SPLN_LOG_EVENT_STOP_MEASUREMENT ke Event Log FIFO
  * @param is_stopped true jika sampling/pengukuran berhenti, false jika pulih

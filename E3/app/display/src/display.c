@@ -90,6 +90,26 @@ bool display_init(display_context_t *ctx, const char *customer_id, const char *m
     return true;
 }
 
+void display_update_customer_id(display_context_t *ctx, const char *customer_id) {
+    if (ctx == NULL) return;
+    if (customer_id != NULL && customer_id[0] != '\0') {
+        strncpy(ctx->customer_id, customer_id, sizeof(ctx->customer_id) - 1);
+    } else {
+        strncpy(ctx->customer_id, METER_CONFIG_CUSTOMER_ID, sizeof(ctx->customer_id) - 1);
+    }
+    ctx->customer_id[sizeof(ctx->customer_id) - 1] = '\0';
+}
+
+void display_update_meter_id(display_context_t *ctx, const char *meter_id) {
+    if (ctx == NULL) return;
+    if (meter_id != NULL && meter_id[0] != '\0') {
+        strncpy(ctx->meter_id, meter_id, sizeof(ctx->meter_id) - 1);
+    } else {
+        strncpy(ctx->meter_id, METER_CONFIG_METER_ID, sizeof(ctx->meter_id) - 1);
+    }
+    ctx->meter_id[sizeof(ctx->meter_id) - 1] = '\0';
+}
+
 void display_set_time(display_context_t *ctx, uint32_t epoch_sec) {
     if (ctx != NULL) {
         ctx->current_time_epoch = epoch_sec;

@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 #include "nvram_storage.h"
 
 void test_nvram_load_profile_write_read(void) {
@@ -104,6 +105,30 @@ void test_nvram_energy_checkpoint_magic_stamp(void) {
     printf("   [PASS] NVRAM Energy Checkpoint Magic Stamp 0x454E4759 Verified!\n\n");
 }
 
+void test_nvram_device_config(void) {
+    printf("[TEST] Testing NVRAM Device Config (IDPEL & Meter ID)...\n");
+
+    nvram_device_config_t cfg_in = {
+        .customer_id = "54321999888",
+        .meter_id    = "530000000099"
+    };
+
+    bool save_ok = nvram_save_device_config(&cfg_in);
+    assert(save_ok == true);
+
+    nvram_device_config_t cfg_out = {0};
+    bool load_ok = nvram_load_device_config(&cfg_out);
+    assert(load_ok == true);
+    assert(cfg_out.magic == NVRAM_DEVICE_CONFIG_MAGIC);
+    assert(strcmp(cfg_out.customer_id, "54321999888") == 0);
+    assert(strcmp(cfg_out.meter_id, "530000000099") == 0);
+
+    assert(nvram_save_device_config(NULL) == false);
+    assert(nvram_load_device_config(NULL) == false);
+
+    printf("   [PASS] NVRAM Device Config Magic Stamp 0x43464944 & Persistence Verified!\n\n");
+}
+
 /* FUNGSI MAIN UTAMA HARUS ADA DI SINI */
 int main(void) {
     printf("=========================================\n");
@@ -113,6 +138,7 @@ int main(void) {
     test_nvram_load_profile_write_read();
     test_nvram_tamper_log_snapshot();
     test_nvram_energy_checkpoint_magic_stamp();
+    test_nvram_device_config();
 
     printf(">>> ALL NVRAM UNIT TESTS PASSED 100%%! <<<\n");
     printf("=========================================\n");

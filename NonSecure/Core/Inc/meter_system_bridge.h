@@ -47,6 +47,18 @@ void app_metering_task_loop(void);
  */
 const meter_measurements_t *meter_system_get_measurements(void);
 
+/**
+ * @brief Meneruskan penulisan ID Pelanggan (IDPEL) dari pesan DLMS Port Optik (E2) ke Aplikasi Meter (E3)
+ * @param customer_id String ID Pelanggan (11-12 digit)
+ * @return true jika valid dan tersimpan, false jika invalid
+ */
+bool meter_system_bridge_set_customer_id(const char *customer_id);
+
+/**
+ * @brief Mengambil ID Pelanggan aktif
+ */
+const char* meter_system_bridge_get_customer_id(void);
+
 #ifdef __cplusplus
 }
 #endif

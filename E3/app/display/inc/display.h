@@ -170,6 +170,8 @@ typedef struct {
 } display_context_t;
 
 bool display_init(display_context_t *ctx, const char *customer_id, const char *meter_id, uint32_t carousel_interval_ms);
+void display_update_customer_id(display_context_t *ctx, const char *customer_id);
+void display_update_meter_id(display_context_t *ctx, const char *meter_id);
 void display_render(display_context_t *ctx);
 void display_update_measurements(display_context_t *ctx, const meter_measurements_t *meas);
 void display_process_tick(display_context_t *ctx, uint32_t elapsed_ms);

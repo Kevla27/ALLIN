@@ -51,3 +51,4 @@ Menambahkan konstanta konfigurasi di bagian awal header profil papan:
   - Alokasi Memori: RAM: `13.07%`, ROM/Flash: `16.78%`.
 - **Unit & Integration Tests (CTest):**
   - 12/12 test suites Lulus 100% (0 Failed).
+

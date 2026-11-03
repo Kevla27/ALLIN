@@ -63,6 +63,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-053**](053_penghilangan_kode_obis_dan_sinkronisasi_revisi_hmi.md) | 03-11-2026 | Penghilangan Kode OBIS dari Layar Tampilan SPLN Gambar 4 dan Sinkronisasi Revisi HMI | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/tests/*`, `Revision/*`, `Changelog/*` | Selesai |
 | [**LOG-054**](054_pembaruan_pilar_e2_dlms_cosem_katalog_obis_dan_security.md) | 03-11-2026 | Pembaruan Pilar E2 (DLMS/COSEM): Katalog OBIS Masif, Security Suite AES-GCM, dan Modul Port | `E2/*`, `Changelog/*` | Selesai |
 | [**LOG-055**](055_sentralisasi_konfigurasi_idpel_dan_meter_id.md) | 03-11-2026 | Sentralisasi Konfigurasi IDPEL dan Meter ID ke Single Source of Truth (`board_profile_config.h`) | `E3/app/board_profile_config.h`, `NonSecure/Core/Src/meter_system_bridge.c`, `E3/app/e3_meter_app.c`, `E3/app/display/src/display.c` | Selesai |
+| [**LOG-056**](056_implementasi_penerima_string_idpel_dan_meter_id_e3.md) | 03-11-2026 | Implementasi Penerima String IDPEL & Meter ID di Pilar E3, Persistensi Flash NVRAM (`CFID`), dan Event Log SPLN | `E3/app/*`, `E3/tests/*`, `NonSecure/Core/*`, `docs/*` | Selesai |
 
 ---
 
