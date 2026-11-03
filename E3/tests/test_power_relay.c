@@ -128,7 +128,7 @@ void test_display_integration_ready_on(void) {
 
     display_context_t disp;
     display_spln_frame_t frame;
-    bool ok = display_init(&disp, "530000000001", 2000);
+    bool ok = display_init(&disp, "530000000001", "MTR530000000001", 2000);
     assert(ok);
 
     /* 1. Set READY ON di display */
@@ -138,13 +138,13 @@ void test_display_integration_ready_on(void) {
     disp.current_page = DISP_PAGE_RELAY_READY_ON;
     display_render_spln_frame(&disp, &frame);
 
-    assert(strcmp(frame.scroll_index_zz, "on") == 0);
+    assert(strcmp(frame.scroll_index_zz, "RELAY") == 0);
     assert(strcmp(frame.main_value, "READY ON") == 0);
-    assert(strcmp(frame.unit, "RECONNECT") == 0);
+    assert(frame.unit[0] == '\0');
     assert(strcmp(frame.obis_code, "00.00") == 0);
-    assert(frame.is_large_font == false);
-    printf("   Page 'on': zz='%s' | Val='%s' | Unit='%s' | OBIS='%s' [PASS]\n",
-           frame.scroll_index_zz, frame.main_value, frame.unit, frame.obis_code);
+    assert(frame.is_large_font == true);
+    printf("   Page 'RELAY': zz='%s' | Val='%s' [PASS]\n", frame.scroll_index_zz, frame.main_value);
+
 
     /* 2. Set Asymmetry Warning */
     display_set_asymmetry_warning(&disp, true);
@@ -162,7 +162,7 @@ void test_simultaneous_button_reconnect(void) {
     printf("[TEST] Testing Simultaneous Button Action (SPLN Tabel 5 No 12)...\n");
 
     display_context_t disp;
-    display_init(&disp, "530000000001", 2000);
+    display_init(&disp, "530000000001", "MTR530000000001", 2000);
 
     /* Simulasi relai dalam status READY ON */
     display_set_relay_ready_on(&disp, true);

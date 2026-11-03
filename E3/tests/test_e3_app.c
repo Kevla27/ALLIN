@@ -13,7 +13,7 @@ void test_display_carousel(void) {
     printf("[TEST] Testing Display Auto Carousel & Button Nav...\n");
 
     display_context_t disp;
-    bool ok = display_init(&disp, "54321678901", 3000);
+    bool ok = display_init(&disp, "54321678901", "MTR54321678901", 3000);
     assert(ok);
     assert(disp.current_page == DISP_PAGE_IDPEL);
 
@@ -37,7 +37,7 @@ void test_display_carousel(void) {
     assert(strstr(l3, "15.250 kWh") != NULL);
 
     // Bergulir 6 halaman berikutnya (ke Halaman 8: VOLTAGE_R / UR)
-    for (int step = 0; step < 6; step++) {
+    for (int step = 0; step < 7; step++) {
         display_process_tick(&disp, 3000);
     }
     assert(disp.current_page == DISP_PAGE_VOLTAGE_R);

@@ -29,68 +29,60 @@ typedef enum {
 
 typedef enum {
     /* ========================================================================= */
-    /* 14 Halaman Layar Tampilan Otomatis (Auto Carousel) Sesuai Tabel E.1       */
-    /* "Informasi layar tampilan otomatis" (No. 1 s.d 14 - Tanpa Kurang / Tambah)*/
+    /* Urutan Halaman Scrolling Manual (Sesuai Tombol Button Scroll)             */
     /* ========================================================================= */
-    DISP_PAGE_IDPEL = 0,           /* 01: ID Pelanggan (IDPEL) */
-    DISP_PAGE_ENERGY_WBP,          /* 02: Energi aktif kirim Tarif 1 WBP (EA_EXP1, kWh, 3 desimal) */
-    DISP_PAGE_ENERGY_LWBP,         /* 03: Energi aktif kirim Tarif 2 LWBP1 (EA_EXP2, kWh, 3 desimal) */
-    DISP_PAGE_ENERGY_LWBP2,        /* 04: Energi aktif kirim Tarif 3 LWBP2 (EA_EXP3, kWh, 3 desimal) */
-    DISP_PAGE_ACTIVE_ENERGY,       /* 05: Energi aktif kirim (EA_EXP, kWh, 3 desimal) */
-    DISP_PAGE_ENERGY_IMPORT,       /* 06: Energi aktif terima (EA_IMP, kWh, 3 desimal) */
-    DISP_PAGE_REACTIVE_ENERGY,     /* 07: Energi reaktif billing kompensasi (ER_BIL, kVARh, 3 desimal) */
-    DISP_PAGE_VOLTAGE_R,           /* 08: Tegangan fase R (UR, V, 1 desimal) */
-    DISP_PAGE_VOLTAGE_S,           /* 09: Tegangan fase S (US, V, 1 desimal) */
-    DISP_PAGE_VOLTAGE_T,           /* 10: Tegangan fase T (UT, V, 1 desimal) */
-    DISP_PAGE_CURRENT_R,           /* 11: Arus fase R (IR, A, 3 desimal) */
-    DISP_PAGE_CURRENT_S,           /* 12: Arus fase S (IS, A, 3 desimal) */
-    DISP_PAGE_CURRENT_T,           /* 13: Arus fase T (IT, A, 3 desimal) */
-    DISP_PAGE_CURRENT_N,           /* 14: Arus netral (IN, A, 3 desimal) */
+    DISP_PAGE_IDPEL = 0,           /* 01: ID Pelanggan */
+    DISP_PAGE_METER_ID,            /* 02: Meter ID */
+    DISP_PAGE_ACTIVE_POWER,        /* 03: Daya aktif kirim */
+    DISP_PAGE_ACTIVE_POWER_IMP,    /* 04: Daya aktif terima */
+    DISP_PAGE_REACTIVE_POWER,      /* 05: Daya reaktif kirim */
+    DISP_PAGE_REACTIVE_POWER_IMP,  /* 06: Daya reaktif terima */
+    DISP_PAGE_ENERGY_WBP,          /* 07: WBP (Kirim) */
+    DISP_PAGE_ENERGY_LWBP,         /* 08: LWBP1 (Kirim) */
+    DISP_PAGE_ENERGY_LWBP2,        /* 09: LWBP2 (Kirim) */
+    DISP_PAGE_ACTIVE_ENERGY,       /* 10: Energi aktif kirim */
+    DISP_PAGE_ENERGY_IMP_WBP,      /* 11: WBP (Terima) */
+    DISP_PAGE_ENERGY_IMP_LWBP1,    /* 12: LWBP1 (Terima) */
+    DISP_PAGE_ENERGY_IMP_LWBP2,    /* 13: LWBP2 (Terima) */
+    DISP_PAGE_ENERGY_IMPORT,       /* 14: Energi aktif terima */
+    DISP_PAGE_REACTIVE_ENERGY_EXP, /* 15: Energi reaktif kirim */
+    DISP_PAGE_REACTIVE_ENERGY_IMP, /* 16: Energi reaktif terima */
+    DISP_PAGE_TOTAL_ENERGY,        /* 17: Energi aktif total */
+    DISP_PAGE_REACTIVE_ENERGY,     /* 18: Energi reaktif billing */
+    DISP_PAGE_VOLTAGE_R,           /* 19: Tegangan fase R */
+    DISP_PAGE_VOLTAGE_S,           /* 20: Tegangan fase S */
+    DISP_PAGE_VOLTAGE_T,           /* 21: Tegangan fase T */
+    DISP_PAGE_ANGLE_UR,            /* 22: Sudut tegangan fase R */
+    DISP_PAGE_ANGLE_US,            /* 23: Sudut tegangan fase S */
+    DISP_PAGE_ANGLE_UT,            /* 24: Sudut tegangan fase T */
+    DISP_PAGE_CURRENT_R,           /* 25: Arus tegangan/fase R */
+    DISP_PAGE_CURRENT_S,           /* 26: Arus tegangan/fase S */
+    DISP_PAGE_CURRENT_T,           /* 27: Arus tegangan/fase T */
+    DISP_PAGE_CURRENT_N,           /* 28: Arus netral */
+    DISP_PAGE_ANGLE_IR,            /* 29: Sudut fase R */
+    DISP_PAGE_ANGLE_IS,            /* 30: Sudut fase S */
+    DISP_PAGE_ANGLE_IT,            /* 31: Sudut fase T */
+    DISP_PAGE_POWER_FACTOR,        /* 32: Faktor daya */
+    DISP_PAGE_TIME,                /* 33: Waktu */
+    DISP_PAGE_POWER_LIMITER,       /* 34: Power limiter setting */
+    DISP_PAGE_MAX_DEMAND_S,        /* 35: Maksimum demand daya semu kirim */
+    DISP_PAGE_MD_TIME_S,           /* 36: Waktu saat maksimum demand daya semu kirim */
+    DISP_PAGE_EOB,                 /* 37: EoB */
+    DISP_PAGE_CHECKSUM,            /* 38: Checksum software */
+    DISP_PAGE_PLN_UNIT,            /* 39: Unit PLN */
 
     /* ========================================================================= */
-    /* Parameter Tambahan Scrolling Manual (Tabel E.2 / Diagnostik / Rekayasa)   */
+    /* Halaman Sistem / Notifikasi Paksaan (WAJIB DI PALING BAWAH)               */
     /* ========================================================================= */
-    DISP_PAGE_ACTIVE_POWER,        /* Daya Aktif Total (kW) */
-    DISP_PAGE_REACTIVE_POWER,      /* Daya Reaktif Total (kvar) */
-    DISP_PAGE_APPARENT_POWER,      /* Daya Semu Total (kVA) */
-    DISP_PAGE_POWER_FACTOR,        /* Faktor Daya (PF) */
-    DISP_PAGE_FREQUENCY,           /* Frekuensi Jala-Jala (Hz) */
-    DISP_PAGE_MAX_DEMAND,          /* Kebutuhan Maksimum Aktif (P_MAX, kW) */
-    DISP_PAGE_MD_TIME,             /* Waktu Kebutuhan Maksimum (TS_MAX) */
-    DISP_PAGE_CMD,                 /* Kumulatif Max Demand (CMD, kW) */
-    DISP_PAGE_MD_RESET_COUNT,      /* Counter Reset MD */
-    DISP_PAGE_TIME,                /* Jam Waktu Nyata (TIME, WIB) */
-    DISP_PAGE_DATE,                /* Tanggal Waktu Nyata (DATE, WIB) */
-    DISP_PAGE_TEST_DISPLAY,        /* zz: 00, Uji Layar Segmen '88888888' - Tabel E.2 No 1 */
-    DISP_PAGE_METER_ID,            /* zz: 02, OBIS: 96.02   (METERID) - Tabel E.2 No 2 */
-    DISP_PAGE_ACTIVE_POWER_IMP,    /* zz: 27, OBIS: 02.07   (P_IMP Daya Aktif Terima) - Tabel E.2 No 4 */
-    DISP_PAGE_REACTIVE_POWER_IMP,  /* zz: 28, OBIS: 04.07   (Q_IMP Daya Reaktif Terima) - Tabel E.2 No 6 */
-    DISP_PAGE_ENERGY_IMP_WBP,      /* zz: 29, OBIS: 02.08.1 (EA_IMP1 Tarif 1 Terima) - Tabel E.2 No 11 */
-    DISP_PAGE_ENERGY_IMP_LWBP1,    /* zz: 30, OBIS: 02.08.2 (EA_IMP2 Tarif 2 Terima) - Tabel E.2 No 12 */
-    DISP_PAGE_ENERGY_IMP_LWBP2,    /* zz: 31, OBIS: 02.08.3 (EA_IMP3 Tarif 3 Terima) - Tabel E.2 No 13 */
-    DISP_PAGE_REACTIVE_ENERGY_EXP, /* zz: 32, OBIS: 03.08.0 (ER_EXP Reaktif Kirim Murni) - Tabel E.2 No 15 */
-    DISP_PAGE_REACTIVE_ENERGY_IMP, /* zz: 33, OBIS: 04.08.0 (ER_IMP Reaktif Terima Murni) - Tabel E.2 No 16 */
-    DISP_PAGE_ANGLE_UR,            /* zz: 35, OBIS: 14.81.0 (Sdt_UR Sudut Tegangan R) - Tabel E.2 No 22 */
-    DISP_PAGE_ANGLE_US,            /* zz: 36, OBIS: 14.81.1 (Sdt_US Sudut Tegangan S) - Tabel E.2 No 23 */
-    DISP_PAGE_ANGLE_UT,            /* zz: 37, OBIS: 14.81.2 (Sdt_UT Sudut Tegangan T) - Tabel E.2 No 24 */
-    DISP_PAGE_ANGLE_IR,            /* zz: 39, OBIS: 11.81.0 (Sdt_IR Sudut Arus R) - Tabel E.2 No 29 */
-    DISP_PAGE_ANGLE_IS,            /* zz: 40, OBIS: 11.81.1 (Sdt_IS Sudut Arus S) - Tabel E.2 No 30 */
-    DISP_PAGE_ANGLE_IT,            /* zz: 41, OBIS: 11.81.2 (Sdt_IT Sudut Arus T) - Tabel E.2 No 31 */
-    DISP_PAGE_POWER_LIMITER,       /* zz: 34, OBIS: 00.01   (P_LIM kW) - Tabel E.2 No 34 */
-    DISP_PAGE_MAX_DEMAND_S,        /* zz: 42, OBIS: 09.06.0 (S_MAX kVA MD Semu) - Tabel E.2 No 35 */
-    DISP_PAGE_MD_TIME_S,           /* zz: 43, OBIS: 09.06.0*0 (TS_MAX Waktu MD Semu) - Tabel E.2 No 36 */
-    DISP_PAGE_EOB,                 /* zz: 44, OBIS: 00.09.01(EoB End of Billing dd-hh) - Tabel E.2 No 37 */
-    DISP_PAGE_CHECKSUM,            /* zz: 38, OBIS: 96.20   (CSUM Firmware) - Tabel E.2 No 38 */
-    DISP_PAGE_PLN_UNIT,            /* zz: 45, OBIS: 96.01.0 (Unit PLN UP3) - Tabel E.2 No 39 */
-    DISP_PAGE_HISTORICAL_BILLING,  /* zz: 24, OBIS: 01.08*01(Stand Billing Bulan Lalu) - Tabel E.2 No 17 */
-    DISP_PAGE_TAMPER_ALARM,        /* zz: AL, OBIS: 96.50   (Status Sabotase) - Tabel E.2 No 39 */
-    DISP_PAGE_RELAY_READY_ON,      /* zz: on, Status Relai Reconnect - Tabel E.2 No 40 */
-    DISP_PAGE_COUNT
+    DISP_PAGE_TAMPER_ALARM,        /* Status Sabotase (Harus di sini agar siklus manual bekerja) */
+    DISP_PAGE_RELAY_READY_ON,      /* Status Relai Reconnect */
+    DISP_PAGE_COUNT                /* Batas akhir perhitungan jumlah halaman */
 } display_page_id_t;
 
-#define DISP_AUTO_PAGE_COUNT  14U
-#define DISP_AUTO_PAGE_FIRST  DISP_PAGE_IDPEL
-#define DISP_AUTO_PAGE_LAST   DISP_PAGE_CURRENT_N
+#define DISP_AUTO_PAGE_COUNT  15U
+extern const display_page_id_t g_disp_auto_pages[DISP_AUTO_PAGE_COUNT];
+#define DISP_AUTO_PAGE_FIRST  g_disp_auto_pages[0]
+#define DISP_AUTO_PAGE_LAST   g_disp_auto_pages[DISP_AUTO_PAGE_COUNT - 1]
 
 typedef struct {
     uint32_t voltage_r_dvolts;
@@ -166,16 +158,18 @@ typedef struct {
     uint32_t         manual_timeout_ms;
     meter_measurements_t meas_buffer;
     char             customer_id[16];
+    char            meter_id[16];
     bool             alarm_icon_active;
     uint32_t         active_tamper_mask;  /* Bitmask tamper_vector_t (SPLN D3.006 Tabel 6) */
     uint32_t         active_alarm_mask;   /* Bitmask spln_internal_alarm_t (SPLN D3.006 Tabel 4) */
     uint32_t         current_time_epoch;  /* Timestamp Epoch UNIX / waktu RTC sesaat */
+    uint32_t         subsecond_accum_ms;  /* Akumulator ms untuk update current_time_epoch yang presisi */
     bool             relay_ready_on;      /* Flag state relai READY ON (SPLN Tabel 5 No 12) */
     bool             asymmetry_warning;   /* Flag peringatan asimetri beban (SPLN Tabel 5 No 11) */
     bool             is_modem_active;     /* Flag meter sedang berkomunikasi dengan modem (SPLN Gambar 6) */
 } display_context_t;
 
-bool display_init(display_context_t *ctx, const char *customer_id, uint32_t carousel_interval_ms);
+bool display_init(display_context_t *ctx, const char *customer_id, const char *meter_id, uint32_t carousel_interval_ms);
 void display_render(display_context_t *ctx);
 void display_update_measurements(display_context_t *ctx, const meter_measurements_t *meas);
 void display_process_tick(display_context_t *ctx, uint32_t elapsed_ms);
@@ -214,9 +208,9 @@ display_voltage_status_t display_get_voltage_status(uint32_t v_dvolts);
  * @brief Struktur data representasi frame tampilan fisik LCD SPLN D3.006:2021 Gambar 4
  */
 typedef struct {
-    display_page_id_t page_id;   /* ID halaman untuk indikator fasa dinamis OLED */
+    display_page_id_t page_id;    /* ID Halaman SPLN yang sedang aktif */
     char header_symbols[32];      /* Baris 1: Simbol indikator dinamis */
-    char scroll_index_zz[16];     /* Informasi Register (IDPEL, UR, US, UT, EA_EXP1, dll) / zz */
+    char scroll_index_zz[10];     /* zz: Indeks scrolling (01..38, AL, on, IDPEL, dll) */
     char main_value[32];          /* Baris 2: Nilai utama numerik / teks status */
     char unit[16];                /* Baris 3: Satuan metrologi (V, A, kW, kvarh, kWh) / kode ERR */
     char obis_code[16];           /* OBIS identifier sesuai SPLN */

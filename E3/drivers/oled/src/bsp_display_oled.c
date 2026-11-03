@@ -7,6 +7,7 @@
 #include "ssd1306.h"
 #include "ssd1306_fonts.h"
 #include <string.h>
+#include <stdio.h>
 
 static void bsp_oled_init(void) {
     ssd1306_Init();
@@ -232,45 +233,7 @@ static void oled_draw_quadrant_icon(uint8_t x, uint8_t y, uint8_t quadrant) {
     }
 }
 
-/**
- * @brief Gambar badge tarif ToU aktif (X: 49..54, Y: 1..7)
- * - WBP (Tarif 1): Kotak solid putih dengan angka '1' hitam (prominen WBP)
- * - LWBP1 (Tarif 2): Kotak outline dengan angka '2' putih
- * - LWBP2 (Tarif 3): Kotak outline dengan angka '3' putih
- */
-static void oled_draw_tariff_badge(uint8_t x, uint8_t y, uint8_t zone) {
-    if (zone == 0) {
-        /* WBP Prominen Inverted Badge (Kotak solid putih dengan angka '1' hitam) */
-        ssd1306_FillRectangle(x, y, x + 5, y + 6, White);
-        /* Angka '1' hitam */
-        ssd1306_DrawPixel(x + 2, y + 2, Black);
-        for (uint8_t row = 1; row <= 5; row++) {
-            ssd1306_DrawPixel(x + 3, y + row, Black);
-        }
-        for (uint8_t col = 2; col <= 4; col++) {
-            ssd1306_DrawPixel(x + col, y + 5, Black);
-        }
-    } else if (zone == 1) {
-        /* LWBP1 (Tarif 2): Kotak outline dengan angka '2' */
-        ssd1306_DrawRectangle(x, y, x + 5, y + 6, White);
-        ssd1306_DrawPixel(x + 2, y + 2, White);
-        ssd1306_DrawPixel(x + 3, y + 2, White);
-        ssd1306_DrawPixel(x + 3, y + 3, White);
-        ssd1306_DrawPixel(x + 2, y + 4, White);
-        for (uint8_t col = 2; col <= 4; col++) {
-            ssd1306_DrawPixel(x + col, y + 5, White);
-        }
-    } else {
-        /* LWBP2 (Tarif 3): Kotak outline dengan angka '3' */
-        ssd1306_DrawRectangle(x, y, x + 5, y + 6, White);
-        for (uint8_t col = 2; col <= 4; col++) {
-            ssd1306_DrawPixel(x + col, y + 2, White);
-            ssd1306_DrawPixel(x + col, y + 4, White);
-            ssd1306_DrawPixel(x + col, y + 5, White);
-        }
-        ssd1306_DrawPixel(x + 3, y + 3, White);
-    }
-}
+
 
 static void bsp_oled_render_frame(const display_spln_frame_t *spln_frame) {
     if (spln_frame == NULL) return;
@@ -287,7 +250,7 @@ static void bsp_oled_render_frame(const display_spln_frame_t *spln_frame) {
      * 7. Badge Tarif ToU T1/T2/T3 (X=49..54)
      * 8. Fasa Tegangan URST (SPLN Gambar 6) (X=56..79)
      * 9. Fasa Arus IRST (SPLN Gambar 6) (X=81..104)
-     * 10. Kode Register SPLN (UR/US/UT) / OBIS (X=106..127)
+     * 10. Indikator Fasa SPLN (URST IRST / UR / US / UT) (X=106..127)
      */
     oled_draw_relay_icon(0, 1, spln_frame->is_relay_closed, spln_frame->is_relay_ready_on, spln_frame->is_battery_blink_on);
     oled_draw_modem_icon(10, 1, spln_frame->is_modem_active, spln_frame->is_battery_blink_on);
@@ -295,119 +258,101 @@ static void bsp_oled_render_frame(const display_spln_frame_t *spln_frame) {
     oled_draw_battery_gauge(26, 1, spln_frame->is_battery_low, spln_frame->is_battery_blink_on);
     oled_draw_power_direction_arrow(35, 1, spln_frame->is_reverse_power, spln_frame->is_battery_blink_on);
     oled_draw_quadrant_icon(41, 1, spln_frame->power_quadrant);
-    oled_draw_tariff_badge(49, 1, spln_frame->active_tariff_zone);
 
-    /* BARIS 1 STATUS BAR: Indikator Fasa Tegangan & Arus Sesuai Opsi A (Mengikuti Halaman Aktif) */
-    char v_str[5] = "";
-    char i_str[5] = "";
+    /* BARIS 1 STATUS BAR: Indikator Fasa Rata Kanan (Font_7x10 - SPLN D3.006:2021) */
+    char top_ind[16] = "";
 
     switch (spln_frame->page_id) {
-        /* 1. Pengukuran Terkait Fasa R: Hanya fasa R yang menyala */
+        /* 1. Pengukuran Terkait Fasa R: Menampilkan indikator fasa R */
         case DISP_PAGE_VOLTAGE_R:
         case DISP_PAGE_CURRENT_R:
         case DISP_PAGE_ANGLE_UR:
         case DISP_PAGE_ANGLE_IR:
-            if (spln_frame->voltage_phases & 0x01) {
-                strcpy(v_str, "UR  ");
-            }
-            if (spln_frame->current_phases & 0x01) {
-                strcpy(i_str, "IR  ");
+            if ((spln_frame->voltage_phases & 0x01) && (spln_frame->current_phases & 0x01)) {
+                strcpy(top_ind, "UR IR");
+            } else if (spln_frame->voltage_phases & 0x01) {
+                strcpy(top_ind, "UR");
+            } else if (spln_frame->current_phases & 0x01) {
+                strcpy(top_ind, "IR");
             }
             break;
 
-        /* 2. Pengukuran Terkait Fasa S: Hanya fasa S yang menyala */
+        /* 2. Pengukuran Terkait Fasa S: Menampilkan indikator fasa S */
         case DISP_PAGE_VOLTAGE_S:
         case DISP_PAGE_CURRENT_S:
         case DISP_PAGE_ANGLE_US:
         case DISP_PAGE_ANGLE_IS:
-            if (spln_frame->voltage_phases & 0x02) {
-                strcpy(v_str, "U S ");
-            }
-            if (spln_frame->current_phases & 0x02) {
-                strcpy(i_str, "I S ");
+            if ((spln_frame->voltage_phases & 0x02) && (spln_frame->current_phases & 0x02)) {
+                strcpy(top_ind, "US IS");
+            } else if (spln_frame->voltage_phases & 0x02) {
+                strcpy(top_ind, "US");
+            } else if (spln_frame->current_phases & 0x02) {
+                strcpy(top_ind, "IS");
             }
             break;
 
-        /* 3. Pengukuran Terkait Fasa T: Hanya fasa T yang menyala */
+        /* 3. Pengukuran Terkait Fasa T: Menampilkan indikator fasa T */
         case DISP_PAGE_VOLTAGE_T:
         case DISP_PAGE_CURRENT_T:
         case DISP_PAGE_ANGLE_UT:
         case DISP_PAGE_ANGLE_IT:
-            if (spln_frame->voltage_phases & 0x04) {
-                strcpy(v_str, "U  T");
-            }
-            if (spln_frame->current_phases & 0x04) {
-                strcpy(i_str, "I  T");
+            if ((spln_frame->voltage_phases & 0x04) && (spln_frame->current_phases & 0x04)) {
+                strcpy(top_ind, "UT IT");
+            } else if (spln_frame->voltage_phases & 0x04) {
+                strcpy(top_ind, "UT");
+            } else if (spln_frame->current_phases & 0x04) {
+                strcpy(top_ind, "IT");
             }
             break;
 
         /* 4. Arus Netral */
         case DISP_PAGE_CURRENT_N:
-            strcpy(i_str, "IN");
+            strcpy(top_ind, "IN");
             break;
 
-        /* 5. Halaman Non-Metrologi / Informasi Umum: Tidak menampilkan fasa agar baris 1 lapang */
-        case DISP_PAGE_IDPEL:
-        case DISP_PAGE_METER_ID:
-        case DISP_PAGE_TIME:
-        case DISP_PAGE_DATE:
-        case DISP_PAGE_TEST_DISPLAY:
-        case DISP_PAGE_CHECKSUM:
-        case DISP_PAGE_PLN_UNIT:
-        case DISP_PAGE_TAMPER_ALARM:
-        case DISP_PAGE_RELAY_READY_ON:
-            v_str[0] = '\0';
-            i_str[0] = '\0';
-            break;
+        /* 5. Seluruh Halaman Lainnya (Informasi Umum & Metrologi Total 3-Fasa):
+         * Menampilkan indikator tegangan & arus 3-fasa lengkap (URST IRST) sesuai SPLN Gambar 4.
+         * Kode OBIS tidak ditampilkan di layar display sesuai acuan standar. */
+        default: {
+            char v_part[5];
+            v_part[0] = 'U';
+            v_part[1] = (spln_frame->voltage_phases & 0x01) ? 'R' : '-';
+            v_part[2] = (spln_frame->voltage_phases & 0x02) ? 'S' : '-';
+            v_part[3] = (spln_frame->voltage_phases & 0x04) ? 'T' : '-';
+            v_part[4] = '\0';
 
-        /* 6. Halaman Metrologi Total 3-Fasa (Energi Aktif, Reaktif, Daya Total, PF, Freq, dll) */
-        default:
-            v_str[0] = 'U';
-            v_str[1] = (spln_frame->voltage_phases & 0x01) ? 'R' : '-';
-            v_str[2] = (spln_frame->voltage_phases & 0x02) ? 'S' : '-';
-            v_str[3] = (spln_frame->voltage_phases & 0x04) ? 'T' : '-';
-            v_str[4] = '\0';
-
+            char i_part[5];
             if (spln_frame->is_reverse_power) {
-                strcpy(i_str, " REV");
+                strcpy(i_part, "REV");
             } else {
-                i_str[0] = 'I';
-                i_str[1] = (spln_frame->current_phases & 0x01) ? 'R' : '-';
-                i_str[2] = (spln_frame->current_phases & 0x02) ? 'S' : '-';
-                i_str[3] = (spln_frame->current_phases & 0x04) ? 'T' : '-';
-                i_str[4] = '\0';
+                i_part[0] = 'I';
+                i_part[1] = (spln_frame->current_phases & 0x01) ? 'R' : '-';
+                i_part[2] = (spln_frame->current_phases & 0x02) ? 'S' : '-';
+                i_part[3] = (spln_frame->current_phases & 0x04) ? 'T' : '-';
+                i_part[4] = '\0';
             }
+
+            snprintf(top_ind, sizeof(top_ind), "%s %s", v_part, i_part);
             break;
+        }
     }
 
-    if (v_str[0] != '\0') {
-        ssd1306_SetCursor(56, 0);
-        ssd1306_WriteString(v_str, Font_6x8, White);
+    /* Gambar Indikator Baris 1: Rata Kanan di X = 127 dengan Font_7x10 (Bolder & Lebih Besar) */
+    if (top_ind[0] != '\0') {
+        int text_len = (int)strlen(top_ind);
+        int text_width = text_len * 7;
+        int x_pos = 127 - text_width;
+        if (x_pos < 48) x_pos = 48;
+        ssd1306_SetCursor((uint8_t)x_pos, 0);
+        ssd1306_WriteString(top_ind, Font_7x10, White);
     }
 
-    if (i_str[0] != '\0') {
-        ssd1306_SetCursor(81, 0);
-        ssd1306_WriteString(i_str, Font_6x8, White);
-    }
-
-    /* Kode Register SPLN Lampiran E (UR, US, UT, dll) bergantian dengan OBIS (32.07, dll) di X = 106..127 */
-    const char *code_str = spln_frame->obis_code;
-    if (spln_frame->reg_info[0] != '\0') {
-        code_str = spln_frame->show_reg_alt ? spln_frame->reg_info : spln_frame->obis_code;
-    }
-    int code_len = (int)strlen(code_str);
-    int x_code = 127 - (code_len * 6);
-    int min_x_code = (i_str[0] != '\0') ? 106 : 56;
-    if (x_code < min_x_code) x_code = min_x_code;
-    ssd1306_SetCursor((uint8_t)x_code, 0);
-    ssd1306_WriteString((char *)code_str, Font_6x8, White);
-
-    /* Garis Pemisah Horizontal (Y = 9) */
+    /* Garis Pemisah Horizontal (Y = 10): Berada tepat di bawah Font_7x10 (Y = 0..9) */
     if (spln_frame->is_alarm_active || spln_frame->is_tamper_active) {
-        ssd1306_Line(0, 9, 127, 9, White);
+        ssd1306_Line(0, 10, 127, 10, White);
     } else {
         for (uint8_t x = 0; x < 128; x += 2) {
-            ssd1306_DrawPixel(x, 9, White);
+            ssd1306_DrawPixel(x, 10, White);
         }
     }
 

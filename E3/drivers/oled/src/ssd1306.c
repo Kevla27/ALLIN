@@ -15,12 +15,18 @@ void ssd1306_Reset(void) {
 
 // Send a byte to the command register
 void ssd1306_WriteCommand(uint8_t byte) {
-    HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, s_ssd1306_addr, 0x00, 1, &byte, 1, 50U);
+    HAL_StatusTypeDef res = HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, s_ssd1306_addr, 0x00, 1, &byte, 1, 50U);
+    if (res != HAL_OK) {
+        printf("[I2C ERR] CMD 0x%02X gagal (status=%d, err=0x%04lX)\r\n", byte, res, SSD1306_I2C_PORT.ErrorCode);
+    }
 }
 
 // Send data
 void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
-    HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, s_ssd1306_addr, 0x40, 1, buffer, buff_size, 100U);
+    HAL_StatusTypeDef res = HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, s_ssd1306_addr, 0x40, 1, buffer, buff_size, 100U);
+    if (res != HAL_OK) {
+        printf("[I2C ERR] DATA len=%u gagal (status=%d, err=0x%04lX)\r\n", (unsigned int)buff_size, res, SSD1306_I2C_PORT.ErrorCode);
+    }
 }
 
 #elif defined(SSD1306_USE_SPI)
@@ -84,7 +90,7 @@ void ssd1306_Init(void) {
 
 #if defined(SSD1306_USE_I2C)
     uint8_t found_addr = 0;
-    printf("[OLED] Mencari modul SSD1306 pada I2C3 (PC0=SCL, PC1=SDA)...\r\n");
+    printf("[OLED] Mencari modul SSD1306 pada bus I2C...\r\n");
 
     for (int attempt = 0; attempt < 3 && found_addr == 0; attempt++) {
         if (attempt > 0) {
@@ -122,7 +128,7 @@ void ssd1306_Init(void) {
         s_ssd1306_addr = found_addr;
         printf("[OLED] SSD1306 TERDETEKSI pada alamat I2C 0x%02X!\r\n", s_ssd1306_addr >> 1);
     } else {
-        printf("[WARN] SSD1306 OLED TIDAK MERESPONS di bus I2C3 (PC0=SCL, PC1=SDA)!\r\n");
+        printf("[WARN] SSD1306 OLED TIDAK MERESPONS di bus I2C!\r\n");
         printf("       Pastikan kabel: VCC->3.3V, GND->GND, SCL->PC0, SDA->PC1.\r\n");
         SSD1306.Initialized = 0;
         return; /* Aman: jangan memblokir CPU bila layar fisik belum terpasang */
@@ -180,10 +186,10 @@ void ssd1306_Init(void) {
     ssd1306_WriteCommand(0x00); // -no offset
 
     ssd1306_WriteCommand(0xD5); // --set display clock divide ratio/oscillator frequency
-    ssd1306_WriteCommand(0xF0); // --set divide ratio
+    ssd1306_WriteCommand(0x80); // Standar 0x80 (Frekuensi Fosc tengah)
 
     ssd1306_WriteCommand(0xD9); // --set pre-charge period
-    ssd1306_WriteCommand(0x22);
+    ssd1306_WriteCommand(0xF1); // 0xF1 optimal untuk internal DC-DC charge pump
 
     ssd1306_WriteCommand(0xDA); // --set com pins hardware configuration
 #if (SSD1306_HEIGHT == 32)
@@ -195,7 +201,7 @@ void ssd1306_Init(void) {
 #endif
 
     ssd1306_WriteCommand(0xDB); // --set vcomh
-    ssd1306_WriteCommand(0x20); // 0x20, 0.77xVcc
+    ssd1306_WriteCommand(0x30); // 0x30 (~0.83xVcc lebih terang)
 
     ssd1306_WriteCommand(0x8D); // --set DC-DC enable
     ssd1306_WriteCommand(0x14); // Charge pump enable

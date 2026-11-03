@@ -106,7 +106,7 @@ void rtos_system_init(void) {
     bsp_alarm_buzzer_init();
     tamper_init(&g_tamper_ctx);
     load_profile_init(&g_load_profile_buf);
-    display_init(&g_display_ctx, "530000000001", 5000);
+    display_init(&g_display_ctx, "530000000001", "MTR530000000001", 5000);
     power_relay_init(&g_power_relay_ctx, 6600, 5, 30);
 
     /* 2. Inisialisasi Queue & Mutex FreeRTOS / Simulasi */

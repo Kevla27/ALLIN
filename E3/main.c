@@ -26,7 +26,7 @@ int main(void) {
      * ------------------------------------------------------------- */
     printf("[1] Inisialisasi Layar Display HMI (IDPEL: 54321678901)...\n");
     display_context_t disp_ctx;
-    display_init(&disp_ctx, "54321678901", 3000);
+    display_init(&disp_ctx, "54321678901", "MTR54321678901", 3000);
 
     /* Simulasi data pengukuran metrologi dari E1 (ADE9000) */
     meter_measurements_t meas = {

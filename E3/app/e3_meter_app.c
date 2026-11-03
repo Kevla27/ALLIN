@@ -277,7 +277,7 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
     s_last_import_energy_wh = 0ULL;
     memset(s_tou_tariff_wh, 0, sizeof(s_tou_tariff_wh));
     memset(s_tou_import_tariff_wh, 0, sizeof(s_tou_import_tariff_wh));
-    display_init(&s_disp_ctx, customer_id ? customer_id : "54321678901", BOARD_CFG_DISPLAY_CAROUSEL_MS);
+    display_init(&s_disp_ctx, customer_id ? customer_id : "54321678901", "530000000001", BOARD_CFG_DISPLAY_CAROUSEL_MS);
 #if defined(EMBEDDED_HARDWARE_TARGET)
     const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
     if (oled_drv != NULL && oled_drv->init != NULL)

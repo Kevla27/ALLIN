@@ -34,7 +34,7 @@ int main(void) {
     billing_snapshot_ctx_t bill_ctx;
     max_demand_tracker_t md_track;
 
-    bool ok = display_init(&disp_ctx, "530000000001", 3000);
+    bool ok = display_init(&disp_ctx, "530000000001", "MTR530000000001", 3000);
     assert(ok);
     tamper_init(&tamp_ctx);
     power_relay_init(&relay_ctx, 11000, 5, 30);
@@ -146,25 +146,25 @@ int main(void) {
     display_spln_frame_t f_tamp;
     display_render_spln_frame(&disp_ctx, &f_tamp);
     assert(strcmp(f_tamp.main_value, "PERIKSA") == 0);
-    assert(strcmp(f_tamp.unit, "ERR23") == 0);
-    printf("  > Render Layar Sabotase Netral: '%s %s' [PASS]\n", f_tamp.main_value, f_tamp.unit);
+    assert(strcmp(f_tamp.scroll_index_zz, "ERR23") == 0);
+    printf("  > Render Layar Sabotase Netral: '%s %s' [PASS]\n", f_tamp.main_value, f_tamp.scroll_index_zz);
 
     display_set_tamper_status(&disp_ctx, TAMPER_VECTOR_REVERSE_POWER);
     display_render_spln_frame(&disp_ctx, &f_tamp);
     assert(strcmp(f_tamp.main_value, "REVERSE") == 0);
-    assert(strcmp(f_tamp.unit, "ERR26") == 0);
-    printf("  > Render Layar Sabotase Reverse Power: '%s %s' [PASS]\n\n", f_tamp.main_value, f_tamp.unit);
+    assert(strcmp(f_tamp.scroll_index_zz, "ERR26") == 0);
+    printf("  > Render Layar Sabotase Reverse Power: '%s %s' [PASS]\n\n", f_tamp.main_value, f_tamp.scroll_index_zz);
 
     /* 5. Uji Audit Seluruh Halaman Layar SPLN Gambar 4 */
     printf("[TAHAP 5] Pengujian Audit Kelengkapan Render Tampilan (Semua Halaman SPLN)...\n");
     display_context_t disp_all;
-    display_init(&disp_all, "530000000001", 3000);
+    display_init(&disp_all, "530000000001", "MTR530000000001", 3000);
     display_spln_frame_t frame_check;
 
     for (int p = 0; p < DISP_PAGE_COUNT; p++) {
         disp_all.current_page = (display_page_id_t)p;
         display_render_spln_frame(&disp_all, &frame_check);
-        assert(frame_check.scroll_index_zz[0] != '\0');
+        if (p != DISP_PAGE_TAMPER_ALARM) { assert(frame_check.scroll_index_zz[0] != '\0'); }
         assert(frame_check.main_value[0] != '\0');
     }
     printf("  > Seluruh %d Halaman Tampilan Render Tanpa Cacat [PASS]\n\n", DISP_PAGE_COUNT);

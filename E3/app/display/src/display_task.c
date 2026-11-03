@@ -58,7 +58,7 @@ void task_oled128x32_carousel(void *pvParameters)
     }
 
     display_context_t disp_ctx;
-    display_init(&disp_ctx, "530000000001", 5000);
+    display_init(&disp_ctx, "530000000001", "MTR530000000001", 5000);
 
     meter_measurements_t meas;
     memset(&meas, 0, sizeof(meas));
@@ -122,10 +122,9 @@ void task_oled128x32_carousel(void *pvParameters)
                 s_display_driver->render_frame(&spln_frame);
             }
 
-            printf("[OLED DISP] Page %d [%s] -> OBIS: %s | %s %s | Status: %s\r\n",
+            printf("[OLED DISP] Page %d [%s] -> %s %s | Status: %s\r\n",
                    disp_ctx.current_page,
                    spln_frame.scroll_index_zz,
-                   spln_frame.obis_code,
                    spln_frame.main_value,
                    spln_frame.unit,
                    spln_frame.is_alarm_active ? "!ALM (SABOTASE)" : "NORMAL");
