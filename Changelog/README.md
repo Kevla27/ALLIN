@@ -61,6 +61,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-051**](051_penyesuaian_14_halaman_auto_scroll_tabel_e1_spln.md) | 29-10-2026 | Penyesuaian 14 Halaman Auto-Scroll Layar Tampilan Otomatis Sesuai Tabel E.1 SPLN ("Jangan Kurang Jangan Tambah") | `E3/app/display/*`, `E3/tests/*`, `Changelog/*` | Selesai |
 | [**LOG-052**](052_integrasi_revisi_tampilan_informasi_register_dan_fasa_dinamis_oled.md) | 29-10-2026 | Integrasi Revisi Tampilan Informasi Register dan Indikator Fasa Dinamis Layar OLED | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/tests/*`, `Changelog/*` | Selesai |
 | [**LOG-053**](053_penghilangan_kode_obis_dan_sinkronisasi_revisi_hmi.md) | 03-11-2026 | Penghilangan Kode OBIS dari Layar Tampilan SPLN Gambar 4 dan Sinkronisasi Revisi HMI | `E3/app/display/*`, `E3/drivers/oled/*`, `E3/tests/*`, `Revision/*`, `Changelog/*` | Selesai |
+| [**LOG-054**](054_pembaruan_pilar_e2_dlms_cosem_katalog_obis_dan_security.md) | 03-11-2026 | Pembaruan Pilar E2 (DLMS/COSEM): Katalog OBIS Masif, Security Suite AES-GCM, dan Modul Port | `E2/*`, `Changelog/*` | Selesai |
 
 ---
 
