@@ -44,9 +44,6 @@ E3/
 │   ├── oled/                 # Driver perangkat keras OLED SSD1306 via I2C3
 │   │   ├── inc/ssd1306.h, ssd1306_fonts.h, bsp_display_oled.h
 │   │   └── src/ssd1306.c, ssd1306_fonts.c, bsp_display_oled.c
-│   ├── buzzer/               # Driver aktuator Buzzer & LED Alarm PB7
-│   │   ├── inc/bsp_alarm_buzzer.h
-│   │   └── src/bsp_alarm_buzzer.c
 │   └── power/                # Driver manajemen hemat daya ekstrem STM32U5 Stop 2 Mode
 │       ├── inc/bsp_power_mode.h
 │       └── src/bsp_power_mode.c

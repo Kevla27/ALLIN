@@ -4,7 +4,6 @@
  */
 
 #include "e3_meter_app.h"
-#include "bsp_alarm_buzzer.h"
 #include "bsp_power_mode.h"
 #include "nvram_storage.h"
 #include "e2_dlms_service.h"
@@ -37,7 +36,6 @@ static uint32_t s_internal_alarm_mask   = 0U; /* Bitmask spln_internal_alarm_t (
 /* Status Pemadaman PLN (AC Fail) & Timer Wake-Up Layar 10 Detik (SPLN D3.006 & Desain Sistem Hal. 37) */
 static volatile bool     s_is_ac_failed         = false;
 static volatile uint32_t s_lcd_wakeup_timer_ms  = 0U;
-static volatile uint32_t s_button_beep_ms         = 0U;
 static uint64_t          s_last_active_energy_wh  = 0ULL;
 static uint64_t          s_last_import_energy_wh  = 0ULL;
 
@@ -329,7 +327,6 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
     load_profile_init(&s_lp_ctx);
     max_demand_init(&s_md_tracker, LOAD_PROFILE_INTERVAL_SEC);
     billing_snapshot_init(&s_billing_ctx);
-    bsp_alarm_buzzer_init();
     bsp_power_mode_init();
 
     /* 3. Inisialisasi & Pendaftaran Hooks Interactive Serial CLI */
@@ -774,27 +771,6 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         }
     }
 
-    /* Non-blocking buzzer button beep timer */
-    bool beep_override = false;
-    if (s_button_beep_ms > 0U)
-    {
-        beep_override = true;
-        if (delta_ms >= s_button_beep_ms)
-        {
-            s_button_beep_ms = 0U;
-        }
-        else
-        {
-            s_button_beep_ms -= delta_ms;
-        }
-    }
-
-    /* Audio Cadence Buzzer PB7 (SPLN D3.006: 2021 Butir 6.14):
-     * - Override penekanan tombol: Bunyi Beep 50 ms
-     * - Alarm sabotase / Trip aktif: Kadensi berdenyut 200 ms ON / 200 ms OFF
-     * - Kondisi normal: Buzzer MATI */
-    bsp_alarm_buzzer_update_cadence(is_trip_commanded, beep_override, delta_ms);
-
     /* 6. Perbarui Tampilan Carousel UI (SPLN Gambar 4 & Tabel E.1 / E.2) */
     meter_measurements_t disp_meas = *meas;
     disp_meas.active_energy_wbp_wh       = s_tou_tariff_wh[0];
@@ -944,12 +920,6 @@ void e3_meter_app_on_button(button_dir_t dir)
         }
     }
 #endif
-
-    if (!s_is_ac_failed)
-    {
-        s_button_beep_ms = 50U;   /* Feedback beep 50ms (hanya saat suplai daya aktif) */
-        bsp_alarm_buzzer_set(true);
-    }
 }
 
 void e3_meter_app_on_ac_fail(bool is_power_cut)
@@ -981,7 +951,7 @@ void e3_meter_app_on_ac_fail(bool is_power_cut)
         (void)nvram_save_tamper_log_snapshot(&s_tamper_ctx);
         (void)e2_dlms_send_last_gasp_push(s_now_epoch_sec, s_last_active_energy_wh);
 
-        /* 2. Matikan beban berdaya tinggi saat padam (Power Gating: OLED sleep command 0xAE dulu, baru rail LCD, Backlight, RS-232, Modem 12V, Buzzer) */
+        /* 2. Matikan beban berdaya tinggi saat padam (Power Gating: OLED sleep command 0xAE dulu, baru rail LCD, Backlight, RS-232, Modem 12V) */
 #if defined(EMBEDDED_HARDWARE_TARGET)
         const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
         if (oled_drv != NULL && oled_drv->set_power_mode != NULL)
@@ -993,8 +963,6 @@ void e3_meter_app_on_ac_fail(bool is_power_cut)
         HAL_GPIO_WritePin(LCD_BL_CTRL_GPIO_Port, LCD_BL_CTRL_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(RS232_PWR_EN_GPIO_Port, RS232_PWR_EN_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(MODEM_12V_EN_GPIO_Port, MODEM_12V_EN_Pin, GPIO_PIN_RESET);
-        bsp_alarm_buzzer_set(false);
-        s_button_beep_ms = 0U;
     }
     else
     {

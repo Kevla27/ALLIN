@@ -87,10 +87,8 @@ extern "C" {
 #define BOARD_CFG_FIFO_LOG_CAPACITY       30U      /**< Kapasitas masing-masing FIFO (Alarm, Event, Tamper min 30 entri) */
 #define BOARD_CFG_BILLING_SNAPSHOT_MAX    12U      /**< Kapasitas snapshot penutupan tagihan bulanan (12 bulan) */
 
-/* --- E. Audio Buzzer --- */
-#define BOARD_CFG_BUZZER_ALARM_ON_MS    200U       /**< Denyut 200 ms ON (SPLN Butir 6.14) */
-#define BOARD_CFG_BUZZER_ALARM_OFF_MS   200U       /**< Denyut 200 ms OFF (SPLN Butir 6.14) */
-#define BOARD_CFG_BUZZER_KEY_BEEP_MS    50U        /**< Feedback suara 50 ms penekanan tombol (SPLN Butir 6.10) */
+/* --- E. Audio Buzzer (Ditiadakan) --- */
+#define BOARD_CFG_ENABLE_BUZZER         0          /**< 0 = Ditiadakan: PB7 murni untuk LED_ALM (Kuning) per PIN.docx & SPLN D3.006 */
 
 /* --- F. Communication Ports --- */
 #define BOARD_CFG_OPTICAL_BAUDRATE      9600U      /**< Port optik lokal IEC 62056-21 (USART3) */
@@ -156,10 +154,8 @@ extern "C" {
 #define BOARD_CFG_FIFO_LOG_CAPACITY       30U
 #define BOARD_CFG_BILLING_SNAPSHOT_MAX    12U
 
-/* --- E. Audio Buzzer --- */
-#define BOARD_CFG_BUZZER_ALARM_ON_MS    200U
-#define BOARD_CFG_BUZZER_ALARM_OFF_MS   200U
-#define BOARD_CFG_BUZZER_KEY_BEEP_MS    50U
+/* --- E. Audio Buzzer (Ditiadakan) --- */
+#define BOARD_CFG_ENABLE_BUZZER         0
 
 /* --- F. Communication Ports --- */
 #define BOARD_CFG_OPTICAL_BAUDRATE      9600U
@@ -221,9 +217,8 @@ extern "C" {
 #define BOARD_CFG_FIFO_LOG_CAPACITY       30U
 #define BOARD_CFG_BILLING_SNAPSHOT_MAX    12U
 
-#define BOARD_CFG_BUZZER_ALARM_ON_MS    200U
-#define BOARD_CFG_BUZZER_ALARM_OFF_MS   200U
-#define BOARD_CFG_BUZZER_KEY_BEEP_MS    50U
+/* --- E. Audio Buzzer (Ditiadakan) --- */
+#define BOARD_CFG_ENABLE_BUZZER         0
 
 #define BOARD_CFG_OPTICAL_BAUDRATE      9600U
 #define BOARD_CFG_MODEM_BAUDRATE        19200U

@@ -23,7 +23,6 @@ add_library(e3_core STATIC
     app/profiling/src/load_profile_dlms_adapter.c
     app/profiling/src/nvram_storage.c
     app/console/src/console_io.c
-    drivers/buzzer/src/bsp_alarm_buzzer.c
     drivers/power/src/bsp_power_mode.c
     tests/e3_mock_stubs.c
 )
@@ -37,7 +36,6 @@ target_include_directories(e3_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/app/profiling/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/app/console/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/oled/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/drivers/buzzer/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/power/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../E2/Inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../E1/Metrology

@@ -64,7 +64,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/../E3/app/fsm/inc
     ${CMAKE_SOURCE_DIR}/../E3/app/profiling/inc
     ${CMAKE_SOURCE_DIR}/../E3/app/console/inc
-    ${CMAKE_SOURCE_DIR}/../E3/drivers/buzzer/inc
     ${CMAKE_SOURCE_DIR}/../E3/drivers/oled/inc
     ${CMAKE_SOURCE_DIR}/../E3/drivers/power/inc
     ${CMAKE_SOURCE_DIR}/../E3/app
@@ -91,7 +90,6 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/../E3/app/profiling/src/load_profile_dlms_adapter.c
     ${CMAKE_SOURCE_DIR}/../E3/app/profiling/src/nvram_storage.c
     ${CMAKE_SOURCE_DIR}/../E3/app/console/src/console_io.c
-    ${CMAKE_SOURCE_DIR}/../E3/drivers/buzzer/src/bsp_alarm_buzzer.c
     ${CMAKE_SOURCE_DIR}/../E3/drivers/power/src/bsp_power_mode.c
     ${CMAKE_SOURCE_DIR}/../E3/drivers/oled/src/bsp_display_oled.c
     ${CMAKE_SOURCE_DIR}/../E3/drivers/oled/src/ssd1306.c

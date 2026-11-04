@@ -8,7 +8,6 @@
 #include "display.h"
 #include "nvram_storage.h"
 #include "display_task.h"
-#include "bsp_alarm_buzzer.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -103,7 +102,6 @@ static void dlms_obis_increment_tamper_counter(dlms_tamper_code_t code) {
 
 void rtos_system_init(void) {
     /* 1. Inisialisasi Seluruh Modul Subsystem E3, BSP & Power Relay */
-    bsp_alarm_buzzer_init();
     tamper_init(&g_tamper_ctx);
     load_profile_init(&g_load_profile_buf);
     display_init(&g_display_ctx, "530000000001", "MTR530000000001", 5000);
@@ -257,7 +255,6 @@ void task_tamper_emergency_entry(void *pvParameters) {
                 power_relay_disconnect(&g_power_relay_ctx, RELAY_REASON_MANUAL, now_sec);
             } else {
                 printf("[TAMPER] Sabotase dipulihkan. Sistem kembali normal.\r\n");
-                bsp_alarm_buzzer_set(false);
             }
             tamper_event_msg_t msg = {
                 .timestamp = now_sec,
@@ -265,19 +262,6 @@ void task_tamper_emergency_entry(void *pvParameters) {
                 .is_active = current_alarm
             };
             rtos_queue_send_tamper_event(&msg);
-        }
-
-        if (current_alarm) {
-            bsp_alarm_buzzer_toggle();
-        } else if (power_relay_is_ready_on(&g_power_relay_ctx)) {
-            static uint8_t s_ready_blink = 0;
-            s_ready_blink++;
-            if (s_ready_blink >= 2) {
-                s_ready_blink = 0;
-                bsp_alarm_buzzer_toggle();
-            }
-        } else {
-            bsp_alarm_buzzer_set(false);
         }
 
         bsp_watchdog_kick_task(WATCHDOG_TASK_TAMPER_BIT);

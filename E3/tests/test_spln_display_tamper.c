@@ -11,7 +11,6 @@
 #include <string.h>
 #include "display.h"
 #include "tamper_manager.h"
-#include "bsp_alarm_buzzer.h"
 #include "load_profile.h"
 
 int main(void) {
@@ -641,54 +640,6 @@ int main(void) {
     assert(strstr(frame.header_symbols, "U-ST") != NULL);
     printf("  > Indikator Fasa Tegangan Dinamis (Fasa R Drop & 0V Disconnect): Header '%s' [PASS]\n\n", frame.header_symbols);
 
-    /* --------------------------------------------------------------------- */
-    /* UJI 8: VERIFIKASI AUDIO CADENCE BUZZER (SPLN D3.006 Butir 6.14)      */
-    /* --------------------------------------------------------------------- */
-    printf("[UJI 8] Verifikasi Audio Cadence Buzzer (SPLN D3.006 Butir 6.14)...\n");
-    bsp_alarm_buzzer_init();
-    assert(bsp_alarm_buzzer_get() == false);
-
-    /* 1. Kondisi normal tanpa alarm & tanpa tombol: Buzzer OFF */
-    bool b_state = bsp_alarm_buzzer_update_cadence(false, false, 100);
-    assert(b_state == false);
-    assert(bsp_alarm_buzzer_get() == false);
-
-    /* 2. Alarm aktif: Denyut 200 ms ON / 200 ms OFF */
-    b_state = bsp_alarm_buzzer_update_cadence(true, false, 100); /* accum = 100 ms (< 200 ms) */
-    assert(b_state == true);
-    assert(bsp_alarm_buzzer_get() == true);
-    printf("  > Alarm Cadence (t = 100 ms): Output = ON [PASS]\n");
-
-    b_state = bsp_alarm_buzzer_update_cadence(true, false, 100); /* accum = 200 ms (>= 200 ms) */
-    assert(b_state == false);
-    assert(bsp_alarm_buzzer_get() == false);
-    printf("  > Alarm Cadence (t = 200 ms): Output = OFF [PASS]\n");
-
-    b_state = bsp_alarm_buzzer_update_cadence(true, false, 100); /* accum = 300 ms */
-    assert(b_state == false);
-    assert(bsp_alarm_buzzer_get() == false);
-
-    b_state = bsp_alarm_buzzer_update_cadence(true, false, 100); /* accum = 400 ms -> wrap 0 ms */
-    assert(b_state == true);
-    assert(bsp_alarm_buzzer_get() == true);
-    printf("  > Alarm Cadence (t = 400 ms Wrap): Output = ON [PASS]\n");
-
-    /* 3. Override Beep Tombol saat Alarm berada pada fase OFF */
-    bsp_alarm_buzzer_update_cadence(true, false, 100); /* 100 ms (fase ON) */
-    bsp_alarm_buzzer_update_cadence(true, false, 100); /* 200 ms (fase OFF) */
-    assert(bsp_alarm_buzzer_get() == false);
-
-    /* Tekan tombol: beep_override = true */
-    b_state = bsp_alarm_buzzer_update_cadence(true, true, 50);
-    assert(b_state == true);
-    assert(bsp_alarm_buzzer_get() == true);
-    printf("  > Button Beep Override (Dipaksa ON saat fase OFF alarm): Output = ON [PASS]\n");
-
-    /* 4. Pemulihan Alarm (Normal): Buzzer langsung padam */
-    b_state = bsp_alarm_buzzer_update_cadence(false, false, 50);
-    assert(b_state == false);
-    assert(bsp_alarm_buzzer_get() == false);
-    printf("  > Alarm Recovered: Output = OFF, Timer Reset [PASS]\n\n");
     /* --------------------------------------------------------------------- */
     /* UJI 9: VERIFIKASI MAXIMUM DEMAND & BILLING SNAPSHOT 12 BULAN          */
     /* --------------------------------------------------------------------- */

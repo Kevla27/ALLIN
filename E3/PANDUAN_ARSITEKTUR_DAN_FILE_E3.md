@@ -32,7 +32,6 @@ flowchart TD
         E3_APP --> PROF["load_profile.c & nvram_storage.c<br/>(LP 15-Menit, MD Tracker, 3 FIFO @ 30)"]
         E3_APP --> ADAPT["load_profile_dlms_adapter.c<br/>(Encoder 11 Elemen A-XDR 72B)"]
         E3_APP --> CLI["console_io.c<br/>(Parser Serial CLI Interaktif USART2)"]
-        E3_APP --> BUZZ["bsp_alarm_buzzer.c<br/>(Kadensi Denyut 200ms & Beep 50ms)"]
     end
     
     CFG["board_profile_config.h<br/>(Hardware Configuration Profile)"] -. Konfigurasi .-> E3_SUBSYSTEMS
@@ -56,7 +55,6 @@ E3/
 │   ├── profiling/        # Load Profile 15-Menit, Maximum Demand & Storage NVRAM
 │   └── tamper/           # Manajer Sabotase Fisik/Elektrikal & Alarm Hardware
 ├── drivers/              # Board Support Package (BSP) Driver Perangkat Keras
-│   ├── buzzer/           # Driver Audio Kadensi Buzzer
 │   ├── oled/             # Driver Layar Fisik OLED SSD1306 (I2C3)
 │   └── power/            # Driver Manajemen Hemat Daya STM32U5 Stop 2 Mode
 ├── docs/                 # Dokumentasi Teknis Sistem
@@ -227,23 +225,17 @@ E3/
 
 ### G. Driver Perangkat Keras / BSP (`E3/drivers/`)
 
-#### 14. `bsp_alarm_buzzer.h`, `bsp_alarm_buzzer.c`, & `bsp_pin_mapping.h`
-- **Tujuan & Fundamental:** Pengendali suara buzzer piezoelektrik sesuai regulasi SPLN.
-- **Fungsi Utama:**
-  - **Kadensi Denyut Alarm (SPLN Butir 6.14):** Menghasilkan denyut berirama **200 ms ON / 200 ms OFF** ketika terjadi kondisi alarm hardware atau deteksi sabotase tamper.
-  - **Feedback Tombol (SPLN Butir 6.10):** Menghasilkan suara *beep* pendek **50 ms** setiap kali tombol fisik navigasi ditekan.
-
-#### 15. `bsp_display_oled.h` & `bsp_display_oled.c`
+#### 14. `bsp_display_oled.h` & `bsp_display_oled.c`
 - **Tujuan & Fundamental:** Driver konkret untuk layar fisik OLED 128x32 SSD1306 (I2C3) yang mengimplementasikan `display_driver_interface_t`.
 - **Fungsi Utama:**
   - Memetakan teks baris 1, font besar 11x18 baris 2, teks OBIS baris 3, dan 7 simbol ikon dari `display_spln_frame_t` ke dalam framebuffer memori OLED.
 
-#### 16. `ssd1306.h`, `ssd1306.c`, `ssd1306_fonts.h`, `ssd1306_fonts.c`, `ssd1306_conf.h`
+#### 15. `ssd1306.h`, `ssd1306.c`, `ssd1306_fonts.h`, `ssd1306_fonts.c`, `ssd1306_conf.h`
 - **Tujuan & Fundamental:** Driver pustaka grafis level rendah (*low-level graphics driver*) untuk kontroler SSD1306 via I2C HAL STM32.
 - **Fungsi Utama:**
   - Inisialisasi register charge pump OLED, kontras, pengiriman framebuffer via I2C, serta tabel bitmap font monospace (Font 6x8, Font 7x10, Font 11x18, Font 16x26).
 
-#### 17. `bsp_power_mode.h` & `bsp_power_mode.c`
+#### 16. `bsp_power_mode.h` & `bsp_power_mode.c`
 - **Tujuan & Fundamental:** Driver manajemen hemat daya ekstrem STM32U585 (*Ultra-Low Power Stop 2 Mode*) saat listrik PLN padam (`LOG-036`).
 - **Fungsi Utama:**
   - Menurunkan konsumsi MCU ke ~4,5 µA (`HAL_PWREx_EnterSTOP2Mode`), mengatur clock hemat baterai MSIS 4 MHz saat layar menyala 10 detik, dan memulihkan PLL1 160 MHz saat listrik PLN kembali normal.
@@ -267,7 +259,7 @@ Pilar E3 dilengkapi dengan **12 rangkaian unit test otomatis (CTest)** yang menj
 | `test_e3_app.c` | `Unit_E3_Display_Tamper` | Integrasi end-to-end aplikasi meter, preservasi konfigurasi Tabel E.2, dan deteksi 9 tamper + 3 FIFO. |
 | `test_power_mode.c` | `Unit_E3_Power_Mode_Stop2` | Transisi Stop 2 Mode, 4 sumber wake-up (Tombol, Tamper, RTC, AC Pulih), dan switching clock MSIS/PLL (`LOG-036`). |
 | `test_nvram_storage.c` | `Unit_E3_NVRAM_Storage` | Penyimpanan & pemulihan Load Profile, Tamper Snapshot, dan Energy Checkpoint dengan stempel magic `0x454E4759` (`LOG-038`). |
-| `test_rtos_tasks.c` | `Unit_E3_RTOS_Tasks` | Komunikasi antartask FreeRTOS (`xTamperQueue`, `xMeasMutex`), aktuasi buzzer PB7, dan consumer DLMS Tamper Log (`LOG-038`). |
+| `test_rtos_tasks.c` | `Unit_E3_RTOS_Tasks` | Komunikasi antartask FreeRTOS (`xTamperQueue`, `xMeasMutex`) dan consumer DLMS Tamper Log (`LOG-038`). |
 | `e3_mock_stubs.c` | (Pustaka Pendukung Mock) | Emulasi lingkungan mikrokontroler STM32 (Timer `HAL_GetTick`, GPIO Mock, Flash Mock) pada host PC. |
 
 ---

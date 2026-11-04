@@ -47,10 +47,8 @@ static void test_default_board_profile_oled(void) {
     assert(BOARD_CFG_FIFO_LOG_CAPACITY == 30U);
     assert(BOARD_CFG_BILLING_SNAPSHOT_MAX == 12U);
 
-    /* Verifikasi audio buzzer cadence */
-    assert(BOARD_CFG_BUZZER_ALARM_ON_MS == 200U);
-    assert(BOARD_CFG_BUZZER_ALARM_OFF_MS == 200U);
-    assert(BOARD_CFG_BUZZER_KEY_BEEP_MS == 50U);
+    /* Verifikasi audio buzzer ditiadakan (PB7 murni untuk LED_ALM) */
+    assert(BOARD_CFG_ENABLE_BUZZER == 0);
 
     /* Verifikasi single source of truth IDPEL & Meter ID */
     assert(strcmp(METER_CONFIG_CUSTOMER_ID, "54321678901") == 0);

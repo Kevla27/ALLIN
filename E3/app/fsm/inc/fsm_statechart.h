@@ -20,7 +20,7 @@ typedef enum {
     STATE_0_BOOT_INIT = 0,    /**< State 0: Power-On Reset (POR), Init RCC 160MHz, Clocks, GPIO */
     STATE_1_SELF_TEST,        /**< State 1: Checksum ROM/RAM, Ping ADE9078 AFE, Flash & Modem Test */
     STATE_2_NORMAL_METERING,  /**< State 2: Superstate (Sampling 1s, Load Profile 15m, DLMS Push, HMI) */
-    STATE_3_TAMPER_EVENT,     /**< State 3: Pin IRQ0 EXTI (<10ms), Manipulasi < 5s, LED & Buzzer */
+    STATE_3_TAMPER_EVENT,     /**< State 3: Pin IRQ0 EXTI (<10ms), Manipulasi < 5s, LED Kuning Alarm PB7 */
     STATE_4_LAST_GASP_MODE,   /**< State 4: PWR_GOOD Low (<1ms), Freeze Metrology, Flash Dump, Deep Sleep */
     STATE_5_ACTUATION         /**< State 5: Buka/Tutup Relai, Kunci AES-128 GCM, Pulsa Koil 50ms */
 } fsm_state_t;

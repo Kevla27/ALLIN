@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <assert.h>
 #include "rtos_tasks.h"
-#include "bsp_alarm_buzzer.h"
 
 volatile bool g_tamper_alarm_active = false;
 
@@ -65,19 +64,7 @@ int main(void) {
     assert(tamper_get_active_mask(t_ctx) & TAMPER_VECTOR_TERMINAL_OPEN);
     printf("[TEST] Verify E3 Tamper Active Mask: SUCCESS\n");
 
-    /* 6. Uji Aktuasi Buzzer & Indikator Alarm SPLN (PB7) */
-    assert(bsp_alarm_buzzer_get() == false);
-    bsp_alarm_buzzer_set(true);
-    assert(bsp_alarm_buzzer_get() == true);
-    bsp_alarm_buzzer_toggle();
-    assert(bsp_alarm_buzzer_get() == false);
-    bsp_alarm_buzzer_toggle();
-    assert(bsp_alarm_buzzer_get() == true);
-    bsp_alarm_buzzer_set(false);
-    assert(bsp_alarm_buzzer_get() == false);
-    printf("[TEST] Verify SPLN Buzzer & Alarm Indicator (PB7) Actuation: SUCCESS\n");
-
-    printf("\n>>> ALL RTOS TASKS, QUEUE, BUZZER & DLMS CONSUMER TESTS PASSED 100%%! <<<\n");
+    printf("\n>>> ALL RTOS TASKS, QUEUE & DLMS CONSUMER TESTS PASSED 100%%! <<<\n");
     printf("=========================================\n");
     return 0;
 }

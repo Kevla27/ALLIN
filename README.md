@@ -39,7 +39,7 @@ Firmware ini dirancang dengan prinsip **Clean & Modular Decoupled Architecture**
    - **Tamper Manager**: Deteksi 10 vektor sabotase (buka tutup terminal/meter, medan magnet, netral hilang/bypass, arus balik, reverse power) dengan 3 log FIFO terpisah (Tabel 18).
    - **Power Relay Manager (Breaker FSM)**: Kontrol kontaktor latching bistabil dengan proteksi tegangan rendah (<110V), tegangan lebih (>280V), arus lebih, dan rekoneksi tombol simultan (▲ + ▼).
    - **Load Profiling & Billing**: Perekaman data profile 15-menitan non-volatile (Billing Profile & Load Profile 1 & 2) dengan format A-XDR.
-   - **Board Profile Configuration (`board_profile_config.h`)**: Abstraksi fleksibilitas konfigurasi display, relai, NVRAM, dan buzzer tanpa merusak kode inti.
+   - **Board Profile Configuration (`board_profile_config.h`)**: Abstraksi fleksibilitas konfigurasi display, relai, NVRAM, dan telemetri tanpa merusak kode inti.
    - **Power Saving Ekstrem STM32U5 (`bsp_power_mode`)**: Manajemen hemat energi Stop 2 Mode (~4.5 µA) saat listrik padam, retensi penuh register & SRAM1..SRAM4, wake-up interrupt adaptif (EXTI tombol/tamper/AC fail & RTC), serta pemulihan clock cerdas (PLL 160 MHz vs MSIS 4 MHz).
 
 4. **System Bridge (`meter_system_bridge`)**

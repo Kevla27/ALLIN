@@ -1,7 +1,7 @@
 /**
  * @file test_final_system_stress.c
  * @brief Uji Ketahanan Ekstrem & Verifikasi Komprehensif Versi Final Smart Meter
- *        (Pilar E3: HMI SPLN Gambar 4, ToU, Maximum Demand, Billing 12 Bulan, Tamper & Buzzer)
+ *        (Pilar E3: HMI SPLN Gambar 4, ToU, Maximum Demand, Billing 12 Bulan, & Tamper)
  */
 
 #include <stdio.h>
@@ -15,7 +15,6 @@
 #include "tamper_manager.h"
 #include "power_relay_manager.h"
 #include "load_profile.h"
-#include "bsp_alarm_buzzer.h"
 
 #define SOAK_CYCLES 10000U
 
@@ -41,7 +40,6 @@ int main(void) {
     load_profile_init(&lp_ctx);
     billing_snapshot_init(&bill_ctx);
     max_demand_init(&md_track, 900);
-    bsp_alarm_buzzer_init();
     printf("  > Seluruh modul inti berhasil diinisialisasi [PASS]\n\n");
 
     /* 2. Uji Rendam (Soak Test) 10.000 Siklus Dinamis */
@@ -168,20 +166,6 @@ int main(void) {
         assert(frame_check.main_value[0] != '\0');
     }
     printf("  > Seluruh %d Halaman Tampilan Render Tanpa Cacat [PASS]\n\n", DISP_PAGE_COUNT);
-
-    /* 6. Uji Audio Cadence Buzzer 1.000 Siklus */
-    printf("[TAHAP 6] Pengujian Siklus Audio Cadence Buzzer (1.000 Langkah)...\n");
-    bsp_alarm_buzzer_init();
-    for (int step = 0; step < 1000; step++) {
-        bool b_on = bsp_alarm_buzzer_update_cadence(true, false, 50);
-        int phase = ((step + 1) * 50) % 400;
-        if (phase < 200) {
-            assert(b_on == true);
-        } else {
-            assert(b_on == false);
-        }
-    }
-    printf("  > Kadensi Buzzer 200 ms ON / 200 ms OFF Beroperasi Presisi Tanpa Drift! [PASS]\n\n");
 
     printf("====================================================================\n");
     printf("  HASIL: 100%% VERIFIKASI KETAHANAN EKSTREM & AUDIT FINAL LULUS!       \n");
