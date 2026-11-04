@@ -1261,3 +1261,13 @@ void e3_meter_app_notify_stop_measurement(bool is_stopped, uint32_t reason)
     /* SPLN D3.006: 2021 Tabel 5 No. 5: Stop-measurement */
     spln_log_record_event(&s_tamper_ctx, SPLN_LOG_EVENT_STOP_MEASUREMENT, is_stopped, s_now_epoch_sec, reason);
 }
+
+bool e3_meter_app_remote_disconnect(void)
+{
+    return cli_relay_disconnect(RELAY_REASON_REMOTE_DISCONNECT);
+}
+
+bool e3_meter_app_remote_reconnect(void)
+{
+    return cli_relay_request_reconnect();
+}

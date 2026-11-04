@@ -66,65 +66,75 @@ int ami_ade9000_write_reg(AmiAde9000Context *ctx, uint16_t reg_addr, uint32_t va
 int ami_ade9000_acquire_all(AmiAde9000Context *ctx)
 {
     if (ctx == NULL || !ctx->is_initialized) {
-        return -1;
+        return AMI_ADE9000_ERR_NOT_INIT;
     }
 
+    int err = 0;
+
     /* Voltages RMS */
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_AVRMS, &ctx->raw.vrms_raw[0]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_BVRMS, &ctx->raw.vrms_raw[1]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_CVRMS, &ctx->raw.vrms_raw[2]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_AVRMS, &ctx->raw.vrms_raw[0]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_BVRMS, &ctx->raw.vrms_raw[1]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_CVRMS, &ctx->raw.vrms_raw[2]);
 
     /* Currents RMS */
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_AIRMS, &ctx->raw.irms_raw[0]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_BIRMS, &ctx->raw.irms_raw[1]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_CIRMS, &ctx->raw.irms_raw[2]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_NIRMS, &ctx->raw.irms_neutral_raw);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_AIRMS, &ctx->raw.irms_raw[0]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_BIRMS, &ctx->raw.irms_raw[1]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_CIRMS, &ctx->raw.irms_raw[2]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_NIRMS, &ctx->raw.irms_neutral_raw);
 
     /* Active Power */
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_AWATT, (uint32_t *)&ctx->raw.watt_raw[0]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_BWATT, (uint32_t *)&ctx->raw.watt_raw[1]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_CWATT, (uint32_t *)&ctx->raw.watt_raw[2]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_AWATT, (uint32_t *)&ctx->raw.watt_raw[0]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_BWATT, (uint32_t *)&ctx->raw.watt_raw[1]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_CWATT, (uint32_t *)&ctx->raw.watt_raw[2]);
 
     /* Reactive Power */
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_AVAR, (uint32_t *)&ctx->raw.var_raw[0]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_BVAR, (uint32_t *)&ctx->raw.var_raw[1]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_CVAR, (uint32_t *)&ctx->raw.var_raw[2]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_AVAR, (uint32_t *)&ctx->raw.var_raw[0]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_BVAR, (uint32_t *)&ctx->raw.var_raw[1]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_CVAR, (uint32_t *)&ctx->raw.var_raw[2]);
 
     /* Apparent Power */
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_AVA, (uint32_t *)&ctx->raw.va_raw[0]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_BVA, (uint32_t *)&ctx->raw.va_raw[1]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_CVA, (uint32_t *)&ctx->raw.va_raw[2]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_AVA, (uint32_t *)&ctx->raw.va_raw[0]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_BVA, (uint32_t *)&ctx->raw.va_raw[1]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_CVA, (uint32_t *)&ctx->raw.va_raw[2]);
 
     /* Power Factor */
     uint32_t tmp = 0;
-    if (ami_ade9000_read_reg(ctx, ADE9000_REG_APF, &tmp) == 0) ctx->raw.pf_raw[0] = (int16_t)tmp;
-    if (ami_ade9000_read_reg(ctx, ADE9000_REG_BPF, &tmp) == 0) ctx->raw.pf_raw[1] = (int16_t)tmp;
-    if (ami_ade9000_read_reg(ctx, ADE9000_REG_CPF, &tmp) == 0) ctx->raw.pf_raw[2] = (int16_t)tmp;
+    if (ami_ade9000_read_reg(ctx, ADE9000_REG_APF, &tmp) == 0) ctx->raw.pf_raw[0] = (int16_t)tmp; else err |= -1;
+    if (ami_ade9000_read_reg(ctx, ADE9000_REG_BPF, &tmp) == 0) ctx->raw.pf_raw[1] = (int16_t)tmp; else err |= -1;
+    if (ami_ade9000_read_reg(ctx, ADE9000_REG_CPF, &tmp) == 0) ctx->raw.pf_raw[2] = (int16_t)tmp; else err |= -1;
 
     /* Period / Frequency */
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_APERIOD, &ctx->raw.period_raw[0]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_BPERIOD, &ctx->raw.period_raw[1]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_CPERIOD, &ctx->raw.period_raw[2]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_APERIOD, &ctx->raw.period_raw[0]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_BPERIOD, &ctx->raw.period_raw[1]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_CPERIOD, &ctx->raw.period_raw[2]);
 
     /* Energy Accumulators */
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_AWATTHR_HI, &ctx->raw.watthr_hi_raw[0]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_BWATTHR_HI, &ctx->raw.watthr_hi_raw[1]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_CWATTHR_HI, &ctx->raw.watthr_hi_raw[2]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_AWATTHR_HI, &ctx->raw.watthr_hi_raw[0]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_BWATTHR_HI, &ctx->raw.watthr_hi_raw[1]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_CWATTHR_HI, &ctx->raw.watthr_hi_raw[2]);
 
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_AFVARHR_HI, &ctx->raw.fvarhr_hi_raw[0]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_BFVARHR_HI, &ctx->raw.fvarhr_hi_raw[1]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_CFVARHR_HI, &ctx->raw.fvarhr_hi_raw[2]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_AFVARHR_HI, &ctx->raw.fvarhr_hi_raw[0]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_BFVARHR_HI, &ctx->raw.fvarhr_hi_raw[1]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_CFVARHR_HI, &ctx->raw.fvarhr_hi_raw[2]);
 
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_AVAHR_HI, &ctx->raw.vahr_hi_raw[0]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_BVAHR_HI, &ctx->raw.vahr_hi_raw[1]);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_CVAHR_HI, &ctx->raw.vahr_hi_raw[2]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_AVAHR_HI, &ctx->raw.vahr_hi_raw[0]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_BVAHR_HI, &ctx->raw.vahr_hi_raw[1]);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_CVAHR_HI, &ctx->raw.vahr_hi_raw[2]);
 
     /* Status & Events */
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_STATUS0, &ctx->raw.status0);
-    (void)ami_ade9000_read_reg(ctx, ADE9000_REG_STATUS1, &ctx->raw.status1);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_STATUS0, &ctx->raw.status0);
+    err |= ami_ade9000_read_reg(ctx, ADE9000_REG_STATUS1, &ctx->raw.status1);
 
+    if (err != 0) {
+        ctx->scaled.is_valid = 0u;
+        ctx->scaled.last_error_code = AMI_ADE9000_ERR_SPI;
+        return AMI_ADE9000_ERR_SPI;
+    }
+
+    ctx->scaled.is_valid = 1u;
+    ctx->scaled.last_error_code = AMI_ADE9000_OK;
     ami_ade9000_process_scaling(ctx);
-    return 0;
+    return AMI_ADE9000_OK;
 }
 
 void ami_ade9000_process_scaling(AmiAde9000Context *ctx)
@@ -210,7 +220,13 @@ int ami_ade9000_feed_cosem_snapshot(const AmiAde9000Context *ctx,
                                    AmiCosemRegisterSnapshot *snapshot)
 {
     if (ctx == NULL || snapshot == NULL) {
-        return -1;
+        return AMI_ADE9000_ERR_PARAM;
+    }
+    if (!ctx->is_initialized) {
+        return AMI_ADE9000_ERR_NOT_INIT;
+    }
+    if (!ctx->scaled.is_valid) {
+        return AMI_ADE9000_ERR_INVALID_DATA;
     }
 
     /* Populate phase voltages and currents */
@@ -237,25 +253,28 @@ int ami_ade9000_feed_cosem_snapshot(const AmiAde9000Context *ctx,
                              AMI_COSEM_VALID_REACTIVE_IMPORT |
                              AMI_COSEM_VALID_REACTIVE_EXPORT);
 
-    /* Check for Tamper events to record into Event Log */
+    /* Check for Tamper events to record into Event Log (SPLN D3.006-2:2021) */
     if (ctx->scaled.reverse_power_flags != 0 && snapshot->event_log_count < AMI_COSEM_PROFILE_MAX_ENTRIES) {
-        /* Event 24: Reverse Power */
-        snapshot->event_log[snapshot->event_log_count].event_code = 24u;
+        /* Event 27: Reverse Power 3-Phase */
+        snapshot->event_log[snapshot->event_log_count].event_code = 27u;
         snapshot->event_log[snapshot->event_log_count].timestamp = snapshot->clock_date_time;
+        snapshot->event_log[snapshot->event_log_count].status = (uint32_t)ctx->raw.status0;
         snapshot->event_log_count++;
         snapshot->valid_mask |= AMI_COSEM_VALID_EVENT_LOG;
     }
     if (ctx->scaled.phase_sequence_error && snapshot->event_log_count < AMI_COSEM_PROFILE_MAX_ENTRIES) {
-        /* Event 21: Phase Sequence Mismatch */
-        snapshot->event_log[snapshot->event_log_count].event_code = 21u;
+        /* Event 22: Phase Sequence Reverse */
+        snapshot->event_log[snapshot->event_log_count].event_code = 22u;
         snapshot->event_log[snapshot->event_log_count].timestamp = snapshot->clock_date_time;
+        snapshot->event_log[snapshot->event_log_count].status = (uint32_t)ctx->raw.status0;
         snapshot->event_log_count++;
         snapshot->valid_mask |= AMI_COSEM_VALID_EVENT_LOG;
     }
     if (ctx->scaled.loss_of_phase_flags != 0 && snapshot->event_log_count < AMI_COSEM_PROFILE_MAX_ENTRIES) {
-        /* Event 23: Loss of Phase */
-        snapshot->event_log[snapshot->event_log_count].event_code = 23u;
+        /* Event 25: Loss of Phase */
+        snapshot->event_log[snapshot->event_log_count].event_code = 25u;
         snapshot->event_log[snapshot->event_log_count].timestamp = snapshot->clock_date_time;
+        snapshot->event_log[snapshot->event_log_count].status = (uint32_t)ctx->raw.status0;
         snapshot->event_log_count++;
         snapshot->valid_mask |= AMI_COSEM_VALID_EVENT_LOG;
     }

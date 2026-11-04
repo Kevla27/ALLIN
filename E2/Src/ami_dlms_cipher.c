@@ -135,7 +135,15 @@ static int suite0_accept_rx_counter_cb(void *user, uint32_t invocation_counter)
     AmiDlmsSecuritySuite0Context *ctx = (AmiDlmsSecuritySuite0Context *)user;
     if (ctx == NULL) return 0;
 
-    /* Anti-replay: counter must be strictly monotonically increasing */
+    if (ctx->nvm_counter != NULL) {
+        int accepted = ami_nvm_counter_accept_rx(ctx->nvm_counter, invocation_counter);
+        if (accepted) {
+            ctx->last_rx_counter = ctx->nvm_counter->last_rx_counter;
+        }
+        return accepted;
+    }
+
+    /* Fallback RAM-only check if NVM is not bound */
     if (invocation_counter <= ctx->last_rx_counter) {
         return 0; /* Replay detected -> Reject! */
     }
@@ -149,6 +157,15 @@ static int suite0_next_tx_counter_cb(void *user, uint32_t *invocation_counter)
     AmiDlmsSecuritySuite0Context *ctx = (AmiDlmsSecuritySuite0Context *)user;
     if (ctx == NULL || invocation_counter == NULL) return 0;
 
+    if (ctx->nvm_counter != NULL) {
+        int ok = ami_nvm_counter_next_tx(ctx->nvm_counter, invocation_counter);
+        if (ok) {
+            ctx->current_tx_counter = *invocation_counter;
+        }
+        return ok;
+    }
+
+    /* Fallback RAM-only increment if NVM is not bound */
     ctx->current_tx_counter++;
     *invocation_counter = ctx->current_tx_counter;
     return 1;
@@ -159,28 +176,80 @@ static AmiSecStatus suite0_transfer_keys_cb(void *user,
                                            size_t key_count)
 {
     AmiDlmsSecuritySuite0Context *ctx = (AmiDlmsSecuritySuite0Context *)user;
-    if (ctx == NULL || keys == NULL || key_count == 0 || key_count > 2) {
+    if (ctx == NULL || keys == NULL || key_count == 0 || key_count > 4) {
         return AMI_SEC_INVALID_ARGUMENT;
     }
+
+#if defined(STM32U585xx) && defined(USE_HAL_DRIVER) && defined(SECURE_HARDWARE_SAES_ENABLED)
+    SECURE_WrappedKeyParamTypeDef sec_keys[4];
+    for (size_t i = 0; i < key_count; i++) {
+        if (keys[i].wrapped_key == NULL || keys[i].wrapped_key_length != 24u) {
+            return AMI_SEC_INVALID_ARGUMENT;
+        }
+        sec_keys[i].key_type = keys[i].key_type;
+        sec_keys[i].wrapped_key = keys[i].wrapped_key;
+        sec_keys[i].wrapped_key_len = (uint32_t)keys[i].wrapped_key_length;
+    }
+    int res = SECURE_DLMS_TransferKeys_Atomic(sec_keys, (uint32_t)key_count);
+    if (res != 0) {
+        return (res == -3) ? AMI_SEC_AUTHENTICATION_FAILURE : AMI_SEC_INVALID_ARGUMENT;
+    }
+    return AMI_SEC_OK;
+#else
+    /* Staging buffers for all-or-nothing atomicity */
+    uint8_t staged_enc[AMI_DLMS_KEY_LENGTH];
+    uint8_t staged_auth[AMI_DLMS_KEY_LENGTH];
+    int update_enc = 0;
+    int update_auth = 0;
 
     for (size_t i = 0; i < key_count; i++) {
         if (keys[i].wrapped_key == NULL || keys[i].wrapped_key_length != 24u) {
             return AMI_SEC_INVALID_ARGUMENT;
         }
-        /* In production, 24-byte AES-wrapped key is unwrapped using KEK.
-         * For unwrap payload update: */
+
+        uint8_t plain_key[AMI_DLMS_KEY_LENGTH];
+        size_t plain_len = 0;
+        AmiSecStatus unwrap_status = ami_sec_rfc3394_unwrap(
+            ctx->master_kek, keys[i].wrapped_key, keys[i].wrapped_key_length,
+            plain_key, sizeof(plain_key), &plain_len);
+
+        if (unwrap_status != AMI_SEC_OK || plain_len != AMI_DLMS_KEY_LENGTH) {
+            /* Integrity check failed! Rollback and zeroize staging buffers */
+            memset(plain_key, 0, sizeof(plain_key));
+            memset(staged_enc, 0, sizeof(staged_enc));
+            memset(staged_auth, 0, sizeof(staged_auth));
+            return AMI_SEC_AUTHENTICATION_FAILURE;
+        }
+
         if (keys[i].key_type == 0u) {
             /* Global Unicast Encryption Key (GUEK) */
-            memcpy(ctx->encryption_key, keys[i].wrapped_key, AMI_DLMS_KEY_LENGTH);
+            memcpy(staged_enc, plain_key, AMI_DLMS_KEY_LENGTH);
+            update_enc = 1;
         } else if (keys[i].key_type == 2u) {
             /* Authentication Key (AK) */
-            memcpy(ctx->authentication_key, keys[i].wrapped_key, AMI_DLMS_KEY_LENGTH);
+            memcpy(staged_auth, plain_key, AMI_DLMS_KEY_LENGTH);
+            update_auth = 1;
         } else {
+            memset(plain_key, 0, sizeof(plain_key));
+            memset(staged_enc, 0, sizeof(staged_enc));
+            memset(staged_auth, 0, sizeof(staged_auth));
             return AMI_SEC_INVALID_ARGUMENT;
         }
+        memset(plain_key, 0, sizeof(plain_key));
     }
 
+    /* Atomic commit: ALL keys unwrapped and authenticated */
+    if (update_enc) {
+        memcpy(ctx->encryption_key, staged_enc, AMI_DLMS_KEY_LENGTH);
+    }
+    if (update_auth) {
+        memcpy(ctx->authentication_key, staged_auth, AMI_DLMS_KEY_LENGTH);
+    }
+
+    memset(staged_enc, 0, sizeof(staged_enc));
+    memset(staged_auth, 0, sizeof(staged_auth));
     return AMI_SEC_OK;
+#endif
 }
 
 int ami_dlms_cipher_suite0_init(AmiDlmsSecuritySuite0Context *ctx,
@@ -301,4 +370,47 @@ int ami_dlms_cipher_suite0_build_glo_request(
 
     *out_len = total_wire_len;
     return 0;
+}
+
+int ami_dlms_cipher_suite0_bind_nvm(AmiDlmsSecuritySuite0Context *ctx,
+                                    AmiNvmCounterContext *nvm)
+{
+    if (ctx == NULL || nvm == NULL || !nvm->is_initialized) {
+        return -1;
+    }
+    ctx->nvm_counter = nvm;
+    ctx->current_tx_counter = nvm->current_tx_counter;
+    ctx->last_rx_counter = nvm->last_rx_counter;
+    return 0;
+}
+
+int ami_dlms_cipher_suite0_set_kek(AmiDlmsSecuritySuite0Context *ctx,
+                                   const uint8_t kek[AMI_DLMS_KEY_LENGTH])
+{
+    if (ctx == NULL || kek == NULL) {
+        return -1;
+    }
+    memcpy(ctx->master_kek, kek, AMI_DLMS_KEY_LENGTH);
+    return 0;
+}
+
+int ami_dlms_cipher_suite0_wrap_key(const AmiDlmsSecuritySuite0Context *ctx,
+                                    const uint8_t *plain_key,
+                                    size_t plain_len,
+                                    uint8_t *out_wrapped,
+                                    size_t out_capacity,
+                                    size_t *out_len)
+{
+#if !defined(STM32U585xx) && !defined(USE_HAL_DRIVER)
+    if (ctx == NULL || plain_key == NULL || out_wrapped == NULL || out_len == NULL) {
+        return -1;
+    }
+    AmiSecStatus status = ami_sec_rfc3394_wrap(
+        ctx->master_kek, plain_key, plain_len, out_wrapped, out_capacity, out_len);
+    return (status == AMI_SEC_OK) ? 0 : -2;
+#else
+    (void)ctx; (void)plain_key; (void)plain_len;
+    (void)out_wrapped; (void)out_capacity; (void)out_len;
+    return -1; /* Meter NonSecure world never wraps keys; keys are wrapped by HES */
+#endif
 }

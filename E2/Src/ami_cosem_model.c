@@ -6,10 +6,16 @@ _Static_assert(sizeof(AmiCosemDateTime) == 12u,
                "COSEM Clock date-time representation must be 12 bytes");
 
 enum {
+    COSEM_UNIT_WATT = 27,
+    COSEM_UNIT_VOLT_AMPERE = 28,
+    COSEM_UNIT_VAR = 29,
     COSEM_UNIT_ACTIVE_ENERGY_WH = 30,
+    COSEM_UNIT_VOLT_AMPERE_HOUR = 31,
     COSEM_UNIT_REACTIVE_ENERGY_VARH = 32,
     COSEM_UNIT_CURRENT_AMPERE = 33,
-    COSEM_UNIT_VOLT = 35
+    COSEM_UNIT_VOLT = 35,
+    COSEM_UNIT_HERTZ = 44,
+    COSEM_UNIT_DIMENSIONLESS = 255
 };
 
 typedef enum {
@@ -18,7 +24,16 @@ typedef enum {
     VALUE_ACTIVE_IMPORT,
     VALUE_ACTIVE_EXPORT,
     VALUE_REACTIVE_IMPORT,
-    VALUE_REACTIVE_EXPORT
+    VALUE_REACTIVE_EXPORT,
+    VALUE_ACTIVE_IMPORT_TARIFF,
+    VALUE_ACTIVE_EXPORT_TARIFF,
+    VALUE_REACTIVE_IMPORT_TARIFF,
+    VALUE_FREQUENCY,
+    VALUE_POWER_FACTOR,
+    VALUE_THD_VOLTAGE,
+    VALUE_THD_CURRENT,
+    VALUE_ACTIVE_POWER_TOTAL,
+    VALUE_REACTIVE_POWER_TOTAL
 } ValueSource;
 
 typedef struct {
@@ -41,26 +56,64 @@ typedef struct {
 #define OBIS(a, b, c, d, e, f) {a, b, c, d, e, f}
 
 static const RegisterDefinition registers[] = {
+    /* Instantaneous Voltage (L1, L2, L3) */
     {OBIS(1, 0, 32, 7, 0, 255), VALUE_VOLTAGE, 0, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -3, COSEM_UNIT_VOLT, AMI_COSEM_VALID_VOLTAGE_A},
     {OBIS(1, 0, 52, 7, 0, 255), VALUE_VOLTAGE, 1, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -3, COSEM_UNIT_VOLT, AMI_COSEM_VALID_VOLTAGE_B},
     {OBIS(1, 0, 72, 7, 0, 255), VALUE_VOLTAGE, 2, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -3, COSEM_UNIT_VOLT, AMI_COSEM_VALID_VOLTAGE_C},
+
+    /* Instantaneous Current (L1, L2, L3) */
     {OBIS(1, 0, 31, 7, 0, 255), VALUE_CURRENT, 0, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -3, COSEM_UNIT_CURRENT_AMPERE, AMI_COSEM_VALID_CURRENT_A},
     {OBIS(1, 0, 51, 7, 0, 255), VALUE_CURRENT, 1, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -3, COSEM_UNIT_CURRENT_AMPERE, AMI_COSEM_VALID_CURRENT_B},
     {OBIS(1, 0, 71, 7, 0, 255), VALUE_CURRENT, 2, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -3, COSEM_UNIT_CURRENT_AMPERE, AMI_COSEM_VALID_CURRENT_C},
+
+    /* Cumulative Energy Totals (Active & Reactive) */
     {OBIS(1, 0, 1, 8, 0, 255), VALUE_ACTIVE_IMPORT, 0, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH, AMI_COSEM_VALID_ACTIVE_IMPORT},
     {OBIS(1, 0, 2, 8, 0, 255), VALUE_ACTIVE_EXPORT, 0, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH, AMI_COSEM_VALID_ACTIVE_EXPORT},
     {OBIS(1, 0, 3, 8, 0, 255), VALUE_REACTIVE_IMPORT, 0, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH, AMI_COSEM_VALID_REACTIVE_IMPORT},
-    {OBIS(1, 0, 4, 8, 0, 255), VALUE_REACTIVE_EXPORT, 0, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH, AMI_COSEM_VALID_REACTIVE_EXPORT}
+    {OBIS(1, 0, 4, 8, 0, 255), VALUE_REACTIVE_EXPORT, 0, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH, AMI_COSEM_VALID_REACTIVE_EXPORT},
+
+    /* Multi-Tarif Active Energy Import (+A Tariffs 1..4: LWBP1, WBP, LWBP2, T4) */
+    {OBIS(1, 0, 1, 8, 1, 255), VALUE_ACTIVE_IMPORT_TARIFF, 0, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+    {OBIS(1, 0, 1, 8, 2, 255), VALUE_ACTIVE_IMPORT_TARIFF, 1, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+    {OBIS(1, 0, 1, 8, 3, 255), VALUE_ACTIVE_IMPORT_TARIFF, 2, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+    {OBIS(1, 0, 1, 8, 4, 255), VALUE_ACTIVE_IMPORT_TARIFF, 3, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+
+    /* Multi-Tarif Active Energy Export (-A Tariffs 1..4) */
+    {OBIS(1, 0, 2, 8, 1, 255), VALUE_ACTIVE_EXPORT_TARIFF, 0, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+    {OBIS(1, 0, 2, 8, 2, 255), VALUE_ACTIVE_EXPORT_TARIFF, 1, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+    {OBIS(1, 0, 2, 8, 3, 255), VALUE_ACTIVE_EXPORT_TARIFF, 2, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+    {OBIS(1, 0, 2, 8, 4, 255), VALUE_ACTIVE_EXPORT_TARIFF, 3, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+
+    /* Multi-Tarif Reactive Energy Import (+R Tariffs 1..4) */
+    {OBIS(1, 0, 3, 8, 1, 255), VALUE_REACTIVE_IMPORT_TARIFF, 0, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+    {OBIS(1, 0, 3, 8, 2, 255), VALUE_REACTIVE_IMPORT_TARIFF, 1, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+    {OBIS(1, 0, 3, 8, 3, 255), VALUE_REACTIVE_IMPORT_TARIFF, 2, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+    {OBIS(1, 0, 3, 8, 4, 255), VALUE_REACTIVE_IMPORT_TARIFF, 3, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH, AMI_COSEM_VALID_TARIFF_REGISTERS},
+
+    /* Power Quality: Frequency & Power Factor */
+    {OBIS(1, 0, 14, 7, 0, 255), VALUE_FREQUENCY, 0, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -3, COSEM_UNIT_HERTZ, AMI_COSEM_VALID_POWER_QUALITY},
+    {OBIS(1, 0, 13, 7, 0, 255), VALUE_POWER_FACTOR, 0, AMI_COSEM_TYPE_DOUBLE_LONG, -3, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+    {OBIS(1, 0, 33, 7, 0, 255), VALUE_POWER_FACTOR, 1, AMI_COSEM_TYPE_DOUBLE_LONG, -3, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+    {OBIS(1, 0, 53, 7, 0, 255), VALUE_POWER_FACTOR, 2, AMI_COSEM_TYPE_DOUBLE_LONG, -3, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+    {OBIS(1, 0, 73, 7, 0, 255), VALUE_POWER_FACTOR, 3, AMI_COSEM_TYPE_DOUBLE_LONG, -3, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+
+    /* Power Quality: Voltage THD (Total, L1, L2, L3) */
+    {OBIS(1, 0, 12, 7, 124, 255), VALUE_THD_VOLTAGE, 0, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -1, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+    {OBIS(1, 0, 32, 7, 124, 255), VALUE_THD_VOLTAGE, 1, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -1, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+    {OBIS(1, 0, 52, 7, 124, 255), VALUE_THD_VOLTAGE, 2, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -1, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+    {OBIS(1, 0, 72, 7, 124, 255), VALUE_THD_VOLTAGE, 3, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -1, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+
+    /* Power Quality: Current THD (Total, L1, L2, L3) */
+    {OBIS(1, 0, 11, 7, 124, 255), VALUE_THD_CURRENT, 0, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -1, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+    {OBIS(1, 0, 31, 7, 124, 255), VALUE_THD_CURRENT, 1, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -1, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+    {OBIS(1, 0, 51, 7, 124, 255), VALUE_THD_CURRENT, 2, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -1, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+    {OBIS(1, 0, 71, 7, 124, 255), VALUE_THD_CURRENT, 3, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, -1, COSEM_UNIT_DIMENSIONLESS, AMI_COSEM_VALID_POWER_QUALITY},
+
+    /* Instantaneous Power (Total Active & Reactive Power) */
+    {OBIS(1, 0, 1, 7, 0, 255), VALUE_ACTIVE_POWER_TOTAL, 0, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, 0, COSEM_UNIT_WATT, AMI_COSEM_VALID_ACTIVE_IMPORT},
+    {OBIS(1, 0, 3, 7, 0, 255), VALUE_REACTIVE_POWER_TOTAL, 0, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED, 0, COSEM_UNIT_VAR, AMI_COSEM_VALID_REACTIVE_IMPORT}
 };
 
-enum {
-    COSEM_UNIT_WATT = 27,
-    COSEM_UNIT_VOLT_AMPERE = 28,
-    COSEM_UNIT_VAR = 29,
-    COSEM_UNIT_VOLT_AMPERE_HOUR = 31,
-    COSEM_UNIT_HERTZ = 44,
-    COSEM_UNIT_DIMENSIONLESS = 255
-};
 
 #define EXT(a, b, c, d, e, f, type, scale, unit_value) \
     {OBIS(a, b, c, d, e, f), type, scale, unit_value}
@@ -125,36 +178,77 @@ static const ExtendedRegisterDefinition extended_registers[] = {
     EXT(1,0,28,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
     EXT(1,0,48,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
     EXT(1,0,68,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
-    /* Total Reactive Energy per Quadrant Q1..Q4 (1.0.5.8.0.255 s/d 1.0.8.8.0.255) */
+
+    /* Total Reactive Energy per Quadrant Q1..Q4 */
     EXT(1,0,5,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
     EXT(1,0,6,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
     EXT(1,0,7,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
-    EXT(1,0,8,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH),
-    /* Total Active Energy per Tariff Export & Import (1.0.1.8.1..3.255 & 1.0.2.8.1..3.255) */
-    EXT(1,0,1,8,1,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH),
-    EXT(1,0,1,8,2,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH),
-    EXT(1,0,1,8,3,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH),
-    EXT(1,0,2,8,1,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH),
-    EXT(1,0,2,8,2,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH),
-    EXT(1,0,2,8,3,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_ACTIVE_ENERGY_WH)
+    EXT(1,0,8,8,0,255, AMI_COSEM_TYPE_LONG64_UNSIGNED, 0, COSEM_UNIT_REACTIVE_ENERGY_VARH)
 };
 #undef EXT
 #undef OBIS
 
 static const uint8_t clock_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
     {0, 0, 1, 0, 0, 255};
-/* Standard event-log instance. Billing profile instance is a common profile
- * choice; confirm it against the utility/product OBIS profile before release. */
+/* Standard event-log and tamper-log instances. Billing profile and Load profile. */
 static const uint8_t event_log_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
     {0, 0, 99, 98, 0, 255};
+static const uint8_t tamper_log_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {0, 0, 99, 98, 1, 255};
 static const uint8_t billing_profile_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {0, 0, 98, 1, 0, 255};
+static const uint8_t billing_profile_alt_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
     {1, 0, 98, 1, 0, 255};
+static const uint8_t load_profile_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 99, 1, 0, 255};
+
 static const uint8_t event_code_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
     {0, 0, 96, 11, 0, 255};
+static const uint8_t status_reg_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {0, 0, 96, 10, 1, 255};
 static const uint8_t active_import_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
     {1, 0, 1, 8, 0, 255};
 static const uint8_t active_export_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
     {1, 0, 2, 8, 0, 255};
+static const uint8_t reactive_import_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 3, 8, 0, 255};
+static const uint8_t reactive_export_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 4, 8, 0, 255};
+static const uint8_t reactive_q1_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 5, 8, 0, 255};
+static const uint8_t reactive_q2_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 6, 8, 0, 255};
+static const uint8_t reactive_q3_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 7, 8, 0, 255};
+static const uint8_t reactive_q4_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 8, 8, 0, 255};
+static const uint8_t voltage_a_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 32, 7, 0, 255};
+static const uint8_t voltage_b_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 52, 7, 0, 255};
+static const uint8_t voltage_c_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 72, 7, 0, 255};
+static const uint8_t current_a_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 31, 7, 0, 255};
+static const uint8_t current_b_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 51, 7, 0, 255};
+static const uint8_t current_c_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 71, 7, 0, 255};
+static const uint8_t current_neutral_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 91, 7, 0, 255};
+static const uint8_t active_power_total_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 1, 7, 0, 255};
+static const uint8_t reactive_power_total_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 3, 7, 0, 255};
+static const uint8_t power_factor_total_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 13, 7, 0, 255};
+static const uint8_t frequency_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 14, 7, 0, 255};
+static const uint8_t thd_voltage_l1_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 32, 7, 124, 255};
+static const uint8_t thd_current_l1_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
+    {1, 0, 31, 7, 124, 255};
+
 static const uint8_t security_setup_logical_name[AMI_COSEM_LOGICAL_NAME_LENGTH] =
     {0, 0, 43, 0, 0, 255};
 
@@ -167,12 +261,40 @@ typedef struct {
 
 static const CaptureObject event_capture_objects[] = {
     {AMI_COSEM_CLOCK_CLASS_ID, clock_logical_name, 2, 0},
-    {1u, event_code_logical_name, 2, 0}
+    {1u, event_code_logical_name, 2, 0},
+    {1u, status_reg_logical_name, 2, 0}
 };
 static const CaptureObject billing_capture_objects[] = {
     {AMI_COSEM_CLOCK_CLASS_ID, clock_logical_name, 2, 0},
     {AMI_COSEM_REGISTER_CLASS_ID, active_import_logical_name, 2, 0},
-    {AMI_COSEM_REGISTER_CLASS_ID, active_export_logical_name, 2, 0}
+    {AMI_COSEM_REGISTER_CLASS_ID, active_export_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, reactive_import_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, reactive_export_logical_name, 2, 0}
+};
+static const CaptureObject load_profile_capture_objects[] = {
+    {AMI_COSEM_CLOCK_CLASS_ID, clock_logical_name, 2, 0},
+    {1u, status_reg_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, active_import_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, active_export_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, reactive_import_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, reactive_export_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, reactive_q1_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, reactive_q2_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, reactive_q3_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, reactive_q4_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, voltage_a_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, voltage_b_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, voltage_c_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, current_a_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, current_b_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, current_c_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, current_neutral_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, active_power_total_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, reactive_power_total_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, power_factor_total_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, frequency_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, thd_voltage_l1_logical_name, 2, 0},
+    {AMI_COSEM_REGISTER_CLASS_ID, thd_current_l1_logical_name, 2, 0}
 };
 
 static int put_byte(AmiCosemData *out, size_t *offset, uint8_t value)
@@ -273,17 +395,33 @@ static int compare_profile_datetime(const AmiCosemDateTime *left,
     }
     return 0;
 }
+
 static AmiCosemStatus read_profile(const AmiCosemRegisterSnapshot *snapshot,
                                    const uint8_t *logical_name,
                                    uint8_t attribute_id,
                                    const AmiCosemProfileSelection *selection,
                                    AmiCosemData *out)
 {
-    const int is_event = memcmp(logical_name, event_log_logical_name,
-                                AMI_COSEM_LOGICAL_NAME_LENGTH) == 0;
-    const int is_billing = memcmp(logical_name, billing_profile_logical_name,
-                                  AMI_COSEM_LOGICAL_NAME_LENGTH) == 0;
-    if (!is_event && !is_billing) return AMI_COSEM_OBJECT_NOT_FOUND;
+    int specific_tamper_code = -1;
+    const int is_generic_event = (memcmp(logical_name, event_log_logical_name,
+                                         AMI_COSEM_LOGICAL_NAME_LENGTH) == 0) ||
+                                 (memcmp(logical_name, tamper_log_logical_name,
+                                         AMI_COSEM_LOGICAL_NAME_LENGTH) == 0);
+    const int is_specific_tamper = (logical_name[0] == 1 && logical_name[1] == 97 &&
+                                    logical_name[2] == 99 && logical_name[3] == 98 &&
+                                    logical_name[5] == 255);
+    if (is_specific_tamper) {
+        specific_tamper_code = (int)logical_name[4];
+    }
+    const int is_event = is_generic_event || is_specific_tamper;
+    const int is_billing = (memcmp(logical_name, billing_profile_logical_name,
+                                   AMI_COSEM_LOGICAL_NAME_LENGTH) == 0) ||
+                           (memcmp(logical_name, billing_profile_alt_logical_name,
+                                   AMI_COSEM_LOGICAL_NAME_LENGTH) == 0);
+    const int is_load = (memcmp(logical_name, load_profile_logical_name,
+                                AMI_COSEM_LOGICAL_NAME_LENGTH) == 0);
+
+    if (!is_event && !is_billing && !is_load) return AMI_COSEM_OBJECT_NOT_FOUND;
     if (selection != NULL &&
         selection->selector != AMI_COSEM_PROFILE_SELECTOR_ENTRY &&
         selection->selector != AMI_COSEM_PROFILE_SELECTOR_RANGE) {
@@ -294,14 +432,33 @@ static AmiCosemStatus read_profile(const AmiCosemRegisterSnapshot *snapshot,
         return AMI_COSEM_SCOPE_VIOLATED;
     }
 
-    const size_t count = is_event ? snapshot->event_log_count : snapshot->billing_history_count;
-    const uint32_t valid_bit = is_event ? AMI_COSEM_VALID_EVENT_LOG
-                                        : AMI_COSEM_VALID_BILLING_PROFILE;
+    size_t count = 0u;
+    uint32_t valid_bit = 0u;
+    const CaptureObject *captures = NULL;
+    size_t capture_count = 0u;
+    uint32_t capture_period = 0u;
+
+    if (is_load) {
+        count = snapshot->load_profile_count;
+        valid_bit = AMI_COSEM_VALID_LOAD_PROFILE;
+        captures = load_profile_capture_objects;
+        capture_count = sizeof(load_profile_capture_objects) / sizeof(load_profile_capture_objects[0]);
+        capture_period = 900u;
+    } else if (is_billing) {
+        count = snapshot->billing_history_count;
+        valid_bit = AMI_COSEM_VALID_BILLING_PROFILE;
+        captures = billing_capture_objects;
+        capture_count = sizeof(billing_capture_objects) / sizeof(billing_capture_objects[0]);
+        capture_period = 0u;
+    } else {
+        count = snapshot->event_log_count;
+        valid_bit = AMI_COSEM_VALID_EVENT_LOG;
+        captures = event_capture_objects;
+        capture_count = sizeof(event_capture_objects) / sizeof(event_capture_objects[0]);
+        capture_period = 0u;
+    }
+
     const size_t capacity = AMI_COSEM_PROFILE_MAX_ENTRIES;
-    const CaptureObject *captures = is_event ? event_capture_objects : billing_capture_objects;
-    const size_t capture_count = is_event
-        ? sizeof(event_capture_objects) / sizeof(event_capture_objects[0])
-        : sizeof(billing_capture_objects) / sizeof(billing_capture_objects[0]);
     size_t offset = 0u;
     memset(out, 0, sizeof(*out));
 
@@ -334,34 +491,93 @@ static AmiCosemStatus read_profile(const AmiCosemRegisterSnapshot *snapshot,
             return AMI_COSEM_INVALID_ARGUMENT;
         int encode_failed = 0;
         for (size_t i = 0; i < count; ++i) {
+            if (is_event && specific_tamper_code >= 0 &&
+                snapshot->event_log[i].event_code != (uint8_t)specific_tamper_code) {
+                continue;
+            }
             if (selection != NULL && selection->selector == AMI_COSEM_PROFILE_SELECTOR_ENTRY &&
                 (i < first_entry || i >= last_entry)) continue;
-            const AmiCosemDateTime *timestamp = is_event
-                ? &snapshot->event_log[i].timestamp
-                : &snapshot->billing_history[i].billing_timestamp;
+            const AmiCosemDateTime *timestamp = is_load ? &snapshot->load_profile[i].timestamp :
+                                               (is_billing ? &snapshot->billing_history[i].billing_timestamp :
+                                                             &snapshot->event_log[i].timestamp);
             if (selection != NULL && selection->selector == AMI_COSEM_PROFILE_SELECTOR_RANGE &&
                 (compare_profile_datetime(timestamp, &selection->from_date) < 0 ||
                  compare_profile_datetime(timestamp, &selection->to_date) > 0)) continue;
-            if (!put_byte(out, &offset, AMI_COSEM_TYPE_STRUCTURE) ||
-                !put_byte(out, &offset, is_event ? 2u : 3u)) {
-                encode_failed = 1;
-                break;
-            }
-            if (!put_datetime(out, &offset, timestamp)) {
-                encode_failed = 1;
-                break;
-            }
-            if (is_event) {
-                if (!put_byte(out, &offset, AMI_COSEM_TYPE_UNSIGNED) ||
-                    !put_byte(out, &offset, snapshot->event_log[i].event_code)) {
+
+            if (is_load) {
+                if (!put_byte(out, &offset, AMI_COSEM_TYPE_STRUCTURE) ||
+                    !put_byte(out, &offset, (uint8_t)AMI_COSEM_LOAD_PROFILE_CHANNELS) ||
+                    !put_datetime(out, &offset, timestamp) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].status) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->load_profile[i].active_import_wh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->load_profile[i].active_export_wh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->load_profile[i].reactive_import_varh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->load_profile[i].reactive_export_varh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->load_profile[i].reactive_q1_varh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->load_profile[i].reactive_q2_varh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->load_profile[i].reactive_q3_varh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->load_profile[i].reactive_q4_varh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].phase_voltage_mv[0]) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].phase_voltage_mv[1]) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].phase_voltage_mv[2]) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].phase_current_ma[0]) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].phase_current_ma[1]) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].phase_current_ma[2]) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].neutral_current_ma) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].active_power_watts) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].reactive_power_vars) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG) ||
+                    !put_u32(out, &offset, (uint32_t)snapshot->load_profile[i].power_factor) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].frequency_mhz) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].thd_voltage_percent_x10) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->load_profile[i].thd_current_percent_x10)) {
+                    encode_failed = 1;
+                    break;
+                }
+            } else if (is_billing) {
+                if (!put_byte(out, &offset, AMI_COSEM_TYPE_STRUCTURE) ||
+                    !put_byte(out, &offset, 5u) ||
+                    !put_datetime(out, &offset, timestamp) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->billing_history[i].active_import_wh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->billing_history[i].active_export_wh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->billing_history[i].reactive_import_varh) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
+                    !put_u64(out, &offset, snapshot->billing_history[i].reactive_export_varh)) {
                     encode_failed = 1;
                     break;
                 }
             } else {
-                if (!put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
-                    !put_u64(out, &offset, snapshot->billing_history[i].active_import_wh) ||
-                    !put_byte(out, &offset, AMI_COSEM_TYPE_LONG64_UNSIGNED) ||
-                    !put_u64(out, &offset, snapshot->billing_history[i].active_export_wh)) {
+                if (!put_byte(out, &offset, AMI_COSEM_TYPE_STRUCTURE) ||
+                    !put_byte(out, &offset, (uint8_t)AMI_COSEM_TAMPER_LOG_COLUMNS) ||
+                    !put_datetime(out, &offset, timestamp) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_UNSIGNED) ||
+                    !put_byte(out, &offset, snapshot->event_log[i].event_code) ||
+                    !put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                    !put_u32(out, &offset, snapshot->event_log[i].status)) {
                     encode_failed = 1;
                     break;
                 }
@@ -376,9 +592,9 @@ static AmiCosemStatus read_profile(const AmiCosemRegisterSnapshot *snapshot,
     case 3:
         if (!put_capture_array(out, &offset, captures, capture_count)) break;
         goto encoded;
-    case 4: /* event/billing captures are trigger-based */
+    case 4: /* capture_period: 900 for load profile, 0 for trigger-based profiles */
         if (!put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
-            !put_u32(out, &offset, 0u)) break;
+            !put_u32(out, &offset, capture_period)) break;
         goto encoded;
     case 5: /* FIFO */
         if (!put_byte(out, &offset, 22u) || !put_byte(out, &offset, 1u)) break;
@@ -388,8 +604,19 @@ static AmiCosemStatus read_profile(const AmiCosemRegisterSnapshot *snapshot,
         goto encoded;
     case 7:
         if ((snapshot->valid_mask & valid_bit) == 0u) return AMI_COSEM_VALUE_UNAVAILABLE;
-        if (!put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
-            !put_u32(out, &offset, (uint32_t)count)) break;
+        {
+            uint32_t active_entries = (uint32_t)count;
+            if (is_event && specific_tamper_code >= 0) {
+                active_entries = 0u;
+                for (size_t k = 0; k < count; ++k) {
+                    if (snapshot->event_log[k].event_code == (uint8_t)specific_tamper_code) {
+                        active_entries++;
+                    }
+                }
+            }
+            if (!put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
+                !put_u32(out, &offset, active_entries)) break;
+        }
         goto encoded;
     case 8:
         if (!put_byte(out, &offset, AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED) ||
@@ -414,7 +641,7 @@ size_t ami_cosem_register_count(void)
 
 size_t ami_cosem_object_count(void)
 {
-    return ami_cosem_register_count() + 4u;
+    return ami_cosem_register_count() + 5u;
 }
 
 static const ExtendedRegisterDefinition *find_extended_register(
@@ -506,13 +733,27 @@ static uint64_t read_source(const AmiCosemRegisterSnapshot *snapshot,
         return snapshot->reactive_import_varh;
     case VALUE_REACTIVE_EXPORT:
         return snapshot->reactive_export_varh;
+    case VALUE_ACTIVE_IMPORT_TARIFF:
+        return definition->phase < 4u ? snapshot->active_import_tariff_wh[definition->phase] : 0u;
+    case VALUE_ACTIVE_EXPORT_TARIFF:
+        return definition->phase < 4u ? snapshot->active_export_tariff_wh[definition->phase] : 0u;
+    case VALUE_REACTIVE_IMPORT_TARIFF:
+        return definition->phase < 4u ? snapshot->reactive_import_tariff_varh[definition->phase] : 0u;
+    case VALUE_FREQUENCY:
+        return snapshot->frequency_mhz;
+    case VALUE_POWER_FACTOR:
+        return definition->phase < 4u ? (uint64_t)(int64_t)snapshot->power_factor[definition->phase] : 0u;
+    case VALUE_THD_VOLTAGE:
+        return definition->phase < 4u ? snapshot->thd_voltage_percent_x10[definition->phase] : 0u;
+    case VALUE_THD_CURRENT:
+        return definition->phase < 4u ? snapshot->thd_current_percent_x10[definition->phase] : 0u;
+    case VALUE_ACTIVE_POWER_TOTAL:
+        return snapshot->active_power_watts;
+    case VALUE_REACTIVE_POWER_TOTAL:
+        return snapshot->reactive_power_vars;
     }
     return 0;
 }
-
-__attribute__((weak)) const char* meter_system_bridge_get_customer_id(void) { return "54321678901"; }
-__attribute__((weak)) const char* meter_system_bridge_get_meter_id(void) { return "MTR54321678901"; }
-__attribute__((weak)) uint32_t e3_meter_app_get_internal_alarm(void) { return 0U; }
 
 AmiCosemStatus ami_cosem_register_read_selected(
     const AmiCosemRegisterSnapshot *snapshot,
@@ -529,6 +770,8 @@ AmiCosemStatus ami_cosem_register_read_selected(
         class_id != AMI_COSEM_PROFILE_GENERIC_CLASS_ID &&
         class_id != AMI_COSEM_CLOCK_CLASS_ID &&
         class_id != AMI_COSEM_SECURITY_SETUP_CLASS_ID &&
+        class_id != AMI_COSEM_LIMITER_CLASS_ID &&
+        class_id != AMI_COSEM_DISCONNECT_CONTROL_CLASS_ID &&
         class_id != 1u /* Data */) {
         return AMI_COSEM_OBJECT_NOT_FOUND;
     }
@@ -540,6 +783,8 @@ AmiCosemStatus ami_cosem_register_read_selected(
     if (class_id == 1u) {
         static const uint8_t ldn_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 42, 0, 0, 255};
         static const uint8_t fw_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {1, 0, 0, 2, 0, 255};
+        static const uint8_t meter_id_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 1, 0, 255};
+        static const uint8_t meter_type_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 1, 1, 255};
         memset(out, 0, sizeof(*out));
         if (memcmp(logical_name, ldn_ln, sizeof(ldn_ln)) == 0) {
             if (attribute_id == 1u) {
@@ -574,8 +819,6 @@ AmiCosemStatus ami_cosem_register_read_selected(
             }
             return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
         }
-
-        static const uint8_t meter_id_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 1, 0, 255};
         if (memcmp(logical_name, meter_id_ln, sizeof(meter_id_ln)) == 0) {
             if (attribute_id == 1u) {
                 out->type = AMI_COSEM_TYPE_OCTET_STRING;
@@ -584,36 +827,16 @@ AmiCosemStatus ami_cosem_register_read_selected(
                 return AMI_COSEM_OK;
             }
             if (attribute_id == 2u) {
-                const char *m_id = meter_system_bridge_get_meter_id();
-                if (m_id == NULL || m_id[0] == '\0') m_id = "MTR54321678901";
+                const char *id_str = (snapshot->meter_id[0] != '\0') ? snapshot->meter_id : "PLN1234567890";
+                size_t id_len = strlen(id_str);
+                if (id_len > sizeof(out->value.octets)) id_len = sizeof(out->value.octets);
                 out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
-                out->length = (uint8_t)strlen(m_id);
-                memcpy(out->value.octets, m_id, out->length);
+                out->length = id_len;
+                memcpy(out->value.octets, id_str, id_len);
                 return AMI_COSEM_OK;
             }
             return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
         }
-
-        static const uint8_t idpel_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 1, 2, 255};
-        if (memcmp(logical_name, idpel_ln, sizeof(idpel_ln)) == 0) {
-            if (attribute_id == 1u) {
-                out->type = AMI_COSEM_TYPE_OCTET_STRING;
-                out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
-                memcpy(out->value.logical_name, idpel_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
-                return AMI_COSEM_OK;
-            }
-            if (attribute_id == 2u) {
-                const char *c_id = meter_system_bridge_get_customer_id();
-                if (c_id == NULL || c_id[0] == '\0') c_id = "54321678901";
-                out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
-                out->length = (uint8_t)strlen(c_id);
-                memcpy(out->value.octets, c_id, out->length);
-                return AMI_COSEM_OK;
-            }
-            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
-        }
-
-        static const uint8_t meter_type_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 1, 1, 255};
         if (memcmp(logical_name, meter_type_ln, sizeof(meter_type_ln)) == 0) {
             if (attribute_id == 1u) {
                 out->type = AMI_COSEM_TYPE_OCTET_STRING;
@@ -622,68 +845,114 @@ AmiCosemStatus ami_cosem_register_read_selected(
                 return AMI_COSEM_OK;
             }
             if (attribute_id == 2u) {
-                static const char m_type[] = "ALLIN-3P-4W";
+                const char *type_str = (snapshot->meter_type[0] != '\0') ? snapshot->meter_type : "3-PHASE-AMI-POSTPAID";
+                size_t type_len = strlen(type_str);
+                if (type_len > sizeof(out->value.octets)) type_len = sizeof(out->value.octets);
                 out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
-                out->length = sizeof(m_type) - 1u;
-                memcpy(out->value.octets, m_type, out->length);
-                return AMI_COSEM_OK;
-            }
-            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
-        }
-
-        static const uint8_t hw_ver_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 96, 0, 255};
-        if (memcmp(logical_name, hw_ver_ln, sizeof(hw_ver_ln)) == 0) {
-            if (attribute_id == 1u) {
-                out->type = AMI_COSEM_TYPE_OCTET_STRING;
-                out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
-                memcpy(out->value.logical_name, hw_ver_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
-                return AMI_COSEM_OK;
-            }
-            if (attribute_id == 2u) {
-                static const char hw_ver[] = "HW-STM32U585-REV1";
-                out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
-                out->length = sizeof(hw_ver) - 1u;
-                memcpy(out->value.octets, hw_ver, out->length);
-                return AMI_COSEM_OK;
-            }
-            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
-        }
-
-        static const uint8_t unit_pln_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 1, 3, 255};
-        if (memcmp(logical_name, unit_pln_ln, sizeof(unit_pln_ln)) == 0) {
-            if (attribute_id == 1u) {
-                out->type = AMI_COSEM_TYPE_OCTET_STRING;
-                out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
-                memcpy(out->value.logical_name, unit_pln_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
-                return AMI_COSEM_OK;
-            }
-            if (attribute_id == 2u) {
-                static const char pln_unit[] = "PLN UID";
-                out->type = AMI_COSEM_TYPE_VISIBLE_STRING;
-                out->length = sizeof(pln_unit) - 1u;
-                memcpy(out->value.octets, pln_unit, out->length);
-                return AMI_COSEM_OK;
-            }
-            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
-        }
-
-        static const uint8_t status_reg_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 10, 4, 255};
-        if (memcmp(logical_name, status_reg_ln, sizeof(status_reg_ln)) == 0) {
-            if (attribute_id == 1u) {
-                out->type = AMI_COSEM_TYPE_OCTET_STRING;
-                out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
-                memcpy(out->value.logical_name, status_reg_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
-                return AMI_COSEM_OK;
-            }
-            if (attribute_id == 2u) {
-                out->type = AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED;
-                out->length = sizeof(uint32_t);
-                out->value.double_long_unsigned = e3_meter_app_get_internal_alarm();
+                out->length = type_len;
+                memcpy(out->value.octets, type_str, type_len);
                 return AMI_COSEM_OK;
             }
             return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
         }
         return AMI_COSEM_OBJECT_NOT_FOUND;
+    }
+
+    if (class_id == AMI_COSEM_LIMITER_CLASS_ID) {
+        static const uint8_t limiter_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 17, 0, 3, 255};
+        if (memcmp(logical_name, limiter_ln, AMI_COSEM_LOGICAL_NAME_LENGTH) != 0) {
+            return AMI_COSEM_OBJECT_NOT_FOUND;
+        }
+        memset(out, 0, sizeof(*out));
+        switch (attribute_id) {
+        case 1:
+            out->type = AMI_COSEM_TYPE_OCTET_STRING;
+            out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
+            memcpy(out->value.logical_name, limiter_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
+            return AMI_COSEM_OK;
+        case 2: {
+            /* Monitored Value: Structure (class_id=3, LN=1.0.1.7.0.255 Active Power, attr=2) */
+            static const uint8_t monitored_val[] = {
+                0x02, 0x03,                         /* Structure, 3 elements */
+                0x12, 0x00, 0x03,                   /* LongUnsigned: class 3 */
+                0x09, 0x06, 1, 0, 1, 7, 0, 255,     /* OctetString 6B: 1.0.1.7.0.255 */
+                0x0F, 0x02                          /* Integer: attribute 2 (value) */
+            };
+            out->type = AMI_COSEM_TYPE_ENCODED;
+            out->length = sizeof(monitored_val);
+            memcpy(out->value.encoded, monitored_val, sizeof(monitored_val));
+            return AMI_COSEM_OK;
+        }
+        case 3:
+            out->type = AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED;
+            out->length = sizeof(uint32_t);
+            out->value.double_long_unsigned = snapshot->limiter_threshold_normal_watts;
+            return AMI_COSEM_OK;
+        case 4:
+            out->type = AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED;
+            out->length = sizeof(uint32_t);
+            out->value.double_long_unsigned = snapshot->limiter_threshold_active_watts;
+            return AMI_COSEM_OK;
+        case 5:
+            out->type = AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED;
+            out->length = sizeof(uint32_t);
+            out->value.double_long_unsigned = snapshot->limiter_min_over_threshold_duration_sec;
+            return AMI_COSEM_OK;
+        case 6:
+            out->type = AMI_COSEM_TYPE_DOUBLE_LONG_UNSIGNED;
+            out->length = sizeof(uint32_t);
+            out->value.double_long_unsigned = snapshot->limiter_min_under_threshold_duration_sec;
+            return AMI_COSEM_OK;
+        case 7: {
+            /* Actions: Structure of two script actions (Emergency Script, Normal Script) */
+            static const uint8_t actions_data[] = {
+                0x02, 0x02,                         /* Structure, 2 elements */
+                0x02, 0x02, 0x09, 0x06, 0, 0, 10, 0, 105, 255, 0x12, 0x00, 0x01, /* Action 1: Script Table 0.0.10.0.105.255, ID 1 */
+                0x02, 0x02, 0x09, 0x06, 0, 0, 10, 0, 105, 255, 0x12, 0x00, 0x02  /* Action 2: Script Table 0.0.10.0.105.255, ID 2 */
+            };
+            out->type = AMI_COSEM_TYPE_ENCODED;
+            out->length = sizeof(actions_data);
+            memcpy(out->value.encoded, actions_data, sizeof(actions_data));
+            return AMI_COSEM_OK;
+        }
+        default:
+            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
+        }
+    }
+
+    if (class_id == AMI_COSEM_DISCONNECT_CONTROL_CLASS_ID) {
+        static const uint8_t disconnect_ln[AMI_COSEM_LOGICAL_NAME_LENGTH] = {0, 0, 96, 3, 10, 255};
+        if (memcmp(logical_name, disconnect_ln, AMI_COSEM_LOGICAL_NAME_LENGTH) != 0) {
+            return AMI_COSEM_OBJECT_NOT_FOUND;
+        }
+        memset(out, 0, sizeof(*out));
+        switch (attribute_id) {
+        case 1:
+            out->type = AMI_COSEM_TYPE_OCTET_STRING;
+            out->length = AMI_COSEM_LOGICAL_NAME_LENGTH;
+            memcpy(out->value.logical_name, disconnect_ln, AMI_COSEM_LOGICAL_NAME_LENGTH);
+            return AMI_COSEM_OK;
+        case 2:
+            /* output_state: boolean */
+            out->type = AMI_COSEM_TYPE_UNSIGNED;
+            out->length = 1u;
+            out->value.unsigned_integer = snapshot->disconnect_output_state ? 1u : 0u;
+            return AMI_COSEM_OK;
+        case 3:
+            /* control_state: enum (0 = disconnected, 1 = connected, 2 = ready_for_reconnection) */
+            out->type = AMI_COSEM_TYPE_ENUM;
+            out->length = 1u;
+            out->value.unsigned_integer = snapshot->disconnect_control_state;
+            return AMI_COSEM_OK;
+        case 4:
+            /* control_mode: unsigned integer */
+            out->type = AMI_COSEM_TYPE_UNSIGNED;
+            out->length = 1u;
+            out->value.unsigned_integer = snapshot->disconnect_control_mode;
+            return AMI_COSEM_OK;
+        default:
+            return AMI_COSEM_ATTRIBUTE_NOT_FOUND;
+        }
     }
 
     if (class_id == AMI_COSEM_PROFILE_GENERIC_CLASS_ID) {

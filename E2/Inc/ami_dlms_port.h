@@ -7,6 +7,9 @@
 #include "ami_dlms_apdu.h"
 #include "ami_dlms_association.h"
 #include "ami_dlms_hdlc.h"
+#include "ami_anti_bruteforce.h"
+#include "ami_dlms_block_transfer.h"
+#include "ami_disconnect_control.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,6 +48,11 @@ typedef struct {
     AmiDlmsPortTxFunc tx_func;
     AmiDlmsPortSnapshotFunc snapshot_provider;
     void *user_data;
+    AmiAntiBruteforceContext *anti_bruteforce;
+    AmiDisconnectControlContext *disconnect_control;
+    uint32_t current_time_sec;
+    AmiBlockTransferContext block_transfer;
+    size_t block_transfer_threshold;
     uint8_t tx_buffer[AMI_HDLC_MAX_FRAME_BYTES];
 } AmiDlmsPortContext;
 
@@ -55,6 +63,33 @@ void ami_dlms_port_init(AmiDlmsPortContext *ctx,
                         AmiDlmsPortTxFunc tx_func,
                         AmiDlmsPortSnapshotFunc snapshot_provider,
                         void *user_data);
+
+/**
+ * @brief Configure Block Transfer chunk size and activation threshold.
+ * @param ctx Port context
+ * @param block_size Max chunk size per datablock (e.g. 128 bytes)
+ * @param threshold Size above which GET-Response transitions to Datablock (0 to disable)
+ */
+void ami_dlms_port_configure_block_transfer(AmiDlmsPortContext *ctx,
+                                            size_t block_size,
+                                            size_t threshold);
+
+/**
+ * @brief Configure Anti-Brute-Force protection manager for the port.
+ */
+void ami_dlms_port_set_anti_bruteforce(AmiDlmsPortContext *ctx,
+                                      AmiAntiBruteforceContext *abf);
+
+/**
+ * @brief Configure Disconnect Control (Breaker) manager for the port.
+ */
+void ami_dlms_port_set_disconnect_control(AmiDlmsPortContext *ctx,
+                                          AmiDisconnectControlContext *dc);
+
+/**
+ * @brief Set current virtual/real timestamp (seconds) for timer calculations.
+ */
+void ami_dlms_port_set_time(AmiDlmsPortContext *ctx, uint32_t time_sec);
 
 /**
  * @brief Configure cipher backend for handling encrypted APDUs (glo-get, glo-set, glo-action).

@@ -82,6 +82,11 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/../E2/Src/ami_dlms_cipher.c
     ${CMAKE_SOURCE_DIR}/../E2/Src/ami_dlms_port.c
     ${CMAKE_SOURCE_DIR}/../E2/Src/ami_ade9000.c
+    ${CMAKE_SOURCE_DIR}/../E2/Src/ami_anti_bruteforce.c
+    ${CMAKE_SOURCE_DIR}/../E2/Src/ami_bsp_uart.c
+    ${CMAKE_SOURCE_DIR}/../E2/Src/ami_disconnect_control.c
+    ${CMAKE_SOURCE_DIR}/../E2/Src/ami_dlms_block_transfer.c
+    ${CMAKE_SOURCE_DIR}/../E2/Src/ami_nvm_counter.c
     ${CMAKE_SOURCE_DIR}/../E3/app/display/src/display.c
     ${CMAKE_SOURCE_DIR}/../E3/app/tamper/src/tamper_manager.c
     ${CMAKE_SOURCE_DIR}/../E3/app/fsm/src/power_relay_manager.c

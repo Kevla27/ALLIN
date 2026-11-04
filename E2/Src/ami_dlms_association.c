@@ -11,6 +11,10 @@
 
 static const uint8_t logical_name_context_oid[] =
     {0x60u, 0x85u, 0x74u, 0x05u, 0x08u, 0x01u, 0x01u};
+#if defined(STM32U585xx) || defined(USE_HAL_DRIVER)
+static const uint8_t hls5_gmac_mechanism_oid[] =
+    {0x60u, 0x85u, 0x74u, 0x05u, 0x08u, 0x02u, 0x05u};
+#endif
 static const uint8_t lls_mechanism_oid[] =
     {0x60u, 0x85u, 0x74u, 0x05u, 0x08u, 0x02u, 0x01u};
 
@@ -273,6 +277,18 @@ static int oid_equal(const uint8_t *a, size_t a_len, const uint8_t *b, size_t b_
     return a != NULL && b != NULL && a_len == b_len && memcmp(a, b, a_len) == 0;
 }
 
+static int hls_profile_supported(const uint8_t *oid, size_t oid_length)
+{
+#if defined(STM32U585xx) || defined(USE_HAL_DRIVER)
+    return oid_equal(oid, oid_length, hls5_gmac_mechanism_oid,
+                     sizeof(hls5_gmac_mechanism_oid));
+#else
+    (void)oid;
+    (void)oid_length;
+    return 1;
+#endif
+}
+
 static int constant_time_equal(const uint8_t *a, const uint8_t *b, size_t length)
 {
     uint8_t diff = 0u;
@@ -329,7 +345,8 @@ AmiDlmsAssociationStatus ami_dlms_process_aarq_with_security(
     } else if (parsed_ok && parsed.dedicated_key_present) {
         /* DLMS CTT T_APPL_OPEN_9: dedicated key when ciphering is not used must be rejected */
         accepted = 0;
-    } else if (parsed_ok && parsed.mechanism_oid == NULL && security->allow_no_auth != 0u) {
+    }
+    else if (parsed_ok && parsed.mechanism_oid == NULL && security->allow_no_auth != 0u) {
         accepted = 1;
     } else if (parsed_ok && oid_equal(parsed.mechanism_oid, parsed.mechanism_oid_length,
                                       lls_mechanism_oid, sizeof(lls_mechanism_oid)) &&
@@ -337,9 +354,15 @@ AmiDlmsAssociationStatus ami_dlms_process_aarq_with_security(
         mechanism = AMI_DLMS_AUTH_LLS;
         accepted = security->verify_lls(security->user, parsed.auth_value,
                                         parsed.auth_value_length) == 1;
-    } else if (parsed_ok && security->hls_mechanism_oid != NULL &&
+    }
+    else if (parsed_ok && security->hls_mechanism_oid != NULL &&
                security->hls_mechanism_oid_length > 0u &&
                security->hls_mechanism_oid_length <= AMI_DLMS_OID_MAX &&
+               hls_profile_supported(security->hls_mechanism_oid,
+                                     security->hls_mechanism_oid_length) &&
+#if defined(STM32U585xx) || defined(USE_HAL_DRIVER)
+               parsed.auth_value_length == AMI_DLMS_HLS_CHALLENGE_LENGTH &&
+#endif
                security->random != NULL && security->hls_proof != NULL &&
                oid_equal(parsed.mechanism_oid, parsed.mechanism_oid_length,
                          security->hls_mechanism_oid, security->hls_mechanism_oid_length)) {

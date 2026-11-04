@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mxfile host="app.diagrams.net" modified="2026-11-04T08:00:00.000Z" agent="Antigravity ALLIN E3 Flowchart Generator" version="24.0.0" type="device">
+  <diagram id="ALLIN_E3_Dedicated_Flowchart" name="Flowchart Khusus Pilar E3 (Meter Application, HMI &amp; Protection)">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2260" pageHeight="1920" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="hdr" value="&lt;b&gt;&lt;font style='font-size: 20px;'&gt;FLOWCHART KHUSUS PILAR E3: APLIKASI SMART METER, HMI, TAMPER, RELAI &amp;amp; PROFILING&lt;/font&gt;&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size: 13px;'&gt;ALLIN STM32U585 | Kepatuhan Standar: SPLN D3.006:2021 (Meter 3-Fasa Pascabayar/Prabayar), SPLN D3.002:2021, IEC 62056 DLMS/COSEM&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#0f172a;fontColor=#ffffff;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="2180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_init" value="&lt;b&gt;1. INISIALISASI &amp;amp; KONFIGURASI PROFIL E3&lt;/b&gt;" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontColor=#334155;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="420" height="1490" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_step" value="&lt;b&gt;2. SIKLUS UTAMA ORKESTRASI E3 (e3_meter_app_step - PERIODIK 100 ms)&lt;/b&gt;" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#fde68a;fontColor=#92400e;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="480" y="100" width="560" height="1490" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_logic" value="&lt;b&gt;3. MESIN KEPUTUSAN &amp;amp; AKSI FUNGSIONAL SUBSISTEM E3&lt;/b&gt;" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#bbf7d0;fontColor=#166534;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="100" width="560" height="1490" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_async" value="&lt;b&gt;4. PENANGANAN INTERRUPT ASINKRON &amp;amp; MODE DAYA RENDAH&lt;/b&gt;" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf4ff;strokeColor=#f5d0fe;fontColor=#701a75;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1640" y="100" width="580" height="1490" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_hal" value="&lt;b&gt;5. LAPISAN ABSTRAKSI PERANGKAT KERAS (HAL &amp;amp; BSP DRIVERS) &amp;amp; MEDIA PENYIMPANAN NVRAM&lt;/b&gt;" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;fontColor=#1e293b;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1615" width="2180" height="250" as="geometry"/>
+        </mxCell>
+        <mxCell id="i1" value="&lt;b&gt;Mulai Inisialisasi Pilar E3&lt;/b&gt;&lt;br/&gt;Dipanggil dari meter_system_bringup()" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#d97706;strokeColor=#b45309;fontColor=#ffffff;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="75" y="145" width="350" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="i2" value="&lt;b&gt;1. Board Profile Config HAL (board_profile_config.h)&lt;/b&gt;&lt;br/&gt;• Profil Perangkat Keras: Prototip OLED vs Segment LCD Produksi&lt;br/&gt;• Konfigurasi Koil Relai: Dual-Coil Latching vs H-Bridge (Pulsa 100 ms)&lt;br/&gt;• Ambang Tegangan Cut-Off: Rendah &amp;lt; 110V (3s) &amp;amp; Lebih &amp;gt; 280V (Instant)&lt;br/&gt;• Polaritas Sakelar Sabotase (Case NO/NC, Terminal, Magnet Hall)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="75" y="215" width="350" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="i3" value="&lt;b&gt;2. Aktifkan Power Rail Periferal &amp;amp; CS SPI&lt;/b&gt;&lt;br/&gt;• Aktifkan LCD_PWR_EN &amp;amp; LCD_BL_CTRL (Daya Layar)&lt;br/&gt;• Aktifkan RS232_PWR_EN &amp;amp; MODEM_12V_EN (Daya Modem)&lt;br/&gt;• Set Chip Select FLASH_SPI2_CS HIGH (Siaga SPI)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="75" y="330" width="350" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="i4" value="&lt;b&gt;3. Kalibrasi ADC4 Hardware&lt;/b&gt;&lt;br/&gt;HAL_ADCEx_Calibration_Start(&amp;amp;hadc4, OFFSET, SINGLE_ENDED)&lt;br/&gt;(Memastikan presisi pembacaan baterai &amp;amp; superkapasitor)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="75" y="415" width="350" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="i5" value="&lt;b&gt;4. Inisialisasi Modul-Modul Inti Pilar E3&lt;/b&gt;&lt;br/&gt;• display_init(): HMI Carousel 49 Halaman (14 Auto + 35 Manual)&lt;br/&gt;• tamper_init(): Siapkan mask 9 Sabotase &amp;amp; 8 Alarm Hardware&lt;br/&gt;• power_relay_init(): State Machine Relai, Ambang 11 kW, Lockout 30s&lt;br/&gt;• load_profile_init(): Alokasi buffer circular 100 entri 15-menit&lt;br/&gt;• max_demand_init(): Pelacak demand puncak kW &amp;amp; kVA&lt;br/&gt;• billing_snapshot_init(): Buffer penagihan bulanan 12 bulan&lt;br/&gt;• bsp_alarm_buzzer_init() &amp;amp; bsp_power_mode_init()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="75" y="490" width="350" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="i6" value="&lt;b&gt;5. Pemulihan Data dari Flash NVRAM SPI2&lt;/b&gt;&lt;br/&gt;• Baca Identitas Meter CFID (Customer ID &amp;amp; Meter ID)&lt;br/&gt;• Baca Checkpoint Stand Energi: Wh Impor/Ekspor &amp;amp; varh Reaktif&lt;br/&gt;• Baca Stand Energi 8-Zona Waktu Tarif ToU (WBP &amp;amp; LWBP)&lt;br/&gt;• Muat Snapshot Tamper &amp;amp; Inisialisasi 3 Register FIFO Log" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="75" y="625" width="350" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="i7" value="&lt;b&gt;6. Rekam Event Meter Reset (SPLN Tabel 5 No. 9)&lt;/b&gt;&lt;br/&gt;spln_log_record_event(SPLN_LOG_EVENT_METER_RESET)&lt;br/&gt;(Pencatatan resmi ke Event Log FIFO)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="75" y="730" width="350" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="i8" value="&lt;b&gt;7. Tampilkan Splash Boot Screen Layar OLED&lt;/b&gt;&lt;br/&gt;bsp_display_oled: &amp;quot;ALLIN SMART METER&amp;quot; &amp;amp; &amp;quot;SPLN D3.006:2021&amp;quot;&lt;br/&gt;(Tampilan boot 2 detik sebelum masuk carousel)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="75" y="805" width="350" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="i9" value="&lt;b&gt;8. Registrasi Kait Serial CLI (console_io)&lt;/b&gt;&lt;br/&gt;Daftarkan fungsi callback inspeksi: pembacaan tegangan, arus, daya, relai trip/reconnect, injeksi tamper, dan telemetri" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="75" y="885" width="350" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="i_done" value="&lt;b&gt;Inisialisasi E3 Selesai&lt;/b&gt;&lt;br/&gt;Sistem Siap Masuk Siklus Periodik Runtime" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#d97706;strokeColor=#b45309;fontColor=#ffffff;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="75" y="970" width="350" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="i_doc_note" value="&lt;b&gt;FILOSOFI ARSITEKTUR PILAR E3&lt;/b&gt;&lt;br/&gt;1. &lt;b&gt;Pemisahan Tanggung Jawab:&lt;/b&gt; Bebas dari kalkulasi analog ADC (E1) dan framing jaringan (E2). E3 fokus pada logika bisnis meter, proteksi, dan HMI.&lt;br/&gt;2. &lt;b&gt;Portabilitas 100% C99:&lt;/b&gt; Algoritma inti independen dari register STM32; dapat diuji langsung via CTest di host PC.&lt;br/&gt;3. &lt;b&gt;Dependency Injection:&lt;/b&gt; Driver layar dan media penyimpanan dihubungkan via pointer antarmuka." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede9fe;strokeColor=#8b5cf6;fontColor=#4c1d95;fontSize=10;align=left;" vertex="1" parent="1">
+          <mxGeometry x="75" y="1045" width="350" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1" value="&lt;b&gt;e3_meter_app_step(&amp;amp;s_meas, delta_ms = 100 ms)&lt;/b&gt;&lt;br/&gt;Eksekusi Sinkron Tiap Siklus Tick FreeRTOS" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#2563eb;strokeColor=#1d4ed8;fontColor=#ffffff;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="145" width="520" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2" value="&lt;b&gt;1. Sinkronisasi Jam Real-Time RTC &amp;amp; Evaluasi Tarif ToU&lt;/b&gt;&lt;br/&gt;• Ambil nilai detik Epoch UTC+7 (WIB) via ARM TrustZone Secure NSC&lt;br/&gt;• Evaluasi Zona Waktu Tarif Time-of-Use (ToU) SPLN D3.006:&lt;br/&gt;  - Zona 1: WBP (17:00 s.d 22:00 WIB)&lt;br/&gt;  - Zona 2: LWBP1 Malam (22:00 s.d 06:00 WIB)&lt;br/&gt;  - Zona 3: LWBP2 Siang (06:00 s.d 17:00 WIB)&lt;br/&gt;• Akumulasi energi aktif ke register ToU aktif s_tou_tariff_wh[zona]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="215" width="520" height="95" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3" value="&lt;b&gt;2. Telemetri Baterai &amp;amp; Superkapasitor (Interval 5 Detik)&lt;/b&gt;&lt;br/&gt;• Konversi ADC4 Channel 15 (PD11): Tegangan Baterai Lithium (VBAT)&lt;br/&gt;• Konversi ADC4 Channel 3 (PC2): Tegangan Superkapasitor (VCAP)&lt;br/&gt;• Evaluasi Batas: Low Batt &amp;lt; 2,7V (ERR03) &amp;amp; Supercap Fail &amp;lt; 2,5V (ERR06)&lt;br/&gt;• &lt;b&gt;Auto-Clear Normalisasi Baterai Tanpa Reset:&lt;/b&gt; Jika VBAT &amp;gt;= 2,75V,&lt;br/&gt;  ERR03 dihapus otomatis &amp;amp; kedipan layar padam sesuai SPLN Hal 39!" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="335" width="520" height="95" as="geometry"/>
+        </mxCell>
+        <mxCell id="s4" value="&lt;b&gt;3. Evaluasi Sabotase Fisik &amp;amp; Elektrikal (tamper_manager)&lt;/b&gt;&lt;br/&gt;• Baca pin fisik TrustZone Secure TAMP: PC13 (Case), PE6 (Terminal), PE4 (Magnet)&lt;br/&gt;• Sabotase Medan Magnet: Filter persistensi 3s &amp;amp; auto-clear 10s (SPLN Tabel 6 No 7)&lt;br/&gt;• Evaluasi Vektor Elektrikal dari Pengukuran E1 s_meas:&lt;br/&gt;  - Hilang Fasa 1 atau 2: Tegangan &amp;lt; 110V saat fasa lain normal (ERR24)&lt;br/&gt;  - Bypass / Netral Putus: Selisih arus fasa tinggi &amp;amp; arus netral mendekati 0 (ERR23)&lt;br/&gt;  - Urutan Fasa Terbalik: Sudut fasa tegangan US &amp;gt; UT (ERR21)&lt;br/&gt;  - Cross Phase: Arus &amp;amp; tegangan tidak sefasa / terbalik 180 derajat (ERR22)&lt;br/&gt;  - Reverse Power: Daya aktif P &amp;lt; -50W (ERR26)&lt;br/&gt;  - Kuadran 4 Rendah PF: P &amp;gt; 50W, Q &amp;lt; -50var, PF &amp;lt; 0,85 (ERR27)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="455" width="520" height="135" as="geometry"/>
+        </mxCell>
+        <mxCell id="s5" value="&lt;b&gt;4. Evaluasi Ketidakseimbangan Beban (Asymmetry)&lt;/b&gt;&lt;br/&gt;Hitung deviasi arus fasa terhadap rata-rata (|Ix - Iavg| / Iavg &amp;gt; 30%).&lt;br/&gt;Jika asimetris: Tampilkan peringatan pada layar &amp;amp; rekam ke Event Log FIFO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="615" width="520" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s6" value="&lt;b&gt;5. Evaluasi FSM Relai Pembatas Beban &amp;amp; Proteksi Tegangan&lt;/b&gt;&lt;br/&gt;• Proteksi Cut-Off Tegangan Rendah: V &amp;lt; 110V selama 3 detik berturut-turut&lt;br/&gt;• Proteksi Cut-Off Tegangan Lebih: V &amp;gt; 280V respon cepat instan&lt;br/&gt;• Proteksi Overload: Kurva waktu terbalik terhadap batas kontrak daya aktif (W)&lt;br/&gt;• Auto-Recovery Tegangan: Sambung otomatis jika 110V..280V stabil selama 5 detik" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="700" width="520" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="s7" value="&lt;b&gt;Kondisi Trip Terpenuhi?&lt;/b&gt;&lt;br/&gt;(Sabotase Berhak Trip, Overload,&lt;br/&gt;Alarm Kritis ERR00..05, Cut-Off V)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#78350f;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="660" y="810" width="200" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="s8_trip" value="&lt;b&gt;Status DISCONNECTED&lt;/b&gt;&lt;br/&gt;Picu Prosedur Aksi Trip" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe4e6;strokeColor=#f43f5e;fontColor=#881337;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="905" width="230" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="s7b" value="&lt;b&gt;Status READY ON?&lt;/b&gt;&lt;br/&gt;(Lockout Selesai, Tunggu Rekoneksi)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#78350f;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="790" y="895" width="200" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="s8_rdy" value="&lt;b&gt;Status READY RECONNECT&lt;/b&gt;&lt;br/&gt;Siaga Konfirmasi Tombol" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="880" y="985" width="140" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="s8_norm" value="&lt;b&gt;Status NORMAL&lt;/b&gt;&lt;br/&gt;Relai Tetap Tersambung (ON)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;fontColor=#14532d;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="720" y="985" width="140" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="s9" value="&lt;b&gt;6. Audio Cadence Buzzer Update (bsp_alarm_buzzer)&lt;/b&gt;&lt;br/&gt;• Override tombol aktif: Beep pendek 50 ms&lt;br/&gt;• Trip / Sabotase / Alarm aktif: Kadensi berdenyut 200 ms ON / 200 ms OFF&lt;br/&gt;• Normal: Buzzer diam (OFF)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1055" width="520" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="s10" value="&lt;b&gt;7. Pelacak Kebutuhan Maksimum (Maximum Demand / MD)&lt;/b&gt;&lt;br/&gt;Integrasikan daya aktif W &amp;amp; semu VA selama window 15 menit (900 detik).&lt;br/&gt;Perbarui nilai puncak P_MAX kW, S_MAX kVA, stempel waktu, dan CMD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1145" width="520" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="s11" value="&lt;b&gt;Interval 15-Menit Tercapai?&lt;/b&gt;&lt;br/&gt;(Delta Epoch &amp;gt;= 900 detik)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#78350f;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="660" y="1235" width="200" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="s12" value="&lt;b&gt;Picu Rekam Load Profile ke Flash&lt;/b&gt;&lt;br/&gt;Simpan 11 Elemen A-XDR &amp;amp; Checkpoint" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#ccfbf1;strokeColor=#0d9488;fontColor=#134e4a;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1315" width="240" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="s13" value="&lt;b&gt;8. Evaluasi Penutupan Tagihan Bulanan (End-of-Billing)&lt;/b&gt;&lt;br/&gt;Jika Pukul 10:00:00 Tanggal 1: Bekukan snapshot stand energi bulanan ke NVRAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1385" width="520" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="s14" value="&lt;b&gt;9. Perbarui HMI Carousel &amp;amp; Render Layar OLED&lt;/b&gt;&lt;br/&gt;Update buffer tampilan -&amp;gt; Render frame SPLN Gambar 4 ke OLED SSD1306" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;fontColor=#14532d;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1465" width="520" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="a1" value="&lt;b&gt;A. SUB-SISTEM PENGENDALI RELAI (power_relay_manager)&lt;/b&gt;" style="fillColor=#e2e8f0;strokeColor=#94a3b8;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="145" width="520" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="a2" value="&lt;b&gt;Prosedur Eksekusi Pemutusan Relai (TRIP)&lt;/b&gt;&lt;br/&gt;• Bangkitkan pulsa penggerak koil 100 ms ke pin RELAY_TRIP (PC8/PD9)&lt;br/&gt;• Matikan pulsa setelah 100 ms agar koil solenoid tidak panas terbakar&lt;br/&gt;• Nyalakan LED Kuning (LED_ALM) solid menyala terus&lt;br/&gt;• Berikan waktu toleransi mekanik 500 ms; jika kontak masih tertutup,&lt;br/&gt;  laporkan kerusakan kontak relai macet / welded (ERR05 / ERR07)&lt;br/&gt;• Rekam perubahan status ke Event Log FIFO &amp;amp; Tamper Log FIFO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe4e6;strokeColor=#f43f5e;fontColor=#881337;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="195" width="520" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="a3" value="&lt;b&gt;Prosedur Rekoneksi Aman Status READY ON (SPLN Tabel 5 No 12)&lt;/b&gt;&lt;br/&gt;• Setelah durasi lockout overload/tegangan berakhir, relai masuk READY ON&lt;br/&gt;• Kontak relai TIDAK BOLEH menutup otomatis demi keselamatan pelanggan!&lt;br/&gt;• LED Kuning (LED_ALM) berkedip periodik 1 Hz&lt;br/&gt;• Layar menampilkan Halaman 17 SPLN Gambar 4: &lt;i&gt;&amp;quot;READY ON - TEKAN TOMBOL&amp;quot;&lt;/i&gt;&lt;br/&gt;• &lt;b&gt;Konfirmasi Wajib Pelanggan:&lt;/b&gt; Pengguna harus menekan tombol Atas dan Bawah&lt;br/&gt;  secara bersamaan (▲ + ▼) selama &amp;gt;= 1 detik untuk menutup kembali kontak relai!" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;fontColor=#14532d;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="325" width="520" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="a4" value="&lt;b&gt;B. SUB-SISTEM PEREKAMAN LOAD PROFILE &amp;amp; NVRAM (profiling)&lt;/b&gt;" style="fillColor=#e2e8f0;strokeColor=#94a3b8;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="465" width="520" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="a5" value="&lt;b&gt;Format 11-Elemen A-XDR Load Profile (Tepat 72 Byte)&lt;/b&gt;&lt;br/&gt;Disusun sesuai standar DLMS/COSEM Class ID 7 Profile Generic:&lt;br/&gt;1. Timestamp Waktu Nyata (12B COSEM DateTime WIB)&lt;br/&gt;2. Energi Aktif Impor +A (double-long-unsigned Wh)&lt;br/&gt;3. Energi Aktif Ekspor -A PLTS (double-long-unsigned Wh)&lt;br/&gt;4. Energi Reaktif Impor +R (double-long-unsigned varh)&lt;br/&gt;5-7. Tegangan Efektif 3-Fasa: UR, US, UT (long-unsigned dV)&lt;br/&gt;8-10. Arus Efektif 3-Fasa: IR, IS, IT (long-unsigned mA)&lt;br/&gt;11. Mask Status Sabotase &amp;amp; Mutu Daya (double-long-unsigned bitmask)&lt;br/&gt;-&amp;gt; Ditulis ke sektor circular SPI2 Flash eksternal dengan proteksi CRC-16" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#ccfbf1;strokeColor=#0d9488;fontColor=#134e4a;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="515" width="520" height="135" as="geometry"/>
+        </mxCell>
+        <mxCell id="a6" value="&lt;b&gt;Tiga Register Log FIFO Terpisah (SPLN D3.006 Butir 12.3 Tabel 18)&lt;/b&gt;&lt;br/&gt;• &lt;b&gt;1. Alarm Log Register (30 entri):&lt;/b&gt; Kejadian kerusakan internal meter (ERR00..ERR07)&lt;br/&gt;• &lt;b&gt;2. Event Log Register (30 entri):&lt;/b&gt; Power on/off, relay change, konfigurasi IDPEL, batas beban&lt;br/&gt;• &lt;b&gt;3. Tamper Log Register (30 entri):&lt;/b&gt; Seluruh 9 kejadian sabotase fisik &amp;amp; kelistrikan&lt;br/&gt;Setiap entri dilengkapi stempel waktu, kode event SPLN, status aktif/pulih, dan parameter data" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#ccfbf1;strokeColor=#0d9488;fontColor=#134e4a;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="670" width="520" height="95" as="geometry"/>
+        </mxCell>
+        <mxCell id="a7" value="&lt;b&gt;C. SUB-SISTEM TAMPILAN LAYAR HMI (display &amp;amp; oled)&lt;/b&gt;" style="fillColor=#e2e8f0;strokeColor=#94a3b8;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="790" width="520" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="a8" value="&lt;b&gt;Spesifikasi Tata Letak Layar SPLN D3.006 Gambar 4 &amp;amp; 6&lt;/b&gt;&lt;br/&gt;• &lt;b&gt;Baris 1 (Status Bar):&lt;/b&gt; Status Kontak Relai (Buka/Tutup), Arah Aliran Energi&lt;br/&gt;  (Panah Impor/Ekspor), Kuadran Daya (I..IV), Ikon Komunikasi Modem Seluler,&lt;br/&gt;  Gauge Indikator Baterai Lithium (Normal/Kedip Lemah), Indikator Fasa UR/US/UT&lt;br/&gt;• &lt;b&gt;Baris 2 (Nilai Numerik Utama):&lt;/b&gt; Font Besar 11x18 (8 Digit + Titik Desimal)&lt;br/&gt;• &lt;b&gt;Baris 3 (Label &amp;amp; OBIS):&lt;/b&gt; Kode OBIS Standar &amp;amp; Keterangan Teks Parameter&lt;br/&gt;• &lt;b&gt;Pojok Kanan Atas:&lt;/b&gt; Indeks Nomor Halaman Tampilan (2 Digit Angka)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;fontColor=#14532d;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="840" width="520" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="a9" value="&lt;b&gt;Logika Transisi &amp;amp; Peringatan Khusus Layar&lt;/b&gt;&lt;br/&gt;• &lt;b&gt;Auto-Scroll Carousel 14 Halaman (Tabel E.1):&lt;/b&gt; Berotasi otomatis tiap 5 detik&lt;br/&gt;• &lt;b&gt;Manual Scroll 35 Halaman (Tabel E.2):&lt;/b&gt; Bernavigasi via tombol Atas/Bawah&lt;br/&gt;• &lt;b&gt;Rotasi Multi-Error 3 Detik (LOG-021):&lt;/b&gt; Jika terjadi lebih dari satu kode error,&lt;br/&gt;  tampilan berganti tiap 3 detik antara ERRxx yang sedang aktif&lt;br/&gt;• &lt;b&gt;Banner Peringatan Tegangan (LOG-022):&lt;/b&gt; Menampilkan teks &amp;quot;Lo Volt&amp;quot; (&amp;lt;180V)&lt;br/&gt;  atau &amp;quot;Hi Volt&amp;quot; (&amp;gt;260V) di baris utama secara bergantian" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;fontColor=#14532d;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="975" width="520" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="x1" value="&lt;b&gt;INTERRUPT SERVICE ROUTINE (ISR) &amp;amp; ASYNCHRONOUS EVENTS&lt;/b&gt;" style="fillColor=#e2e8f0;strokeColor=#94a3b8;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="145" width="540" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="x2" value="&lt;b&gt;1. Interupsi Listrik PLN Padam (AC_FAIL_DET Falling Edge)&lt;/b&gt;&lt;br/&gt;• Dipicu dari pin komparator tegangan AC_FAIL_DET saat jala-jala padam&lt;br/&gt;• &lt;b&gt;e3_meter_app_on_ac_fail(true):&lt;/b&gt;&lt;br/&gt;  1. Ambil snapshot instan stand kWh, kVARh, dan status sabotase&lt;br/&gt;  2. Simpan &lt;b&gt;Emergency Energy Checkpoint&lt;/b&gt; ke Flash NVRAM via SPI2&lt;br/&gt;  3. Panggil &lt;b&gt;e2_dlms_send_last_gasp_push()&lt;/b&gt;: Kirim frame DLMS Last-Gasp&lt;br/&gt;     Event-Notification APDU (Tag 0xC2) ke Port Modem/Optik&lt;br/&gt;  4. Turunkan ADE9000 ke mode Sleep (konsumsi minimal)&lt;br/&gt;  5. Mulai penghitung waktu mundur standby layar 10 detik" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe4e6;strokeColor=#f43f5e;fontColor=#881337;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="195" width="540" height="135" as="geometry"/>
+        </mxCell>
+        <mxCell id="x3" value="&lt;b&gt;2. Operasi Off-Power Standby 10 Detik (SPLN D3.006 Hal. 37)&lt;/b&gt;&lt;br/&gt;• Selama listrik padam, energi disediakan oleh Superkapasitor 3.3V (VCAP)&lt;br/&gt;• Layar OLED tetap menyala selama 10 detik agar stand terakhir terbaca&lt;br/&gt;• Menekan tombol fisik navigasi akan me-restart timer 10 detik ini&lt;br/&gt;• Setelah 10 detik tanpa aktivitas tombol: Layar OLED dipadamkan total&lt;br/&gt;• MCU STM32U585 dieksekusi masuk ke mode hemat daya ekstrem &lt;b&gt;Stop 2 Mode&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="350" width="540" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="x4" value="&lt;b&gt;3. Mode Hemat Daya Ekstrem (STM32U585 Stop 2 Mode)&lt;/b&gt;&lt;br/&gt;• Konsumsi arus mikrokontroler turun hingga ~4.5 uA&lt;br/&gt;• Memori SRAM Non-Secure dan register dipertahankan penuh (Full Retention)&lt;br/&gt;• Jam RTC LSE 32.768 kHz tetap berdetak presisi di Secure Domain&lt;br/&gt;• Sumber Pembangkit (Wakeup Source):&lt;br/&gt;  - EXTI AC_FAIL_DET Rising (Listrik PLN normal kembali)&lt;br/&gt;  - EXTI Tombol Navigasi PC13/PE6 (Bangunkan layar 10 detik)&lt;br/&gt;  - EXTI Sensor Sabotase Tutup Meter / Terminal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="485" width="540" height="125" as="geometry"/>
+        </mxCell>
+        <mxCell id="x5" value="&lt;b&gt;4. Interupsi Listrik PLN Normal Kembali (AC_FAIL Rising Edge)&lt;/b&gt;&lt;br/&gt;• Dipicu saat tegangan jala-jala kembali normal &amp;gt;= 180V&lt;br/&gt;• &lt;b&gt;e3_meter_app_on_ac_fail(false):&lt;/b&gt;&lt;br/&gt;  1. Bangunkan sistem jam inti MCU dari 4 MHz MSIS ke 160 MHz PLL1&lt;br/&gt;  2. Bangunkan IC Metrologi ADE9000 kembali ke Run Mode normal&lt;br/&gt;  3. Hidupkan power rail layar OLED, lampu latar, dan modem seluler&lt;br/&gt;  4. Rekam kejadian pemulihan daya (Power Restored) ke Event Log FIFO&lt;br/&gt;  5. Lanjutkan kembali siklus normal e3_meter_app_step()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;fontColor=#14532d;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="630" width="540" height="125" as="geometry"/>
+        </mxCell>
+        <mxCell id="x6" value="&lt;b&gt;5. Interupsi Tombol Navigasi (BTN_SCROLL_UP / BTN_SCROLL_DN)&lt;/b&gt;&lt;br/&gt;• &lt;b&gt;Deteksi Tombol Simultan (▲ + ▼):&lt;/b&gt; Jika kedua tombol ditekan bersamaan,&lt;br/&gt;  kirim sinyal BUTTON_DIR_BOTH -&amp;gt; Konfirmasi rekoneksi relai READY ON&lt;br/&gt;• &lt;b&gt;Tombol Tunggal:&lt;/b&gt; Geser nomor halaman tampilan manual (Tabel E.2)&lt;br/&gt;• Bangkitkan feedback audio klik tombol pendek &lt;b&gt;50 ms&lt;/b&gt; pada buzzer piezo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;fontColor=#14532d;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="775" width="540" height="95" as="geometry"/>
+        </mxCell>
+        <mxCell id="x7" value="&lt;b&gt;6. Parser Perintah Konsol Serial Interaktif CLI (console_io)&lt;/b&gt;&lt;br/&gt;• Menerima karakter melalui USART2 (115200 / 19200 bps)&lt;br/&gt;• Memproses 8 perintah teknisi lapangan &amp;amp; pengujian pabrik:&lt;br/&gt;  - &lt;i&gt;help&lt;/i&gt;: Tampilkan daftar perintah interaktif&lt;br/&gt;  - &lt;i&gt;status&lt;/i&gt;: Cetak tegangan, arus, relai, alarm, dan frekuensi&lt;br/&gt;  - &lt;i&gt;relay [trip|reconnect]&lt;/i&gt;: Perintah buka / tutup kontak relai manual&lt;br/&gt;  - &lt;i&gt;tamper [clear]&lt;/i&gt;: Inspeksi status 9 sabotase atau reset alarm&lt;br/&gt;  - &lt;i&gt;synth [on|off]&lt;/i&gt;: Aktifkan sakelar metrologi tiruan untuk pengujian&lt;br/&gt;  - &lt;i&gt;log [alarm|event|tamper]&lt;/i&gt;: Tampilkan isi 30 entri FIFO Flash NVRAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="890" width="540" height="135" as="geometry"/>
+        </mxCell>
+        <mxCell id="h1" value="&lt;b&gt;board_profile_config.h&lt;/b&gt;&lt;br/&gt;Hardware Abstraction Profile:&lt;br/&gt;Konfigurasi Pinout, Tipe Relai,&lt;br/&gt;Parameter Debounce, Threshold Volt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;fontColor=#0f172a;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1665" width="320" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="h2" value="&lt;b&gt;SPI2 Flash NVRAM W25Qxx&lt;/b&gt;&lt;br/&gt;nvram_storage.c:&lt;br/&gt;• Load Profile Circular (100 entri)&lt;br/&gt;• 3x Register FIFO Log (30 entri)&lt;br/&gt;• Energy Checkpoint &amp;amp; CFID Config" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;fontColor=#0f172a;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="420" y="1665" width="340" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="h3" value="&lt;b&gt;Driver OLED SSD1306 (I2C3)&lt;/b&gt;&lt;br/&gt;bsp_display_oled.c &amp;amp; ssd1306.c:&lt;br/&gt;Resolusi 128x64 piksel, Framebuffer I2C,&lt;br/&gt;Font Monospace 11x18 &amp;amp; Ikon Grafis SPLN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;fontColor=#0f172a;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="790" y="1665" width="340" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="h4" value="&lt;b&gt;Koil Relai Pemutus &amp;amp; Feedback&lt;/b&gt;&lt;br/&gt;Pin RELAY_TRIP (PC8/PD9) Pulsa 100ms&lt;br/&gt;Pin RELAY_STATUS (PC8) Sensor Kontak&lt;br/&gt;Lockout Overload &amp;amp; Voltage Limiter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;fontColor=#0f172a;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="1665" width="320" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="h5" value="&lt;b&gt;Driver Piezo Buzzer (PB7)&lt;/b&gt;&lt;br/&gt;bsp_alarm_buzzer.c:&lt;br/&gt;• Feedback tombol: 50 ms Beep&lt;br/&gt;• Kadensi Alarm: 200ms ON / 200ms OFF&lt;br/&gt;• Non-blocking timer update" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;fontColor=#0f172a;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1510" y="1665" width="320" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="h6" value="&lt;b&gt;Manajemen Daya Stop 2 Mode&lt;/b&gt;&lt;br/&gt;bsp_power_mode.c:&lt;br/&gt;Konsumsi ~4.5 uA saat listrik padam,&lt;br/&gt;Wakeup via EXTI &amp;amp; Clock Restorasi Adaptif" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;fontColor=#0f172a;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1860" y="1665" width="330" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="ei_1_2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="i1" target="i2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ei_2_3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="i2" target="i3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ei_3_4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="i3" target="i4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ei_4_5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="i4" target="i5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ei_5_6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="i5" target="i6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ei_6_7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="i6" target="i7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ei_7_8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="i7" target="i8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ei_8_9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="i8" target="i9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ei_9_done" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="i9" target="i_done">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ei_done_step" value="Panggil Berkala Tiap 100ms" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#d97706;strokeWidth=2.5;" edge="1" parent="1" source="i_done" target="s1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_1_2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_2_3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_3_4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s3" target="s4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_4_5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s4" target="s5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_5_6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s5" target="s6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_6_7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s6" target="s7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_7_trip" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#e11d48;strokeWidth=2.5;" edge="1" parent="1" source="s7" target="s8_trip">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_7_notrip" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#059669;" edge="1" parent="1" source="s7" target="s7b">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_7b_rdy" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#d97706;" edge="1" parent="1" source="s7b" target="s8_rdy">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_7b_norm" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#059669;" edge="1" parent="1" source="s7b" target="s8_norm">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_trip_act" value="Eksekusi Trip" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#e11d48;strokeWidth=2;" edge="1" parent="1" source="s8_trip" target="a2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_rdy_act" value="Prosedur READY ON" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#d97706;strokeWidth=2;" edge="1" parent="1" source="s8_rdy" target="a3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_act_merge1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s8_trip" target="s9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_act_merge2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s8_norm" target="s9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_act_merge3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s8_rdy" target="s9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_9_10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s9" target="s10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_10_11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s10" target="s11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_11_rec" value="Ya (15 mnt)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#0d9488;" edge="1" parent="1" source="s11" target="s12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_11_skip" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#64748b;" edge="1" parent="1" source="s11" target="s13">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_12_act" value="Encode A-XDR 72B" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#0d9488;" edge="1" parent="1" source="s12" target="a5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_12_13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s12" target="s13">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_13_14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="s13" target="s14">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_14_disp" value="Render Layout" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#22c55e;" edge="1" parent="1" source="s14" target="a8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="es_14_loop" value="Next Tick (100ms)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#2563eb;strokeWidth=2.5;" edge="1" parent="1" source="s14" target="s1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ea_5_6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="a5" target="a6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ea_8_9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="a8" target="a9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ex_2_3" value="Padam" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="x2" target="x3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ex_3_4" value="10 Detik Habis" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;" edge="1" parent="1" source="x3" target="x4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ex_5_step" value="Normal Kembali" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#059669;strokeWidth=2;" edge="1" parent="1" source="x5" target="s1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ex_6_rdy" value="Tombol Simultan (▲+▼)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;strokeColor=#d97706;strokeWidth=2;" edge="1" parent="1" source="x6" target="a3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eh_cfg_init" value="Profil Papan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;dashed=1;strokeWidth=1.5;strokeColor=#64748b;" edge="1" parent="1" source="h1" target="i2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eh_nvram_a5" value="Tulis Flash" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;dashed=1;strokeWidth=1.5;strokeColor=#0d9488;" edge="1" parent="1" source="a5" target="h2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eh_nvram_a6" value="FIFO Write" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;dashed=1;strokeWidth=1.5;strokeColor=#0d9488;" edge="1" parent="1" source="a6" target="h2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eh_oled_a8" value="I2C Frame" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;dashed=1;strokeWidth=1.5;strokeColor=#22c55e;" edge="1" parent="1" source="a8" target="h3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eh_relay_a2" value="Koil 100ms" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;dashed=1;strokeWidth=1.5;strokeColor=#e11d48;" edge="1" parent="1" source="a2" target="h4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eh_buzz_s9" value="PWM PB7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;dashed=1;strokeWidth=1.5;strokeColor=#eab308;" edge="1" parent="1" source="s9" target="h5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eh_pwr_x4" value="Stop 2 Mode" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;fontSize=10;fontColor=#334155;dashed=1;strokeWidth=1.5;strokeColor=#7e22ce;" edge="1" parent="1" source="x4" target="h6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

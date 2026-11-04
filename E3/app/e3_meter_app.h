@@ -184,6 +184,18 @@ bool e3_meter_app_set_meter_id(const char *meter_id);
 const char* e3_meter_app_get_meter_id(void);
 
 /**
+ * @brief Perintah pemutusan relai secara remote dari HES/DLMS (Disconnect Control Class 70)
+ * @return true jika berhasil
+ */
+bool e3_meter_app_remote_disconnect(void);
+
+/**
+ * @brief Perintah permohonan penyambungan kembali relai secara remote dari HES/DLMS
+ * @return true jika berhasil
+ */
+bool e3_meter_app_remote_reconnect(void);
+
+/**
  * @brief Notifikasi kejadian Stop-Measurement / Anomali Pengukuran (SPLN D3.006: 2021 Tabel 5 No. 5)
  *        Merekam kejadian SPLN_LOG_EVENT_STOP_MEASUREMENT ke Event Log FIFO
  * @param is_stopped true jika sampling/pengukuran berhenti, false jika pulih

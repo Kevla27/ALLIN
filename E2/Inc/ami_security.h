@@ -115,6 +115,34 @@ AmiSecStatus ami_sec_aes_128_gmac(
     const uint8_t *data, size_t data_len,
     uint8_t *tag_128, size_t tag_len);
 
+/* Single-block AES-128 Electronic Codebook (ECB) primitives */
+AmiSecStatus ami_sec_aes_128_ecb_encrypt(
+    const uint8_t *key_128,
+    const uint8_t in_block[16],
+    uint8_t out_block[16]);
+
+AmiSecStatus ami_sec_aes_128_ecb_decrypt(
+    const uint8_t *key_128,
+    const uint8_t in_block[16],
+    uint8_t out_block[16]);
+
+/* ========================================================================= */
+/* RFC 3394 / NIST SP 800-38F AES Key Wrap & Key Unwrap Engine               */
+/* ========================================================================= */
+
+#define AMI_RFC3394_DEFAULT_IV_LEN       8u
+#define AMI_RFC3394_WRAPPED_KEY_128_LEN  24u
+
+AmiSecStatus ami_sec_rfc3394_wrap(
+    const uint8_t *kek_128,
+    const uint8_t *plain_key, size_t plain_key_len,
+    uint8_t *out_wrapped, size_t out_capacity, size_t *out_len);
+
+AmiSecStatus ami_sec_rfc3394_unwrap(
+    const uint8_t *kek_128,
+    const uint8_t *wrapped_key, size_t wrapped_key_len,
+    uint8_t *out_plain_key, size_t out_capacity, size_t *out_len);
+
 /* ========================================================================= */
 /* DLMS/COSEM HLS Mechanism 5 (GMAC) Challenge-Response Implementation       */
 /* ========================================================================= */

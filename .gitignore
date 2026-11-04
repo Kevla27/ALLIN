@@ -23,7 +23,26 @@ Makefile
 # Temporary/scratch files
 scratch/*.elf
 scratch/*.exe
+scratch/*.xml
+scratch/*.txt
+scratch/build_*.py
+scratch/dump_*.py
+scratch/export_*.py
+scratch/flowchart_*.txt
+scratch/generate_*.py
+scratch/inspect_*.py
+scratch/parse_*.py
+scratch/sync_*.py
+scratch/verify_*.py
 
 # Editor/OS settings
 .DS_Store
 Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local update drops
+Updare/
+update/

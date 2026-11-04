@@ -99,6 +99,12 @@ typedef struct {
     uint32_t status1;
 } AmiAde9000RawRegisters;
 
+#define AMI_ADE9000_OK                  0
+#define AMI_ADE9000_ERR_PARAM          -1
+#define AMI_ADE9000_ERR_SPI            -2
+#define AMI_ADE9000_ERR_NOT_INIT       -3
+#define AMI_ADE9000_ERR_INVALID_DATA   -4
+
 typedef struct {
     uint32_t phase_voltage_mv[3];      /* Phase voltages in millivolts */
     uint32_t phase_current_ma[3];      /* Phase currents in milliamps */
@@ -118,6 +124,8 @@ typedef struct {
     uint8_t  reverse_power_flags;      /* Bit 0: A, Bit 1: B, Bit 2: C */
     uint8_t  phase_sequence_error;     /* 1 if reverse phase sequence */
     uint8_t  loss_of_phase_flags;      /* Bit 0: A, Bit 1: B, Bit 2: C */
+    uint8_t  is_valid;                 /* 1 if all registers successfully acquired */
+    int32_t  last_error_code;          /* 0 if healthy, or AMI_ADE9000_ERR_* */
 } AmiAde9000ScaledReadings;
 
 /**

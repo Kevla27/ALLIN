@@ -68,6 +68,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-058**](058_penyelesaian_gap_integrasi_dlms_e2_ke_e3.md) | 03-11-2026 | Penyelesaian Gap Integrasi DLMS: GET-Request Identitas, Skala Frekuensi, Sampel Kuadran/Tarif, dan Build Target E2 | `E2/*`, `NonSecure/CMakeLists.txt`, `Changelog/*` | Selesai |
 | [**LOG-059**](059_penyambungan_cipher_backend_dan_sinkronisasi_log_billing_dlms.md) | 03-11-2026 | Penyambungan Security Suite 0 Cipher Backend, Ciphered SET-Request, dan Sinkronisasi Profile DLMS (Event Log & Billing History) | `E2/*`, `Changelog/*` | Selesai |
 | [**LOG-060**](060_penghapusan_modul_audio_buzzer_dan_penjernihan_pb7_led_alm.md) | 04-11-2026 | Penghapusan Modul Audio Buzzer dan Penjernihan Peran Pin PB7 sebagai LED_ALM (Kuning) Sesuai Standar SPLN & PIN.docx | `E3/*`, `NonSecure/CMakeLists.txt`, `Changelog/*` | Selesai |
+| [**LOG-061**](061_integrasi_pembaruan_e2_disconnect_control_block_transfer_anti_bruteforce.md) | 04-11-2026 | Integrasi Pembaruan Pilar E2 (Disconnect Control Class 70, Block Transfer, Anti-Bruteforce & NVM Counter) | `E2/*`, `E3/app/*`, `NonSecure/CMakeLists.txt`, `Changelog/*` | Selesai |
 
 ---
 

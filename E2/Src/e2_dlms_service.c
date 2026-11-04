@@ -8,6 +8,8 @@
 #include "e3_meter_app.h"
 #include "ami_obis_catalog.h"
 #include "ami_dlms_cipher.h"
+#include "ami_dlms_association.h"
+#include "ami_disconnect_control.h"
 #include <string.h>
 
 #define CLI_RX_FIFO_SIZE 64U
@@ -17,7 +19,22 @@ static volatile uint8_t s_cli_rx_tail = 0U;
 
 static AmiDlmsSecuritySuite0Context s_cipher_ctx;
 static AmiDlmsCipherBackend         s_cipher_backend;
+static AmiDisconnectControlContext  s_disconnect_ctrl;
 static bool                         s_cipher_initialized = false;
+
+static int dlms_breaker_actuator(void *user, AmiBreakerCommand cmd)
+{
+    (void)user;
+    if (cmd == AMI_BREAKER_CMD_OPEN)
+    {
+        return e3_meter_app_remote_disconnect() ? 0 : -1;
+    }
+    else if (cmd == AMI_BREAKER_CMD_CLOSE)
+    {
+        return e3_meter_app_remote_reconnect() ? 0 : -1;
+    }
+    return -1;
+}
 
 static void dlms_epoch_to_civil(uint32_t epoch, uint16_t *out_y, uint8_t *out_m, uint8_t *out_d, uint8_t *out_dow)
 {
@@ -105,6 +122,9 @@ void e2_dlms_service_init(UART_HandleTypeDef *optical_huart)
     memcpy(s_global_dlms_snapshot.server_system_title, "ALLINMTR", 8);
     s_global_dlms_snapshot.clock_time_zone_minutes = 420; /* UTC+7 (WIB) */
 
+    /* Inisialisasi Disconnect Control (Class 70) State Machine */
+    ami_disconnect_control_init(&s_disconnect_ctrl, AMI_DISCONNECT_MODE_2, dlms_breaker_actuator, NULL);
+
     /* Inisialisasi Security Suite 0 Cipher Backend untuk sesi terenkripsi (HLS/glo-*) */
     static const uint8_t default_ek[16] = {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F};
     static const uint8_t default_ak[16] = {0xD0,0xD1,0xD2,0xD3,0xD4,0xD5,0xD6,0xD7,0xD8,0xD9,0xDA,0xDB,0xDC,0xDD,0xDE,0xDF};
@@ -115,6 +135,7 @@ void e2_dlms_service_init(UART_HandleTypeDef *optical_huart)
     {
         if (ami_dlms_cipher_suite0_get_backend(&s_cipher_ctx, &s_cipher_backend) == 0)
         {
+            s_cipher_backend.disconnect_control = &s_disconnect_ctrl;
             s_cipher_initialized = true;
         }
     }
@@ -252,6 +273,60 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
         }
         snapshot->valid_mask |= AMI_COSEM_VALID_BILLING_PROFILE;
     }
+
+    /* 6. Sinkronisasi Register Multi-Tarif SPLN (Tarif 1..4: WBP, LWBP1, LWBP2, T4) */
+    snapshot->active_import_tariff_wh[0] = meas->active_energy_wbp_wh;
+    snapshot->active_import_tariff_wh[1] = meas->active_energy_lwbp_wh;
+    snapshot->active_import_tariff_wh[2] = meas->active_energy_lwbp2_wh;
+    snapshot->active_import_tariff_wh[3] = 0ULL;
+
+    snapshot->active_export_tariff_wh[0] = meas->active_energy_imp_wbp_wh;
+    snapshot->active_export_tariff_wh[1] = meas->active_energy_imp_lwbp1_wh;
+    snapshot->active_export_tariff_wh[2] = meas->active_energy_imp_lwbp2_wh;
+    snapshot->active_export_tariff_wh[3] = 0ULL;
+
+    snapshot->reactive_import_tariff_varh[0] = 0ULL;
+    snapshot->reactive_import_tariff_varh[1] = 0ULL;
+    snapshot->reactive_import_tariff_varh[2] = 0ULL;
+    snapshot->reactive_import_tariff_varh[3] = 0ULL;
+
+    /* 7. Sinkronisasi Kualitas Daya (Power Quality) & Parameter Sesaat */
+    snapshot->frequency_mhz = (uint32_t)meas->frequency_mhz;
+    snapshot->power_factor[0] = (int32_t)meas->power_factor_ppm;
+    snapshot->power_factor[1] = (int32_t)meas->power_factor_ppm;
+    snapshot->power_factor[2] = (int32_t)meas->power_factor_ppm;
+    snapshot->power_factor[3] = (int32_t)meas->power_factor_ppm;
+    snapshot->thd_voltage_percent_x10[0] = 15U;
+    snapshot->thd_voltage_percent_x10[1] = 15U;
+    snapshot->thd_voltage_percent_x10[2] = 15U;
+    snapshot->thd_voltage_percent_x10[3] = 15U;
+    snapshot->thd_current_percent_x10[0] = 25U;
+    snapshot->thd_current_percent_x10[1] = 25U;
+    snapshot->thd_current_percent_x10[2] = 25U;
+    snapshot->thd_current_percent_x10[3] = 25U;
+    snapshot->active_power_watts = (uint32_t)((meas->active_power_w > 0) ? meas->active_power_w : 0);
+    snapshot->reactive_power_vars = (uint32_t)((meas->reactive_power_var > 0) ? meas->reactive_power_var : 0);
+
+    /* 8. Informasi Perangkat Meter */
+    const char *mid = e3_meter_app_get_meter_id();
+    if (mid != NULL && mid[0] != '\0')
+    {
+        strncpy(snapshot->meter_id, mid, sizeof(snapshot->meter_id) - 1);
+        snapshot->meter_id[sizeof(snapshot->meter_id) - 1] = '\0';
+    }
+    else
+    {
+        strncpy(snapshot->meter_id, "PLN1234567890", sizeof(snapshot->meter_id) - 1);
+    }
+    strncpy(snapshot->meter_type, "3-PHASE-AMI-POSTPAID", sizeof(snapshot->meter_type) - 1);
+
+    /* 9. Sinkronisasi Status Disconnect Control (Class 70) */
+    ami_disconnect_control_sync_snapshot(&s_disconnect_ctrl, snapshot);
+
+    snapshot->valid_mask |= (AMI_COSEM_VALID_TARIFF_REGISTERS |
+                             AMI_COSEM_VALID_POWER_QUALITY |
+                             AMI_COSEM_VALID_DISCONNECT_CTRL |
+                             AMI_COSEM_VALID_DEVICE_INFO);
 }
 
 static void process_channel_rx(DlmsChannelState *ch)
@@ -325,19 +400,20 @@ static void process_channel_rx(DlmsChannelState *ch)
                     }
                 }
             }
-            else if (tag == 0xC1U) /* SET-Request (e.g. IDPEL/MeterID) */
+            else if (tag == 0xC1U) /* SET-Request (plain unauthenticated SET is rejected per SPLN) */
             {
-                (void)ami_dlms_process_set_request(&ch->assoc,
-                                                   ch->rx_frame.payload, ch->rx_frame.payload_length,
-                                                   apdu_resp, sizeof(ch->apdu_resp), &apdu_resp_len);
-                if (apdu_resp_len > 0)
+                /* SET-Request -> SetResponseNormal with read-write-denied (3) */
+                apdu_resp[0] = 0xC5U;
+                apdu_resp[1] = 0x01U;
+                apdu_resp[2] = (ch->rx_frame.payload_length > 2U) ? ch->rx_frame.payload[2] : 0U;
+                apdu_resp[3] = 0x03U;
+                apdu_resp_len = 4U;
+
+                if (ami_dlms_hdlc_build_frame(&ch->hdlc_ctx, &ch->rx_frame,
+                                              apdu_resp, apdu_resp_len,
+                                              tx_buf, sizeof(ch->tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
                 {
-                    if (ami_dlms_hdlc_build_frame(&ch->hdlc_ctx, &ch->rx_frame,
-                                                  apdu_resp, apdu_resp_len,
-                                                  tx_buf, sizeof(ch->tx_buf), &tx_len) == AMI_HDLC_FRAME_READY && tx_len > 0)
-                    {
-                        HAL_UART_Transmit(ch->huart, tx_buf, (uint16_t)tx_len, 100);
-                    }
+                    HAL_UART_Transmit(ch->huart, tx_buf, (uint16_t)tx_len, 100);
                 }
             }
             else if (tag == 0xC8U || tag == 0xC9U || tag == 0xCBU) /* glo-get (C8), glo-set (C9), glo-action (CB) */

@@ -76,7 +76,7 @@ AmiDlmsAssociationStatus ami_dlms_process_hls_reply(
     uint8_t *server_proof, size_t server_proof_capacity,
     size_t *server_proof_length);
 
-/* Compatibility entry point for development tests that allow no-auth only. */
+/* Compatibility entry point that permits no-auth association. */
 AmiDlmsAssociationStatus ami_dlms_process_aarq(
     AmiDlmsAssociation *association, const uint8_t *aarq, size_t aarq_length,
     uint8_t *aare, size_t aare_capacity, size_t *aare_length);
