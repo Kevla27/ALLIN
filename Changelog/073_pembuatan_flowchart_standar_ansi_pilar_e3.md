@@ -15,35 +15,40 @@ Diagram ini menyajikan siklus hidup eksekusi *firmware* Pilar E3 (Aplikasi Smart
 
 ---
 
-## 2. Rincian Simbol & Tahapan Alur Flowchart E3
+## 2. Struktur Multi-Tab Dekomposisi Flowchart E3
 
-1. **Terminator (Oval):**
-   - `Mulai`: Titik awal saat sistem dinyalakan (*power-on reset*).
-   - `Selesai`: Titik akhir siklus sebelum kembali ke pemantauan periodik.
-2. **Data Masukan (Jajar Genjang):**
-   - Menerima sinyal pengukuran metrologi ($V, I, P, Q, S$), status sensor sabotase (*tamper*), dan data *checkpoint* NVM SPI Flash.
-3. **Inisialisasi Sistem Aplikasi (Persegi Panjang):**
-   - Pemulihan *state machine* relai, verifikasi zona tarif ToU, dan konfigurasi periferal.
-4. **Ingest Data Metrologi (Persegi Panjang):**
-   - Penerimaan berkala data besaran teknik dari jembatan sistem (`meter_system_bridge.c`).
-5. **Evaluasi Sabotase / Tamper (Belah Ketupat & Subrutin):**
-   - Pengecekan interupsi EXTI saklar tutup/terminal meter & sensor magnetik.
-   - Jika terdeteksi $\rightarrow$ Subrutin: Rekam logbook FIFO, aktivasi alarm PB7/buzzer, dan kunci relai beban (SPLN D3.006).
-6. **Evaluasi Proteksi Beban (Belah Ketupat & Subrutin):**
-   - Pengecekan beban lebih (*overpower* > batas kontrak) & tegangan abnormal (*OV/UV*).
-   - Jika terdeteksi $\rightarrow$ Subrutin: Timer pemutus beban & pulsa koil trip relai (PC8).
-7. **Perhitungan Billing & Tarif ToU (Subrutin Bergaris Ganda):**
-   - Akumulasi energi aktif/reaktif zona WBP/LWBP dan kalkulasi kredit/kVAh.
-8. **Integrasi Profil Beban 15-Menit (Belah Ketupat & Persegi Panjang):**
-   - Pengecekan interval 15 menit $\rightarrow$ simpan deret rata-rata daya & Maximum Demand (MD) bulanan ke Flash NVM SPI2.
-9. **Antarmuka HMI Display OLED & Tombol (Subrutin Bergaris Ganda):**
-   - Pembaruan tampilan OLED 0.96" SSD1306 (OBIS Code SPLN) dan pemindaian tombol navigasi (PA0 ▲ / PB6 ▼).
-10. **Komunikasi Protokol DLMS E2 (Belah Ketupat & Persegi Panjang):**
-    - Pengecekan permintaan remote HES/HHU $\rightarrow$ eksekusi mutasi relai Class 70 dan sinkronisasi jam RTC.
-11. **Penyelamatan Darurat Last-Gasp (Belah Ketupat & Subrutin Bergaris Ganda):**
-    - Deteksi tegangan jatuh PVD VDD_MCU < 2.9V $\rightarrow$ simpan *checkpoint* energi & status relai (<15ms ke Flash SPI2) lalu transisi ke mode hemat daya STM32U5 Stop 2.
-12. **Data Keluaran (Jajar Genjang):**
-    - Status relai beban, tagihan energi kVAh/kWh, rekaman logbook, data profil beban, dan visualisasi OLED.
+Berkas [`docs/e3_flowchart_ansi.drawio`](file:///g:/PPPP/ALLIN/docs/e3_flowchart_ansi.drawio) kini memuat 4 tab terstruktur yang mengurai logika subsistem modular E3 secara tuntas:
+
+### Tab 1: 1. Flowchart Utama E3 (Terurai Penuh)
+Mengurai siklus periodik master (100 ms) dengan mengintegrasikan langsung logika dari Tab 2, 3, dan 4 ke dalam satu alur poros vertikal lurus:
+1. `Mulai Siklus E3 (100 ms)` (Oval).
+2. Input data metrologi E1, status tamper, dan data RTC (Jajar Genjang).
+3. Evaluasi tarif ToU aktif (WBP/LWBP) & akumulasi kWh.
+4. Evaluasi 9 vektor sabotase fisik & 8 alarm hardware internal.
+5. **Percabangan Gangguan/Sabotase:**
+   - Ya $\rightarrow$ Buka kontak relai pemutus (Trip PC8) & catat logbook kejadian 100 FIFO.
+   - Evaluasi Lockout selesai $\rightarrow$ Set status `READY ON` (LED PB7 kedip 1 Hz).
+   - Evaluasi Tombol (▲ + ▼) ditekan $\ge 1$ s $\rightarrow$ Tutup kontak relai (Close PC9) & status `CONNECTED`.
+   - Tidak $\rightarrow$ Pertahankan status relai normal (`CONNECTED`).
+6. **Percabangan Profil Beban 15-Menit:**
+   - Ya $\rightarrow$ Rekam deret profil beban & perbarui Maximum Demand (MD) bulanan ke Flash NVM SPI2.
+7. **Percabangan Antarmuka HMI OLED & Tombol:**
+   - Evaluasi tombol navigasi (▲/▼) ditekan $\rightarrow$ Navigasi manual vs Auto-scroll carousel 5 detik.
+   - Kompilasi framebuffer SPLN & kirim ke display OLED via I2C3.
+8. Sinkronisasi register OBIS & respons perintah remote DLMS.
+9. **Percabangan Pemadaman Listrik (AC_FAIL / PVD):**
+   - Ya $\rightarrow$ Eksekusi Last-Gasp (<15 ms ke Flash) $\rightarrow$ Standby layar 10 detik $\rightarrow$ Padamkan layar & masuk mode Stop 2 (4.5 µA).
+10. Output status relai, data billing, logbook, dan visual OLED (Jajar Genjang).
+11. Tunda siklus 100 ms (osDelay) & loop kembali ke siklus berikutnya.
+
+### Tab 2: 2. Detail Sabotase & Relai FSM (Dekomposisi Penuh)
+Membedah mesin status relai (*Power Relay Manager*) dan evaluasi 9 vektor sabotase serta 8 parameter alarm internal (SPLN D3.006:2021 Tabel 4, 5, dan 6).
+
+### Tab 3: 3. Detail Tampilan Layar HMI (Dekomposisi Penuh)
+Membedah logika mesin tampilan OLED SSD1306: transisi auto-scroll 5 detik, navigasi manual tombol ▲/▼, rotasi layar error 3 detik, dan banner peringatan tegangan ekstrem (Lo-V / Hi-V).
+
+### Tab 4: 4. Detail Listrik Padam & Stop 2 (Dekomposisi Penuh)
+Membedah alur mitigasi pemadaman listrik: penanganan interupsi `AC_FAIL_DET`, penyimpanan *emergency checkpoint* Last-Gasp (<15 ms), *off-power standby* layar 10 detik, transisi ke STM32U5 Stop 2 (4.5 µA), dan penanganan *wakeup* (listrik PLN pulih vs tombol inspeksi manual).
 
 ---
 
@@ -56,3 +61,4 @@ Diagram ini menyajikan siklus hidup eksekusi *firmware* Pilar E3 (Aplikasi Smart
    - `ninja -C NonSecure/build`: **0 Error, 0 Warning**.
 3. **Unit Test CTest:**
    - `ctest --test-dir E3/build`: **12/12 Passed (100%)**.
+
