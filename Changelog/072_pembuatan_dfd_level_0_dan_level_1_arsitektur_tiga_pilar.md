@@ -43,22 +43,28 @@ Memetakan entitas eksternal (*terminator*) yang berinteraksi langsung dengan bat
   10. `Paket APDU DLMS, Profil Beban & Notifikasi Trap/Last-Gasp` (Sistem $\rightarrow$ HES)
 
 ### B. DFD Level 1: Dekomposisi Fungsional Tiga Pilar (Fokus Pilar E3)
-Mendekomposisi proses internal menjadi 3 pilar utama dan 4 *data store* permanen:
-- **Proses 1.0 (Pilar E1 - Metrologi Listrik):** Akuisisi ADC SPI1, kalkulasi RMS, daya P/Q/S, power factor, dan pulsa energi. Disalurkan via bridge buffer `meter_measurements_t s_meas`.
-- **Proses 2.0 (Pilar E2 - Protokol DLMS/COSEM):** Framing HDLC, dekripsi AES-128-GCM, manajemen objek OBIS, dan pengiriman APDU.
-- **Proses 3.0 (Pilar E3 - Logika Bisnis Aplikasi):**
-  - `3.1 Engine Billing & Tarif ToU (8-Zona)`
-  - `3.2 Integrasi Profil Beban & Maximum Demand (15-Menit)`
-  - `3.3 Pengelola Relai & Proteksi Beban (SPLN D3.006)`
-  - `3.4 Deteksi Sabotase (8 Vektor Tamper) & Alarm`
-  - `3.5 Antarmuka HMI (OLED Display SPLN & Tombol)`
-  - `3.6 Manajemen Daya & Penyelamatan Last-Gasp (Stop 2)`
-  - `3.7 Interactive Serial Console CLI (USART2 / Port Uji)`
-- **Data Stores (Penyimpanan Persisten):**
-  - `D1 | NVRAM FLASH CHECKPOINT & STATUS RELAI`: Menyimpan stand energi Wh/varh darurat dan status relai.
-  - `D2 | RING BUFFER LOGBOOK KEJADIAN (FIFO)`: Menyimpan 100 catatan rekaman sabotase dan pemadaman.
-  - `D3 | BUFFER PROFIL BEBAN 15-MENIT (60 HARI)`: Menyimpan riwayat kanal profil beban dan MD bulanan.
-  - `D4 | TABEL TARIF ToU & KONFIGURASI KONTRAK`: Menyimpan jadwal WBP/LWBP, IDPEL, dan nomor seri meter.
+Mendekomposisi proses internal menjadi 3 pilar utama dengan standarisasi aliran data frasa benda dan pemisahan kaku antara sinyal fisik analog dengan data logis:
+- **Proses 1.0 (Pilar E1 - Metrologi Listrik ADE9000):** Menerima sinyal fisik 3-fasa & interrupt DREADY PE11; melakukan sampling ADC SPI1 8kSPS & konversi DSP; menyalurkan data pengukuran mentah ke jembatan sistem `meter_system_bridge.c` (`meter_measurements_t s_meas`).
+- **Proses 3.0 (Pilar E3 - Logika Bisnis Aplikasi Smart Meter / Jantung Sistem):**
+  - Menerima `Data Pengukuran Listrik Terfilter (meter_measurements_t)` dari bridge untuk diolah oleh seluruh sub-proses:
+    - `3.1 Engine Billing & Tarif ToU (8-Zona)`
+    - `3.2 Integrasi Profil Beban & Maximum Demand (15-Menit)`
+    - `3.3 Pengelola Relai & Proteksi Beban (SPLN D3.006)`
+    - `3.4 Deteksi Sabotase (8 Vektor Tamper) & Alarm`
+    - `3.5 Antarmuka HMI (OLED Display SPLN & Tombol Navigasi)`
+    - `3.6 Manajemen Daya & Penyelamatan Last-Gasp (Stop 2)`
+    - `3.7 Interactive Serial Console CLI (USART2 / Port Uji)`
+- **Proses 2.0 (Pilar E2 - Tumpukan Protokol DLMS/COSEM SPLN D5.002):**
+  - Menerima `Snapshot Data Kamus Objek OBIS` dari E3 (`load_profile.c`, `billing_tariff.c`, relai).
+  - Mengirim `Paket APDU Perintah Disconnect/Reconnect Class 70` ke E3 (`power_relay_manager.c`).
+  - Menangani komunikasi framing HDLC & enkripsi AES-128-GCM dengan entitas eksternal:
+    - `Sistem Pusat PLN (HES / AMI)` via Modem USART2.
+    - `Petugas Lapangan PLN / HHU` via Port Optik USART3.
+- **Data Stores Persisten NVM (Pilar E3):**
+  - `D1 | NVRAM FLASH CHECKPOINT ENERGI & RELAI`: Ditulis oleh `3.6 Last-Gasp` saat listrik padam (Stop 2).
+  - `D2 | RING BUFFER LOGBOOK KEJADIAN (FIFO)`: Ditulis oleh `3.4 Tamper` untuk mencatat 100 rekaman sabotase.
+  - `D3 | BUFFER PROFIL BEBAN 15-MENIT (60 HARI)`: Ditulis oleh `3.2 Load Profile` untuk riwayat konsumsi daya.
+  - `D4 | TABEL TARIF ToU & KONFIGURASI KONTRAK`: Dibaca oleh `3.1 Billing Engine` untuk jadwal tarif & daya kontrak.
 
 ---
 
