@@ -20,9 +20,24 @@ Dalam perancangan dokumen arsitektur dan bagan alir (flowchart) sistem firmware 
 
 ---
 
-## Bagian 2: Rincian Perubahan Implementasi
+## Bagian 2: Rincian Perubahan Implementasi & Penataan Layout Bersih (0 Spaghetti)
 
-Dilakukan pembaruan menyeluruh pada file [system_tab1_macro_overview.drawio.xml](file:///g:/PPPP/ALLIN/docs/system_tab1_macro_overview.drawio.xml) dan Tab 1 pada [system_flowchart.drawio](file:///g:/PPPP/ALLIN/docs/system_flowchart.drawio) dengan pemetaan simbol ISO 5807 sebagai berikut:
+Untuk menjaga agar diagram tetap sangat mudah dipahami (*readable at a glance*), seluruh elemen diatur kembali mengikuti struktur tulang punggung vertikal (*single-column vertical spine*) dengan koridor panah terpisah:
+
+1. **Tulang Punggung Vertikal Sentral (0 Garis Silang):**
+   - **Terminal (Start POR):** Bentuk Stadion / Kapsul ISO 5807 (Klausul 9.4.1).
+   - **Preparation (Inisialisasi & TrustZone):** Bentuk Heksagon ISO 5807 (Klausul 9.2.2.3).
+   - **Siklus Utama FreeRTOS (100 ms):** Bentuk Process ISO 5807 (Klausul 9.2.1).
+   - **Tiga Pilar (E1, E2, E3):** Bentuk Predefined Process ISO 5807 (Klausul 9.2.2.1) dengan penegasan E3 sebagai domain inti kita.
+   - **Tunda Siklus (osDelay):** Bentuk Process ISO 5807 (Klausul 9.2.1).
+   - **Jalur Asinkron & ISR:** Ditempatkan rapi di bawah siklus utama tanpa memotong alur lain.
+   - **Lapisan Hardware & Media Penyimpanan:** Ditempatkan di dasar sistem dengan perincian lengkap Flash NOR, OLED SSD1306, ADE9000, dan Modem/Optik.
+
+2. **Pemisahan Koridor Panah (Bebas Tabrakan Teks & Garis):**
+   - **Koridor Kiri (x=100):** Jalur loop kembali 100 ms dari `osDelay` ke `SIKLUS UTAMA FREERTOS` dengan label bersih tanpa terpotong canvas.
+   - **Koridor Kanan (x=830):** Jalur interaksi dari Pilar E3 ke Lapisan Hardware tanpa memotong kotak atau teks tunda.
+   - **Total Garis Bersilangan:** **0 Garis (Zero Crossings)**.
+   - **Total Teks Bertumpukan:** **0 Teks (Zero Overlaps)**.
 
 | Simbol / Elemen | Klausul ISO 5807:1985 | Bentuk / Tipe Draw.io | Implementasi dalam Sistem Smart Meter |
 | :--- | :--- | :--- | :--- |
@@ -58,3 +73,4 @@ ninja: no work to do.
 Total Test time (real) = 0.45 sec
 ```
 - **Status:** 12/12 Test Passed (100%).
+
