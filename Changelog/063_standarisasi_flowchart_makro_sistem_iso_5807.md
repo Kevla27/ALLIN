@@ -38,6 +38,11 @@ Untuk menjaga agar diagram tetap sangat mudah dipahami (*readable at a glance*),
    - Setiap kotak makro kini hanya memuat 1 judul utama tebal (*bold title*) dan 1 baris sub-deskripsi padat dengan penanda rujukan tab (contoh: `[Tab 3]`, `[Tab 4]`, `[Tab 5 & FlowChartE3]`).
    - Jarak antar-elemen (*vertical gap*) diseragamkan presisi tepat 16 piksel, dan tinggi keseluruhan diagram menjadi sangat proporsional (~660px) sehingga muat penuh di satu layar monitor tanpa perlu scrolling.
 
+4. **Konversi Tema Black & White (B&W) & Evaluasi Pilar E3:**
+   - Seluruh warna diubah ke tema monokrom standar publikasi teknis ISO/IEEE: background putih murni (`#ffffff`), border hitam pekat (`#000000;strokeWidth=1.5..2`), dan teks hitam kontras tinggi.
+   - Pilar E3 (Domain Inti Kita) diberikan aksen garis batas tebal ganda (*strokeWidth=2*) dan shading abu-abu sangat muda (`#f8f9fa`) agar langsung teridentifikasi sebagai inti aplikasi smart meter.
+   - Dilakukan audit struktural terhadap 4 sub-proses pada `Acuan/FlowChartE3.drawio` (Siklus 100ms, FSM Sabotase/Relai, Tampilan HMI, Manajemen Padam/Stop 2). Disimpulkan bahwa penyebutan 4 fungsi inti ini di dalam blok Predefined Process E3 adalah pendekatan arsitektural terbaik agar Tab 1 tetap mempertahankan level abstraksi makro (*System Overview*) tanpa menimbulkan visual clutter.
+
 | Simbol / Elemen | Klausul ISO 5807:1985 | Bentuk / Tipe Draw.io | Implementasi dalam Sistem Smart Meter |
 | :--- | :--- | :--- | :--- |
 | **Terminal (Start)** | Klausul 9.4.1 | Stadium / Kapsul (`arcSize=50`) | **START: POWER-ON RESET (POR)** — Kondisi cold boot saat catu daya 3.3V aktif |
