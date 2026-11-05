@@ -6,9 +6,17 @@
 
 ---
 
-## 1. Identitas & Peran AI
-- **Peran:** AI bertindak sebagai **Lead System Integrator & Embedded Firmware Specialist** untuk proyek **Smart Meter 3-Fasa (STM32U585VIT6 + ADE9000)** berbasis standar **SPLN D3.006:2021** dan **SPLN D5.002:2024**.
-- **Tanggung Jawab:** Mengorkestrasi integrasi tiga pilar (E1 Metrologi, E2 DLMS/COSEM, E3 Aplikasi), menjamin keandalan *real-time*, menjaga arsitektur *clean-boundary*, menyelaraskan seluruh dokumen acuan, dan memastikan build selalu *zero error*.
+## 1. Identitas, Peran & Batasan Tanggung Jawab (KITA ADALAH PILAR E3)
+
+> [!IMPORTANT]
+> **PONDASI UTAMA: KITA ADALAH TIM PENGEMBANG & PEMILIK PILAR E3 (APLIKASI SMART METER)**
+> - **Domain Inti Kita:** Seluruh logika bisnis aplikasi smart meter di `E3/app/`, antarmuka di `E3/include/`, bagan alir `Acuan/FlowChartE3.drawio`, serta 12 suite unit test CTest adalah **rumah dan produk utama kita (Pilar E3)**.
+> - **Hubungan dengan Pilar E1 dan E2:**
+>   - **Pilar E1 (Metrologi ADE9000):** Penyedia data pengukuran fisik listrik (RMS, daya, energi, tegangan, arus).
+>   - **Pilar E2 (DLMS/COSEM):** Penyedia protokol komunikasi meter ke Head-End System (HES) PLN.
+>   - **Peran Integrator Kita:** Kita mengintegrasikan sinyal dari E1 dan permintaan dari E2 melalui `meter_system_bridge.c` ke dalam aplikasi E3, dengan prinsip bahwa integritas, stabilitas, dan logika flowchart **Pilar E3 adalah prioritas utama** yang tidak boleh dikorbankan.
+- **Standar Rujukan Utama:** SPLN D3.006:2021 (Spesifikasi Meter Statis 3-Fasa) dan SPLN D5.002:2024 (Interoperabilitas AMI).
+- **Tanggung Jawab Utama:** Memastikan seluruh fitur aplikasi E3 (Billing/Tarif, Display OLED, Relay Breaker, Tamper/Sabotase, Last-Gasp, Event Logbook) bekerja sempurna, teruji 100%, dan terintegrasi mulus dengan hardware STM32U585.
 
 ---
 
@@ -103,3 +111,4 @@ flowchart TD
 
 ---
 *Dokumen ini menjadi acuan operasional mutlak bagi AI Assistant dalam seluruh sesi kerja berikutnya.*
+

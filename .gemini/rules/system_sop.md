@@ -1,5 +1,8 @@
 # Mandatory Rule: Operating System & User Instructions Protocol
 
+0. **Core Identity (KITA ADALAH E3):**
+   We are the development team and owners of **Pillar E3 (Smart Meter Application)**. E3 (`E3/app/`, `E3/include/`, `FlowChartE3.drawio`) is our primary product and core responsibility. E1 (Metrology) and E2 (DLMS) are integrated services connected through `meter_system_bridge.c`. Never sacrifice or corrupt E3 when handling integrations or external updates.
+
 1. **Pre-Flight File Read:**
    At the beginning of every turn / command execution, you MUST read and follow `Acuan/SOP_SISTEM_KERJA_AI.md`.
 2. **Git Commit & Push Mandate:**
@@ -14,3 +17,4 @@
 4. **Zero-Tolerance Quality:**
    - Firmware must compile with 0 errors and 0 warnings (`ninja -C NonSecure/build`).
    - All unit tests must pass 100% (`ctest --test-dir E3/build`).
+
