@@ -52,12 +52,12 @@
         </mxCell>
 
         
-        <mxCell id="iso_hw" value="&lt;b&gt;LAPISAN PERANGKAT KERAS &amp;amp; MEDIA PENYIMPANAN&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Flash NOR 4MB (SPI2), OLED SSD1306 (I2C3), AFE ADE9000 (SPI1), Modem/Optik (USART) [Tab 6]&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+        <mxCell id="iso_hw" value="&lt;b&gt;LAPISAN PERANGKAT KERAS &amp;amp; MEDIA PENYIMPANAN&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Flash NOR 4MB (SPI2), OLED SSD1306 (I2C3), AFE ADE9000 (SPI1), Modem/Optik (USART)&lt;br/&gt;[Rujukan Alokasi Pin: Acuan/PIN.docx]&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
           <mxGeometry x="200" y="516" width="560" height="44" as="geometry" />
         </mxCell>
 
         
-        <mxCell id="iso_nav" value="&lt;b&gt;PANDUAN REFERENSI TAB:&lt;/b&gt; [Tab 2] Metrologi ADE9000 | [Tab 3] DLMS/COSEM | [Tab 4 &amp;amp; FlowChartE3] Rincian Aplikasi E3 | [Tab 5] Jalur ISR | [Tab 6] Hardware &amp;amp; Pinout" style="rounded=1;whiteSpace=wrap;html=1;fontSize=9.5;align=center;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;" vertex="1" parent="1">
+        <mxCell id="iso_nav" value="&lt;b&gt;PANDUAN REFERENSI TAB:&lt;/b&gt; [Tab 2] Metrologi ADE9000 | [Tab 3] DLMS/COSEM | [Tab 4 &amp;amp; FlowChartE3] Rincian Aplikasi E3 | [Tab 5] Jalur Asinkron &amp;amp; ISR | [Acuan/PIN.docx] Pinout Hardware" style="rounded=1;whiteSpace=wrap;html=1;fontSize=9.5;align=center;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;" vertex="1" parent="1">
           <mxGeometry x="130" y="576" width="700" height="34" as="geometry" />
         </mxCell>
 

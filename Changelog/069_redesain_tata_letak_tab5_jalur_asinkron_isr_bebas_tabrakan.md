@@ -69,3 +69,4 @@ Struktur interupsi `HAL_GPIO_EXTI_Callback(GPIO_Pin)` dirombak menjadi **Pola If
    Total Test time (real) = 0.19 sec
    ```
    Status: **12/12 Passed (100%)**.
+
