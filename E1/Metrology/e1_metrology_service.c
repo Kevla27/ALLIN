@@ -16,6 +16,7 @@
 
 static volatile uint32_t s_cf1_pulse_count = 0;
 static volatile uint32_t s_cf2_pulse_count = 0;
+static volatile uint32_t s_dready_pulse_count = 0;
 static uint64_t          s_energy_exp_mj_accum = 0; /* Akumulator energi kirim/ekspor (+A) dalam Watt-ms (milliJoule) */
 static uint64_t          s_energy_imp_mj_accum = 0; /* Akumulator energi terima/impor (-A) dalam Watt-ms (milliJoule) */
 static ReactiveEnergyQuadrants_t s_reactive_quadrants = {0}; /* Akumulator energi reaktif 4-kuadran */
@@ -320,4 +321,14 @@ uint32_t e1_metrology_get_active_pulses(void)
 uint32_t e1_metrology_get_reactive_pulses(void)
 {
     return s_cf2_pulse_count;
+}
+
+void e1_metrology_on_data_ready(void)
+{
+    s_dready_pulse_count++;
+}
+
+uint32_t e1_metrology_get_dready_pulses(void)
+{
+    return s_dready_pulse_count;
 }

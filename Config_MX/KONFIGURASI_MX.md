@@ -16,7 +16,7 @@ flowchart TD
     subgraph E1_Domain["Pilar E1: Metrologi Listrik (ADE9000)"]
         AFE["IC Metrologi ADE9000"]
         SPI1["SPI1: PA4 (SS), PA5 (SCK), PA6 (MISO), PA7 (MOSI)"]
-        IRQ0_1["Interupsi: PB5 (IRQ0), PB1 (IRQ1), PE11 (EVENT)"]
+        IRQ0_1["Interupsi & Sinyal: PB5 (IRQ0), PB1 (IRQ1), PE11 (DREADY)"]
         ZX_SIG["Zero-Crossing: PE8 (ADE_CF3_ZX)"]
         CF_SIG["Pulsa Kalibrasi: PE12 (CF1 Wh), PE13 (CF2 VARh)"]
         AFE <--> SPI1
@@ -112,7 +112,7 @@ Tabel berikut memuat pemetaan 100% pin mikrokontroler STM32U585VIT6 paket LQFP10
 | 37 | **PA7** | `ADE_MOSI` | `SPI1_MOSI` (AF5) | Very High Speed | **E1** | Secure / NS | MOSI SPI1 ke ADE9000. |
 | 38 | **PB5** | `ADE_IRQ0` | `GPIO_EXTI5` | Input Pull-Up, Falling Edge| **E1** | Secure / NS | HW IRQ0: Fasa balik (`ERR21`), Arus-Tegangan tidak sefase (`ERR22`), Reverse Power (`ERR26`). |
 | 39 | **PB1** | `ADE_IRQ1` | `GPIO_EXTI1` | Input Pull-Up, Falling Edge| **E1** | Secure / NS | HW IRQ1: Netral putus (`ERR23`), Hilang fasa (`ERR24`), Voltage Dip/Sag & Swell. |
-| 40 | **PE11**| `ADE_EVENT` | `GPIO_EXTI11` | Input Pull-Up, Falling Edge| **E1** | Secure / NS | Power Quality Event (Dip, Sag, Swell, Overcurrent, Asimetri fasa > 30%). |
+| 40 | **PE11**| `ADE_DREADY` | `GPIO_EXTI11` | Input Pull-Up, Falling Edge| **E1** | Secure / NS | Sinyal Data Ready ADE9000 (8 kSPS / 125 µs) untuk sinkronisasi akuisisi sampel ADC / waveform E1. Pada mode polling periodik normal, EXTI dinonaktifkan di NVIC untuk mencegah interrupt storm & hemat daya. |
 | 41 | **PE7** | `ADE_RESET` | `GPIO_Output` | Push-Pull, High, Init High | **E1** | Secure / NS | Hardware Reset ADE9000 aktif rendah (mereset IC metrologi jika sampling ADC berhenti). |
 | 42 | **PE8** | `ADE_CF3_ZX` | `GPIO_EXTI8` | Input No Pull, Both Edges | **E1/E3**| Secure / NS | Deteksi Zero-Crossing AC untuk Zero-Current Switching pemutus beban (mencegah busur api relai). |
 | 43 | **PE9** | `ADE_PM0` | `GPIO_Output` | Push-Pull, Low, Init Low | **E1** | Secure / NS | Kontrol Power Mode 0 ADE9000 (bekerja bersama PM1: PSM0 Run / PSM2 Tamper / PSM3 Sleep). |

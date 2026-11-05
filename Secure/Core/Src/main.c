@@ -448,7 +448,7 @@ static void MX_GPIO_Init(void)
 
   /*IO attributes management functions */
   HAL_GPIO_ConfigPinAttributes(GPIOE, ADE_RESET_Pin|ADE_CF_ZX_Pin|ADE_PM0_Pin|ADE_PM1_Pin
-                          |ADE_EVENT_Pin|ADE_CF1_Pin|ADE_CF2_Pin, GPIO_PIN_NSEC);
+                          |ADE_DREADY_Pin|ADE_CF1_Pin|ADE_CF2_Pin, GPIO_PIN_NSEC);
 
   /*IO attributes management functions */
   HAL_GPIO_ConfigPinAttributes(GPIOD, AUX_CTRL_OUT1_Pin|AUX_CTRL_IN1_Pin|VBAT_SENSE_Pin|EXT_WDI_PULSE_Pin

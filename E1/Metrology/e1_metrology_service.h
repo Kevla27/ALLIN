@@ -68,6 +68,17 @@ uint32_t e1_metrology_get_reactive_pulses(void);
  */
 const ReactiveEnergyQuadrants_t *e1_metrology_get_reactive_quadrants(void);
 
+/**
+ * @brief Handler sinyal Data Ready ADC ADE9000 (DREADY / PE11)
+ *        Digunakan untuk sinkronisasi akuisisi metrologi E1 jika diaktifkan.
+ */
+void e1_metrology_on_data_ready(void);
+
+/**
+ * @brief Memperoleh jumlah sinyal DREADY terakumulasi
+ */
+uint32_t e1_metrology_get_dready_pulses(void);
+
 #ifdef __cplusplus
 }
 #endif

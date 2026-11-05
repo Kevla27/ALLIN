@@ -1,2 +1,173 @@
-<?xml version="1.0" encoding="utf-8"?>
-<mxfile host="app.diagrams.net" modified="2026-11-04T11:55:00.000Z" agent="Antigravity ALLIN Tab Generator" version="24.0.0" type="device"><diagram id="Tab6_Asynchronous_ISR" name="6. Jalur Asinkron &amp; ISR"><mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="880" pageHeight="850" math="0" shadow="0"><root><mxCell id="0" /><mxCell id="1" parent="0" /><mxCell id="isr_hdr" value="&lt;b&gt;FLOWCHART RINCI: JALUR ASINKRON &amp;amp; INTERRUPT SERVICE ROUTINE (ISR)&lt;/b&gt;&lt;br/&gt;Penanganan Paket Serial UART DLMS serta Kejadian Eksternal GPIO EXTI Hardware" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#0f172a;fontColor=#ffffff;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="800" height="45" as="geometry" /></mxCell><mxCell id="u_start" value="&lt;b&gt;HAL_UART_RxCpltCallback(huart)&lt;/b&gt;&lt;br/&gt;Interupsi Penerimaan Karakter Serial USART" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#2563eb;strokeColor=#1d4ed8;fontColor=#ffffff;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="60" y="85" width="340" height="45" as="geometry" /></mxCell><mxCell id="u_push" value="&lt;b&gt;e2_dlms_service_uart_rx_callback()&lt;/b&gt;&lt;br/&gt;Push Karakter ke Dekoder Frame HDLC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="60" y="155" width="340" height="45" as="geometry" /></mxCell><mxCell id="u_q_hdlc" value="&lt;b&gt;Frame HDLC Lengkap &amp;amp; Valid?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="130" y="225" width="200" height="50" as="geometry" /></mxCell><mxCell id="u_parse" value="&lt;b&gt;Pembedah Layer Aplikasi APDU DLMS&lt;/b&gt;&lt;br/&gt;Identifikasi Tag Permintaan Masuk" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="60" y="300" width="340" height="45" as="geometry" /></mxCell><mxCell id="u_exec" value="&lt;b&gt;Eksekusi Perintah APDU DLMS&lt;/b&gt;&lt;br/&gt;Proses AARQ (0x60), GET (0xC0), SET (0xC1) atau Glo-Cipher AES-GCM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#10b981;fontColor=#064e3b;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="60" y="370" width="340" height="50" as="geometry" /></mxCell><mxCell id="u_tx" value="&lt;b&gt;Kirim Respons Frame HDLC via UART&lt;/b&gt;&lt;br/&gt;Transmisi Paket Balasan ke Port Optik / Modem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="60" y="445" width="340" height="45" as="geometry" /></mxCell><mxCell id="u_rearm" value="&lt;b&gt;Aktifkan Kembali Interupsi UART RX&lt;/b&gt;&lt;br/&gt;Siapkan Buffer untuk Byte Serial Berikutnya" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#475569;strokeColor=#334155;fontColor=#ffffff;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="110" y="515" width="240" height="40" as="geometry" /></mxCell><mxCell id="x_start" value="&lt;b&gt;HAL_GPIO_EXTI_Callback(GPIO_Pin)&lt;/b&gt;&lt;br/&gt;Interupsi Asinkron Sinyal Fisik GPIO" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffe4e6;strokeColor=#f43f5e;fontColor=#881337;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="480" y="85" width="340" height="45" as="geometry" /></mxCell><mxCell id="x_q_src" value="&lt;b&gt;Identifikasi Sumber Pin EXTI?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="550" y="155" width="200" height="50" as="geometry" /></mxCell><mxCell id="x_acfail" value="&lt;b&gt;AC_FAIL_DET (Mati Listrik / Last-Gasp)&lt;/b&gt;&lt;br/&gt;Kirim Notifikasi DLMS 0xC2 via Superkapasitor, Simpan Checkpoint &amp;amp; Transisi ke Mode Stop 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe4e6;strokeColor=#f43f5e;fontColor=#881337;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="460" y="230" width="380" height="60" as="geometry" /></mxCell><mxCell id="x_btn" value="&lt;b&gt;Tombol Navigasi Layar (UP / DN)&lt;/b&gt;&lt;br/&gt;Navigasi Layar Manual atau Tekan Simultan (▲ + ▼) Selama 1 Detik untuk Konfirmasi Rekoneksi Relai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="460" y="315" width="380" height="55" as="geometry" /></mxCell><mxCell id="x_ade" value="&lt;b&gt;ADE_IRQ / EVENT / CF (Mutu Daya)&lt;/b&gt;&lt;br/&gt;Deteksi Reverse Power, Netral Hilang, Tegangan Dip/Swell serta Pulsa Kalibrasi Energi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="460" y="395" width="380" height="55" as="geometry" /></mxCell><mxCell id="x_end" value="&lt;b&gt;Selesai Penanganan Event ISR GPIO&lt;/b&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#475569;strokeColor=#334155;fontColor=#ffffff;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="530" y="475" width="240" height="40" as="geometry" /></mxCell><mxCell id="x_card" value="&lt;b&gt;MANAJEMEN OFF-POWER STANDBY (10 DETIK):&lt;/b&gt;&lt;br/&gt;Saat listrik jala-jala padam, menekan tombol navigasi akan menyalakan layar OLED selama 10 detik dari cadangan superkapasitor agar pembacaan stand energi dapat dilakukan." style="rounded=1;whiteSpace=wrap;html=1;fontSize=10;align=left;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;" vertex="1" parent="1"><mxGeometry x="460" y="545" width="380" height="65" as="geometry" /></mxCell><mxCell id="eu_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;" edge="1" parent="1" source="u_start" target="u_push"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="eu_2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;" edge="1" parent="1" source="u_push" target="u_q_hdlc"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="eu_3a" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#064e3b;fontStyle=1;fontSize=11;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_hdlc" target="u_parse"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="eu_3b" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#dc2626;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#881337;fontStyle=1;fontSize=11;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_hdlc" target="u_rearm"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="eu_4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;" edge="1" parent="1" source="u_parse" target="u_exec"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="eu_5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;" edge="1" parent="1" source="u_exec" target="u_tx"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="eu_6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;" edge="1" parent="1" source="u_tx" target="u_rearm"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="ex_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;" edge="1" parent="1" source="x_start" target="x_q_src"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="ex_2a" value="AC Fail" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_acfail"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="ex_2b" value="Tombol" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_btn"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="ex_2c" value="ADE IRQ" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_ade"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="ex_3a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_acfail" target="x_end"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="ex_3b" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_btn" target="x_end"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="ex_3c" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontSize=11;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_ade" target="x_end"><mxGeometry relative="1" as="geometry" /></mxCell></root></mxGraphModel></diagram></mxfile>
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" modified="2026-11-04T15:35:00.000Z" agent="Antigravity ALLIN Tab Generator" version="24.0.0" type="device">
+  <diagram id="Tab6_Asynchronous_ISR" name="6. Jalur Asinkron &amp; ISR">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1020" pageHeight="760" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="isr_hdr" value="&lt;b&gt;FLOWCHART RINCI: JALUR ASINKRON &amp;amp; INTERRUPT SERVICE ROUTINE (ISR)&lt;/b&gt;&lt;br/&gt;Penanganan Paket Serial UART DLMS serta Kejadian Eksternal GPIO EXTI Hardware" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#0f172a;fontColor=#ffffff;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="940" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="u_title" value="&lt;b&gt;JALUR INTERRUPSI SERIAL UART (OPTICAL &amp;amp; MODEM)&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e40af;strokeColor=#1e3a8a;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="75" width="430" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="u_start" value="&lt;b&gt;HAL_UART_RxCpltCallback(huart)&lt;/b&gt;&lt;br/&gt;Interupsi Penerimaan Karakter Serial USART2 / USART3" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#2563eb;strokeColor=#1d4ed8;fontColor=#ffffff;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="115" width="350" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="u_q_cli" value="&lt;b&gt;Apakah Karakter ASCII CLI Non-HDLC?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontStyle=1;fontSize=10.5;align=center;" vertex="1" parent="1">
+          <mxGeometry x="145" y="180" width="220" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="u_cli_pop" value="&lt;b&gt;e2_dlms_service_pop_cli_rx_byte()&lt;/b&gt;&lt;br/&gt;Kirim Byte ke FIFO Interactive CLI USART2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=10.5;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="255" width="185" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="u_push" value="&lt;b&gt;e2_dlms_service_uart_rx_callback()&lt;/b&gt;&lt;br/&gt;Push Karakter ke Ring Buffer Dekoder Frame HDLC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=10.5;align=center;" vertex="1" parent="1">
+          <mxGeometry x="245" y="255" width="225" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="u_q_hdlc" value="&lt;b&gt;Frame HDLC Lengkap &amp;amp; FCS-16 Valid?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontStyle=1;fontSize=10.5;align=center;" vertex="1" parent="1">
+          <mxGeometry x="245" y="335" width="225" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="u_parse" value="&lt;b&gt;Pembedah Layer Aplikasi APDU DLMS&lt;/b&gt;&lt;br/&gt;Otentikasi Security Suite 0, Dekripsi AES-GCM &amp;amp; Validasi NVM Counter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=10.5;align=center;" vertex="1" parent="1">
+          <mxGeometry x="85" y="415" width="385" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="u_exec" value="&lt;b&gt;Eksekusi Perintah APDU DLMS&lt;/b&gt;&lt;br/&gt;Proses AARQ, GET (Normal / DataBlock), SET atau ACTION Class 70" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#10b981;fontColor=#064e3b;fontSize=10.5;align=center;" vertex="1" parent="1">
+          <mxGeometry x="85" y="485" width="385" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="u_tx" value="&lt;b&gt;Kirim Respons Frame HDLC via UART&lt;/b&gt;&lt;br/&gt;Transmisi Paket Balasan ke Port Optik / Modem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=10.5;align=center;" vertex="1" parent="1">
+          <mxGeometry x="85" y="555" width="385" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="u_rearm" value="&lt;b&gt;Aktifkan Kembali Interupsi UART RX&lt;/b&gt;&lt;br/&gt;Siapkan Buffer untuk Byte Serial Berikutnya" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#475569;strokeColor=#334155;fontColor=#ffffff;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="135" y="625" width="285" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="eu_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_start" target="u_q_cli">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu_cli_yes" value="Ya (CLI)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#064e3b;fontStyle=1;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_cli" target="u_cli_pop">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu_cli_no" value="Tidak (HDLC)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#dc2626;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#881337;fontStyle=1;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_cli" target="u_push">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu_2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_push" target="u_q_hdlc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu_3a" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#064e3b;fontStyle=1;fontSize=10;" edge="1" parent="1" source="u_q_hdlc" target="u_parse">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu_3b" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#dc2626;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#881337;fontStyle=1;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_hdlc" target="u_rearm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="485" y="359" />
+              <mxPoint x="485" y="645" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eu_cli_loop" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_cli_pop" target="u_rearm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="132" y="645" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eu_4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_parse" target="u_exec">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu_5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_exec" target="u_tx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu_6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_tx" target="u_rearm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x_title" value="&lt;b&gt;JALUR INTERRUPSI GPIO EXTI (HARDWARE EVENTS)&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#991b1b;strokeColor=#7f1d1d;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="510" y="75" width="470" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="x_start" value="&lt;b&gt;HAL_GPIO_EXTI_Callback(GPIO_Pin)&lt;/b&gt;&lt;br/&gt;Interupsi Asinkron Sinyal Fisik GPIO (Falling / Rising)" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffe4e6;strokeColor=#f43f5e;fontColor=#881337;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="535" y="115" width="420" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="x_q_src" value="&lt;b&gt;Identifikasi Sumber Pin EXTI?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#eab308;fontColor=#713f12;fontStyle=1;fontSize=10.5;align=center;" vertex="1" parent="1">
+          <mxGeometry x="635" y="180" width="220" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="x_acfail" value="&lt;b&gt;AC_FAIL_DET (PC3 - Listrik Padam / Pulih)&lt;/b&gt;&lt;br/&gt;• Falling: Last-Gasp Notifikasi DLMS, Simpan Checkpoint &amp;amp; Masuk Stop 2&lt;br/&gt;• Rising: Pulihkan Sistem, Re-arm ADE9000 &amp;amp; Nyalakan OLED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#ef4444;fontColor=#7f1d1d;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="250" width="405" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="x_btn" value="&lt;b&gt;Tombol Navigasi Layar (PA0 UP / PB6 DN)&lt;/b&gt;&lt;br/&gt;• Satu Tombol: Navigasi Layar Manual / Bangunkan OLED Off-Power&lt;br/&gt;• Tekan Simultan (▲ + ▼) 1 Detik: Konfirmasi Rekoneksi Relai Manual" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="325" width="405" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="x_ade" value="&lt;b&gt;ADE_IRQ / DREADY / CF (Data Ready &amp;amp; Pulsa)&lt;/b&gt;&lt;br/&gt;• PB5 IRQ0: Reverse Power | PB1 IRQ1: Netral Bypass | PE11: DREADY (Data Ready ADC)&lt;br/&gt;• PE12 CF1: Pulsa Aktif | PE13 CF2: Pulsa Reaktif | PE8: Zero Crossing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="400" width="405" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="x_aux" value="&lt;b&gt;AUX_CTRL_IN1 (PC10) &amp;amp; IN2 (PC14)&lt;/b&gt;&lt;br/&gt;Input Sinyal Bantu Eksternal &amp;amp; Pencatatan Logbook Status I/O" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#1e293b;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="475" width="405" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="x_end" value="&lt;b&gt;Selesai Penanganan Event ISR GPIO&lt;/b&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#475569;strokeColor=#334155;fontColor=#ffffff;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="615" y="545" width="275" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="x_card" value="&lt;b&gt;MANAJEMEN OFF-POWER STANDBY (10 DETIK):&lt;/b&gt;&lt;br/&gt;Saat listrik jala-jala padam, menekan tombol navigasi akan menyalakan layar OLED selama 10 detik dari cadangan superkapasitor (PC2 VCAP) agar pembacaan stand energi dapat dilakukan." style="rounded=1;whiteSpace=wrap;html=1;fontSize=9.5;align=left;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="510" y="605" width="470" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ex_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="x_start" target="x_q_src">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex_2a" value="AC Fail" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ef4444;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#7f1d1d;fontStyle=1;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_acfail">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="204" />
+              <mxPoint x="520" y="277" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex_2b" value="Tombol" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontStyle=1;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_btn">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="204" />
+              <mxPoint x="520" y="352" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex_2c" value="ADE IRQ/DREADY/CF" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontStyle=1;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_ade">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="204" />
+              <mxPoint x="520" y="427" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex_2d" value="Aux In" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#1e293b;fontStyle=1;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_aux">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="204" />
+              <mxPoint x="520" y="498" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex_3a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_acfail">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="975" y="277" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex_3b" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_btn">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="975" y="352" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex_3c" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_ade">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="975" y="427" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex_3d" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_aux">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="975" y="498" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex_bus_collector" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;endArrow=classic;endFill=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="x_end">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="975" y="277" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="975" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

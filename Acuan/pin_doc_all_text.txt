@@ -159,9 +159,9 @@ ADE_IRQ1
 Input EXTI1 Falling
 Interupsi HW 1 ADE9000: Deteksi Kawat Netral Putus (ERR23), Hilang Tegangan 1/2 Fase (ERR24), Kedip Tegangan (Dip/Sag), & Swell (Butir 10.4).
 PE11
-ADE_EVENT
+ADE_DREADY
 Input EXTI11 Falling (FT_ha)
-Interupsi Kejadian Mutu Daya (Power Quality Event): Menerima sinyal EVENT dari Pin 36 ADE9000 (CF4/EVENT/DREADY) saat terdeteksi anomali kelistrikan seperti tegangan kedip (Dip/Sag), lonjakan tegangan (Swell), arus lebih (Overcurrent), atau ketidakseimbangan fasa untuk pencatatan Power Quality Log (SPLN D3.006:2021).
+Data Ready ADC ADE9000: Menerima sinyal DREADY periodik (8 kSPS / 125 µs) dari Pin 23 ADE9000 (CF4/EVENT/DREADY) untuk sinkronisasi akuisisi sampel waveform instan 7 kanal ADC ke Pilar E1. Pada arsitektur polling normal (Opsi A), EXTI dinonaktifkan di NVIC untuk menghemat daya & mencegah interrupt storm, sedangkan event mutu daya & fasa hilang ditangani via ADE_IRQ1 dan algoritma software E3.
 PE7
 ADE_RESET
 Output Push-Pull, High

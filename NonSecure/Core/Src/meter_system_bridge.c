@@ -251,10 +251,10 @@ void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
     {
         e3_meter_app_on_tamper(TAMPER_VECTOR_NEUTRAL_BYPASS);
     }
-    else if (GPIO_Pin == ADE_EVENT_Pin)
+    else if (GPIO_Pin == ADE_DREADY_Pin)
     {
-        /* Mutu Daya: Dip/Sag, Swell, Overcurrent (SPLN D3.006) */
-        e3_meter_app_on_tamper(TAMPER_VECTOR_PHASE_LOSS);
+        /* ADE9000 DREADY (Data Ready ADC 8 kSPS) - Sinkronisasi Metrologi Pilar E1 */
+        e1_metrology_on_data_ready();
     }
     else if (GPIO_Pin == ADE_CF_ZX_Pin)
     {

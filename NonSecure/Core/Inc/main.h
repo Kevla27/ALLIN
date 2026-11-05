@@ -113,9 +113,13 @@ void Error_Handler(void);
 #define ADE_PM0_GPIO_Port GPIOE
 #define ADE_PM1_Pin GPIO_PIN_10
 #define ADE_PM1_GPIO_Port GPIOE
-#define ADE_EVENT_Pin GPIO_PIN_11
-#define ADE_EVENT_GPIO_Port GPIOE
-#define ADE_EVENT_EXTI_IRQn EXTI11_IRQn
+#define ADE_DREADY_Pin GPIO_PIN_11
+#define ADE_DREADY_GPIO_Port GPIOE
+#define ADE_DREADY_EXTI_IRQn EXTI11_IRQn
+/* Alias untuk kompatibilitas mundur */
+#define ADE_EVENT_Pin ADE_DREADY_Pin
+#define ADE_EVENT_GPIO_Port ADE_DREADY_GPIO_Port
+#define ADE_EVENT_EXTI_IRQn ADE_DREADY_EXTI_IRQn
 #define ADE_CF1_Pin GPIO_PIN_12
 #define ADE_CF1_GPIO_Port GPIOE
 #define ADE_CF1_EXTI_IRQn EXTI12_IRQn

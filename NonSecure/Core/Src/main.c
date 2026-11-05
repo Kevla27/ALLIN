@@ -618,8 +618,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ADE_EVENT_Pin ADE_CF1_Pin ADE_CF2_Pin */
-  GPIO_InitStruct.Pin = ADE_EVENT_Pin|ADE_CF1_Pin|ADE_CF2_Pin;
+  /*Configure GPIO pin : ADE_DREADY_Pin */
+  GPIO_InitStruct.Pin = ADE_DREADY_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(ADE_DREADY_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : ADE_CF1_Pin ADE_CF2_Pin */
+  GPIO_InitStruct.Pin = ADE_CF1_Pin|ADE_CF2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -697,8 +703,10 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI10_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI10_IRQn);
 
+  /* EXTI11 (ADE_DREADY): Dinonaktifkan default pada mode polling periodik (Opsi A)
+     untuk menghemat daya & mencegah interrupt storm 8 kSPS; aktifkan saat streaming ADC dibutuhkan */
   HAL_NVIC_SetPriority(EXTI11_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(EXTI11_IRQn);
+  /* HAL_NVIC_EnableIRQ(EXTI11_IRQn); */
 
   HAL_NVIC_SetPriority(EXTI12_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI12_IRQn);
