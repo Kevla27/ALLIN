@@ -331,176 +331,267 @@
     </mxGraphModel>
   </diagram>
   <diagram id="Tab5_Asynchronous_ISR" name="5. Jalur Asinkron &amp; ISR">
-    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1020" pageHeight="760" math="0" shadow="0">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1150" pageHeight="720" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="isr_hdr" value="&lt;b&gt;BAGAN ALIR RINCI: JALUR ASINKRON &amp;amp; INTERRUPT SERVICE ROUTINE (ISR)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Penanganan Paket Serial UART DLMS serta Kejadian Eksternal GPIO EXTI Hardware&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=12;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="40" y="20" width="940" height="38" as="geometry" />
+
+        
+        <mxCell id="isr_hdr" value="&lt;b&gt;BAGAN ALIR RINCI: JALUR ASINKRON &amp;amp; INTERRUPT SERVICE ROUTINE (ISR)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Penanganan Paket Serial UART DLMS serta Kejadian Eksternal GPIO EXTI Hardware (Non-Blocking terhadap Kernel FreeRTOS)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=12;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1040" height="38" as="geometry" />
         </mxCell>
+
+        
         <mxCell id="u_title" value="&lt;b&gt;JALUR INTERRUPSI SERIAL UART (PORT OPTIK &amp;amp; MODEM)&lt;/b&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="40" y="70" width="430" height="28" as="geometry" />
+          <mxGeometry x="40" y="70" width="460" height="28" as="geometry" />
         </mxCell>
+
+        
         <mxCell id="u_start" value="&lt;b&gt;HAL_UART_RxCpltCallback(huart)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Interupsi Penerimaan Karakter Serial USART2 / USART3&lt;/font&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="80" y="110" width="350" height="44" as="geometry" />
+          <mxGeometry x="80" y="110" width="380" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="u_q_cli" value="&lt;b&gt;Karakter ASCII CLI?&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(Non-HDLC Flag 0x7E)&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="145" y="172" width="220" height="48" as="geometry" />
+
+        
+        <mxCell id="u_q_cli" value="&lt;b&gt;Karakter ASCII CLI?&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(Bukan Flag HDLC 0x7E)&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="160" y="168" width="220" height="46" as="geometry" />
         </mxCell>
-        <mxCell id="u_cli_pop" value="&lt;b&gt;KIRIM KE KONSOL INTERAKTIF&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Push Byte ke Antrean FIFO CLI USART2&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="40" y="242" width="190" height="46" as="geometry" />
+
+        
+        <mxCell id="u_cli_pop" value="&lt;b&gt;KIRIM KE KONSOL CLI&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Push Byte ke FIFO CLI USART2&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="50" y="236" width="175" height="46" as="geometry" />
         </mxCell>
-        <mxCell id="u_push" value="&lt;b&gt;PUSH KE RING BUFFER DEKODER&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Antrean Buffer Penerimaan Frame HDLC&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="250" y="242" width="220" height="46" as="geometry" />
+
+        
+        <mxCell id="u_push" value="&lt;b&gt;PUSH KE RING BUFFER DEKODER&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Antrean Buffer Penerimaan HDLC&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="265" y="236" width="215" height="46" as="geometry" />
         </mxCell>
-        <mxCell id="u_q_hdlc" value="&lt;b&gt;Frame Lengkap &amp;amp; FCS-16 Valid?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="250" y="312" width="220" height="48" as="geometry" />
+
+        
+        <mxCell id="u_q_hdlc" value="&lt;b&gt;Frame Lengkap &amp;amp; FCS Valid?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="265" y="304" width="215" height="46" as="geometry" />
         </mxCell>
+
+        
         <mxCell id="u_parse" value="&lt;b&gt;DEKODER LAYER APLIKASI APDU DLMS&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Otentikasi Security Suite 0, Dekripsi AES-128-GCM &amp;amp; Validasi NVM Counter&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="70" y="384" width="400" height="44" as="geometry" />
+          <mxGeometry x="70" y="372" width="400" height="42" as="geometry" />
         </mxCell>
+
+        
         <mxCell id="u_exec" value="&lt;b&gt;EKSEKUSI PERINTAH APDU DLMS&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Proses AARQ, GET (Normal / DataBlock), SET atau ACTION Class 70 Relai&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="70" y="448" width="400" height="44" as="geometry" />
+          <mxGeometry x="70" y="432" width="400" height="42" as="geometry" />
         </mxCell>
+
+        
         <mxCell id="u_tx" value="&lt;b&gt;TRANSMISI RESPONS FRAME HDLC&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Kirim Paket Balasan ke Port Optik / Modem via UART TX&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="70" y="512" width="400" height="44" as="geometry" />
+          <mxGeometry x="70" y="492" width="400" height="42" as="geometry" />
         </mxCell>
+
+        
         <mxCell id="u_rearm" value="&lt;b&gt;RE-ARM INTERRUPSI UART RX&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Siapkan Buffer Penerimaan untuk Byte Serial Berikutnya&lt;/font&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="125" y="576" width="290" height="40" as="geometry" />
+          <mxGeometry x="120" y="554" width="300" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="eu_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_start" target="u_q_cli">
+
+        
+        <mxCell id="eu_start_q" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_start" target="u_q_cli">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="eu_cli_yes" value="Ya (CLI)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_cli" target="u_cli_pop">
+
+        <mxCell id="eu_cli_yes" value="[Ya] CLI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_cli" target="u_cli_pop">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="eu_cli_no" value="Tidak (HDLC)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_cli" target="u_push">
+
+        <mxCell id="eu_cli_no" value="[Tidak] HDLC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_cli" target="u_push">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="eu_2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_push" target="u_q_hdlc">
+
+        <mxCell id="eu_push_q" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_push" target="u_q_hdlc">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="eu_3a" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=10;" edge="1" parent="1" source="u_q_hdlc" target="u_parse">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="eu_3b" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_hdlc" target="u_rearm">
+
+        <mxCell id="eu_hdlc_yes" value="[Ya] Lengkap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_hdlc" target="u_parse">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="485" y="359" />
-              <mxPoint x="485" y="645" />
+              <mxPoint x="373" y="360" />
+              <mxPoint x="270" y="360" />
             </Array>
           </mxGeometry>
         </mxCell>
+
+        
+        <mxCell id="eu_hdlc_no" value="[Tidak] Belum Lengkap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_q_hdlc" target="u_rearm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="500" y="327" />
+              <mxPoint x="500" y="573" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        
         <mxCell id="eu_cli_loop" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_cli_pop" target="u_rearm">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="132" y="645" />
+              <mxPoint x="138" y="573" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="eu_4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_parse" target="u_exec">
+
+        <mxCell id="eu_parse_exec" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_parse" target="u_exec">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="eu_5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_exec" target="u_tx">
+
+        <mxCell id="eu_exec_tx" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_exec" target="u_tx">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="eu_6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_tx" target="u_rearm">
+
+        <mxCell id="eu_tx_rearm" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_tx" target="u_rearm">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+
+        
         <mxCell id="x_title" value="&lt;b&gt;JALUR INTERRUPSI GPIO EXTI (HARDWARE EVENTS)&lt;/b&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="510" y="70" width="470" height="28" as="geometry" />
+          <mxGeometry x="560" y="70" width="520" height="28" as="geometry" />
         </mxCell>
+
         <mxCell id="x_start" value="&lt;b&gt;HAL_GPIO_EXTI_Callback(GPIO_Pin)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Interupsi Asinkron Sinyal Fisik GPIO (Falling / Rising)&lt;/font&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="550" y="110" width="390" height="44" as="geometry" />
+          <mxGeometry x="630" y="110" width="380" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="x_q_src" value="&lt;b&gt;Identifikasi Sumber Pin EXTI?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="635" y="172" width="220" height="48" as="geometry" />
+
+        
+        <mxCell id="x_d1" value="&lt;b&gt;Pin == AC_FAIL?&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(PC3 Catu Daya Padam)&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="560" y="168" width="190" height="48" as="geometry" />
         </mxCell>
-        <mxCell id="x_acfail" value="&lt;b&gt;AC_FAIL_DET (PC3 - Listrik Padam / Pulih)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;• Falling: Last-Gasp Notifikasi DLMS, Simpan Checkpoint ke Flash &amp;amp; Masuk Stop 2&lt;br/&gt;• Rising: Pulihkan Sistem, Re-arm ADE9000 &amp;amp; Nyalakan OLED&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=left;spacingLeft=10;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="540" y="242" width="410" height="52" as="geometry" />
+
+        <mxCell id="x_act1" value="&lt;b&gt;Last-Gasp Padam / Pulih Listrik&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;• Falling: Simpan Checkpoint Flash &amp;amp; Masuk Stop 2&lt;br/&gt;• Rising: Bangunkan Sistem, Re-arm ADE &amp;amp; OLED&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=left;spacingLeft=8;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="780" y="168" width="280" height="48" as="geometry" />
         </mxCell>
-        <mxCell id="x_btn" value="&lt;b&gt;Tombol Navigasi Layar (PA0 UP / PB6 DN)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;• Satu Tombol: Navigasi Layar Manual / Bangunkan OLED Off-Power (10s)&lt;br/&gt;• Tekan Simultan (▲ + ▼) 1 Detik: Konfirmasi Rekoneksi Relai Manual&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=left;spacingLeft=10;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="540" y="308" width="410" height="52" as="geometry" />
+
+        
+        <mxCell id="x_d2" value="&lt;b&gt;Pin == Tombol HMI?&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(PA0 Atas / PB6 Bawah)&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="560" y="238" width="190" height="48" as="geometry" />
         </mxCell>
-        <mxCell id="x_ade" value="&lt;b&gt;ADE_IRQ / DREADY / CF (Data Ready &amp;amp; Pulsa)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;• PB5 IRQ0: Reverse Power | PB1 IRQ1: Netral Bypass | PE11: DREADY ADC&lt;br/&gt;• PE12 CF1: Pulsa Wh Aktif | PE13 CF2: Pulsa varh Reaktif | PE8: Zero Crossing&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=left;spacingLeft=10;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="540" y="374" width="410" height="52" as="geometry" />
+
+        <mxCell id="x_act2" value="&lt;b&gt;Navigasi HMI &amp;amp; Off-Power Standby&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;• Tekan Singkat: Ganti Layar Menu / Bangunkan OLED (10s)&lt;br/&gt;• Tekan Simultan (▲+▼): Konfirmasi Rekoneksi Relai&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=left;spacingLeft=8;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="780" y="238" width="280" height="48" as="geometry" />
         </mxCell>
-        <mxCell id="x_aux" value="&lt;b&gt;AUX_CTRL_IN1 (PC10) &amp;amp; IN2 (PC14)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Input Sinyal Bantu Eksternal &amp;amp; Pencatatan Logbook Status I/O&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=left;spacingLeft=10;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="540" y="440" width="410" height="44" as="geometry" />
+
+        
+        <mxCell id="x_d3" value="&lt;b&gt;Pin == ADE9000 IRQ?&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(PE11 / PB5 / PB1 / PE8)&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="560" y="308" width="190" height="48" as="geometry" />
         </mxCell>
+
+        <mxCell id="x_act3" value="&lt;b&gt;Event Sensor Metrologi ADE9000&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;• PE11: Sinyal DREADY (ADC Siap Dibaca)&lt;br/&gt;• PB5: Reverse Power | PB1: Netral | PE8: Zero Crossing&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=left;spacingLeft=8;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="780" y="308" width="280" height="48" as="geometry" />
+        </mxCell>
+
+        
+        <mxCell id="x_d4" value="&lt;b&gt;Pin == Sinyal AUX?&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(PC10 IN1 / PC14 IN2)&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="560" y="378" width="190" height="48" as="geometry" />
+        </mxCell>
+
+        <mxCell id="x_act4" value="&lt;b&gt;Input Kendali Bantu Eksternal&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Catat Logbook Status I/O &amp;amp; Sinyal Pemicu Eksternal&lt;/font&gt;" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=left;spacingLeft=8;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="780" y="378" width="280" height="48" as="geometry" />
+        </mxCell>
+
+        
         <mxCell id="x_end" value="&lt;b&gt;SELESAI PENANGANAN EVENT ISR GPIO&lt;/b&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;align=center;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="605" y="504" width="280" height="38" as="geometry" />
+          <mxGeometry x="670" y="446" width="340" height="38" as="geometry" />
         </mxCell>
-        <mxCell id="x_card" value="&lt;b&gt;MANAJEMEN OFF-POWER STANDBY (10 DETIK):&lt;/b&gt;&lt;br/&gt;Saat listrik jala-jala padam, menekan tombol navigasi akan menyalakan layar OLED selama 10 detik dari cadangan superkapasitor (PC2 VCAP) agar pembacaan stand energi dapat dilakukan sesuai SPLN D3.006:2021." style="whiteSpace=wrap;html=1;fontSize=9.5;align=left;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;spacingLeft=10;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="510" y="560" width="470" height="56" as="geometry" />
+
+        
+        <mxCell id="x_card" value="&lt;b&gt;MANAJEMEN OFF-POWER STANDBY (10 DETIK):&lt;/b&gt;&lt;br/&gt;Saat catu daya padam, menekan tombol navigasi memicu interupsi EXTI untuk menyalakan OLED selama 10 detik dari cadangan superkapasitor (PC2 VCAP) agar pembacaan stand energi dapat dilakukan sesuai SPLN D3.006:2021." style="whiteSpace=wrap;html=1;fontSize=9.5;align=left;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;spacingLeft=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="560" y="504" width="520" height="54" as="geometry" />
         </mxCell>
-        <mxCell id="ex_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="x_start" target="x_q_src">
+
+        
+        <mxCell id="ex_start_d1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_start" target="x_d1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="820" y="156" />
+              <mxPoint x="655" y="156" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        
+        <mxCell id="ex_d1_yes" value="[Ya]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d1" target="x_act1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ex_2a" value="AC Fail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_acfail">
+
+        <mxCell id="ex_d1_no" value="[Tidak]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d1" target="x_d2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        
+        <mxCell id="ex_d2_yes" value="[Ya]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d2" target="x_act2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ex_d2_no" value="[Tidak]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d2" target="x_d3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        
+        <mxCell id="ex_d3_yes" value="[Ya]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d3" target="x_act3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ex_d3_no" value="[Tidak]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d3" target="x_d4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        
+        <mxCell id="ex_d4_yes" value="[Ya]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d4" target="x_act4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        
+        <mxCell id="ex_d4_no" value="[Tidak]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=9.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d4" target="x_end">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="520" y="204" />
-              <mxPoint x="520" y="277" />
+              <mxPoint x="655" y="465" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="ex_2b" value="Tombol" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_btn">
+
+        
+        <mxCell id="ex_bus_act1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_act1">
           <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1080" y="192" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ex_bus_act2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_act2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1080" y="262" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ex_bus_act3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_act3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1080" y="332" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ex_bus_act4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_act4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1080" y="402" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ex_bus_down" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="x_end">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1080" y="192" as="sourcePoint" />
             <Array as="points">
-              <mxPoint x="520" y="204" />
-              <mxPoint x="520" y="352" />
+              <mxPoint x="1080" y="465" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="ex_2c" value="ADE IRQ/DREADY/CF" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_ade">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="520" y="204" />
-              <mxPoint x="520" y="427" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="ex_2d" value="Aux In" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_q_src" target="x_aux">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="520" y="204" />
-              <mxPoint x="520" y="498" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="ex_3a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_acfail">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="975" y="277" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="ex_3b" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_btn">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="975" y="352" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="ex_3c" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_ade">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="975" y="427" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="ex_3d" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="x_aux">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="975" y="498" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="ex_bus_collector" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="x_end">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="975" y="277" as="sourcePoint" />
-            <Array as="points">
-              <mxPoint x="975" y="565" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
+
       </root>
     </mxGraphModel>
   </diagram>
-  <diagram id="Tab6_Hardware_Layer" name="6. Hardware &amp; Pin Periferal">
+<diagram id="Tab6_Hardware_Layer" name="6. Hardware &amp; Pin Periferal">
     <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="840" pageHeight="780" math="0" shadow="0">
       <root>
         <mxCell id="0" />
