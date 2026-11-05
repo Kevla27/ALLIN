@@ -23,13 +23,16 @@ Untuk mengunci kontrak antarmuka data tersebut secara resmi dan memudahkan pengu
 ## 2. Rincian Pemetaan Data Flow Diagram
 
 ### A. DFD Level 0: Diagram Konteks Sistem Smart Meter 3-Fasa
-Memetakan entitas eksternal (*terminator*) yang berinteraksi langsung dengan batas sistem meter:
-1. **Sensor CT/VT & Jaringan Listrik PLN:** Memasok sinyal analog tegangan 3-fasa, arus, zero-crossing, dan sinyal deteksi pemadaman `AC_FAIL_DET`.
-2. **Vektor Sabotase & Anomali Fisik:** Memasok pemicu interupsi EXTI (tutup meter, tutup terminal, medan magnet kuat, netral bypass).
-3. **Pelanggan Listrik:** Mengirim masukan tombol navigasi (PA0/PB6) dan konfirmasi penekanan simultan ($\blacktriangle + \blacktriangledown$) 1 detik; menerima tayangan OLED 6 baris dan indikator alarm LED PB7.
-4. **Instalasi Beban Pelanggan:** Menerima penyaluran daya (via pulsa koil trip PC8 / close PC9) dan mengirim sinyal umpan balik status kontak aux PC7.
-5. **Petugas Lapangan PLN (HHU):** Berinteraksi via Port Optik depan (USART3 / IEC 62056-21) untuk pembacaan audit billing/logbook lokal dan konfigurasi IDPEL/No Seri.
-6. **Sistem Pusat PLN (HES / AMI System):** Berinteraksi via Modem Seluler (USART2) untuk polling profil beban 15-menitan, sinkronisasi waktu RTC, perintah remote disconnect/reconnect (Class 70), serta menerima notifikasi seketika (*Push Trap* sabotase & *Last-Gasp*).
+Memetakan entitas eksternal (*terminator*) yang berinteraksi langsung dengan batas sistem meter, dengan proses utama `0.0` dirancang murni sebagai **Kotak Hitam (*Black Box*)** tanpa mencantumkan rincian sub-pilar internal:
+- **Proses 0.0:** `SISTEM SMART METER 3-FASA TERTANAM (Host MCU STM32U585 Cortex-M33)`.
+- **Optimalisasi Jalur Panah & Teks:** Teks aliran data dirapikan menjadi padat, presisi, dan tidak bertumpuk; jarak antar-garis vertikal/horizontal diperlebar dengan kanvas diperluas (1320x960 px) sehingga label In/Out pada Instalasi Beban dan Sistem Pusat HES memiliki ruang baca yang lapang.
+- **Entitas Eksternal:**
+  1. **Sensor CT/VT & Jaringan Listrik PLN:** Memasok sinyal analog tegangan 3-fasa, arus, zero-crossing, dan sinyal deteksi pemadaman `AC_FAIL_DET`.
+  2. **Vektor Sabotase & Anomali Fisik:** Memasok pemicu interupsi EXTI (tutup meter, tutup terminal, medan magnet kuat, netral bypass).
+  3. **Pelanggan Listrik:** Mengirim masukan tombol navigasi (PA0/PB6) dan konfirmasi penekanan simultan ($\blacktriangle + \blacktriangledown$) 1 detik; menerima tayangan OLED 6 baris dan indikator alarm LED PB7.
+  4. **Instalasi Beban Pelanggan:** Menerima penyaluran daya (via pulsa koil trip PC8 / close PC9) dan mengirim sinyal umpan balik status kontak aux PC7.
+  5. **Petugas Lapangan PLN (HHU):** Berinteraksi via Port Optik depan (USART3 / IEC 62056-21) untuk pembacaan audit billing/logbook lokal dan konfigurasi IDPEL/No Seri.
+  6. **Sistem Pusat PLN (HES / AMI System):** Berinteraksi via Modem Seluler (USART2) untuk polling profil beban 15-menitan, sinkronisasi waktu RTC, perintah remote disconnect/reconnect (Class 70), serta menerima notifikasi seketika (*Push Trap* sabotase & *Last-Gasp*).
 
 ### B. DFD Level 1: Dekomposisi Fungsional Tiga Pilar (Fokus Pilar E3)
 Mendekomposisi proses internal menjadi 3 pilar utama dan 4 *data store* permanen:
@@ -70,3 +73,4 @@ Mendekomposisi proses internal menjadi 3 pilar utama dan 4 *data store* permanen
    Total Test time (real) = 0.37 sec
    ```
    Status: **12/12 Passed (100%)**.
+
