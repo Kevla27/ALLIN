@@ -1,64 +1,90 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mxfile host="app.diagrams.net" modified="2026-11-04T11:55:00.000Z" agent="Antigravity ALLIN Modular System Flowchart Generator" version="24.0.0" pages="7">
   <diagram id="Tab1_Macro_Overview" name="1. Ikhtisar Sistem Makro">
-    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="960" pageHeight="680" math="0" shadow="0">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="980" pageHeight="720" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
         
-        <mxCell id="m_hdr" value="&lt;b&gt;BAGAN ALIR MAKRO SISTEM SMART METER 3-FASA (STANDAR ISO 5807:1985)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Eksekusi Tiga Pilar Sekuensial, Siklus FreeRTOS 100 ms, Jalur Asinkron ISR &amp;amp; Lapisan Hardware&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=11.5;align=center;" vertex="1" parent="1">
-          <mxGeometry x="130" y="20" width="700" height="38" as="geometry" />
+        <mxCell id="m_hdr" value="&lt;b&gt;BAGAN ALIR MAKRO SISTEM SMART METER 3-FASA (STANDAR ISO 5807:1985)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;Eksekusi Tiga Pilar Sekuensial, Pemetaan Akses NVRAM (Kiri) &amp;amp; Display (Kanan) Pilar E3, dan Jalur Asinkron ISR&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=11.5;align=center;" vertex="1" parent="1">
+          <mxGeometry x="140" y="20" width="700" height="38" as="geometry" />
         </mxCell>
 
         
         <mxCell id="iso_start" value="&lt;b&gt;START: POWER-ON RESET (POR)&lt;/b&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontStyle=1;fontSize=10.5;align=center;" vertex="1" parent="1">
-          <mxGeometry x="350" y="74" width="260" height="32" as="geometry" />
+          <mxGeometry x="370" y="72" width="240" height="30" as="geometry" />
         </mxCell>
 
         
         <mxCell id="iso_prep" value="&lt;b&gt;BOOTSTRAPPING &amp;amp; KEAMANAN TRUSTZONE&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Inisialisasi Hardware, Gateway NSC, MPU &amp;amp; Kernel FreeRTOS [Tab 2]&lt;/font&gt;" style="shape=hexagon;perimeter=hexagonPerimeter2;fixedSize=1;size=14;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;" vertex="1" parent="1">
-          <mxGeometry x="200" y="122" width="560" height="42" as="geometry" />
+          <mxGeometry x="220" y="116" width="540" height="40" as="geometry" />
         </mxCell>
 
         
         <mxCell id="iso_rtos" value="&lt;b&gt;SIKLUS UTAMA FREERTOS (PERIODIK 100 ms)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;app_metering_task_loop(): Eksekusi Tiga Pilar Non-Blocking&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;" vertex="1" parent="1">
-          <mxGeometry x="200" y="180" width="560" height="36" as="geometry" />
+          <mxGeometry x="220" y="170" width="540" height="36" as="geometry" />
         </mxCell>
 
         
         <mxCell id="iso_e1" value="&lt;b&gt;PILAR E1: METROLOGI ADE9000&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Akuisisi ADC SPI1, Pengukuran Daya &amp;amp; Akumulasi Energi 4-Kuadran [Tab 3]&lt;/font&gt;" style="shape=process;backgroundOutline=1;rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;" vertex="1" parent="1">
-          <mxGeometry x="200" y="232" width="560" height="42" as="geometry" />
+          <mxGeometry x="220" y="220" width="540" height="40" as="geometry" />
         </mxCell>
 
         
         <mxCell id="iso_e2" value="&lt;b&gt;PILAR E2: PROTOKOL DLMS/COSEM (IEC 62056)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Snapshot Objek OBIS, Profil Beban 15-Menit &amp;amp; Enkripsi AES-GCM [Tab 4]&lt;/font&gt;" style="shape=process;backgroundOutline=1;rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;" vertex="1" parent="1">
-          <mxGeometry x="200" y="290" width="560" height="42" as="geometry" />
+          <mxGeometry x="220" y="274" width="540" height="40" as="geometry" />
         </mxCell>
 
         
-        <mxCell id="iso_e3" value="&lt;b&gt;PILAR E3: APLIKASI SMART METER &amp;amp; HMI (DOMAIN INTI KITA)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Tarif ToU, FSM Relai &amp;amp; Sabotase, Display OLED &amp;amp; Last-Gasp NVRAM [Tab 5 &amp;amp; FlowChartE3]&lt;/font&gt;" style="shape=process;backgroundOutline=1;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;align=center;" vertex="1" parent="1">
-          <mxGeometry x="200" y="348" width="560" height="46" as="geometry" />
+        <mxCell id="iso_e3_fsm" value="&lt;b&gt;PILAR E3.1: TARIF ToU &amp;amp; FSM RELAI BREAKER (DOMAIN KITA)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Evaluasi Jam WBP/LWBP, Deteksi 9 Vektor Sabotase &amp;amp; Kontrol Trip Breaker [Tab 5.1 &amp;amp; FlowChartE3-P2]&lt;/font&gt;" style="shape=process;backgroundOutline=1;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="220" y="328" width="540" height="40" as="geometry" />
+        </mxCell>
+
+        
+        <mxCell id="iso_e3_nvram" value="&lt;b&gt;PILAR E3.2: PEREKAMAN NVRAM FLASH (PROFIL BEBAN &amp;amp; LOGBOOK)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Penyimpanan Record 15-Menit, Logbook Event &amp;amp; Last-Gasp Checkpoint [Tab 5.2 &amp;amp; FlowChartE3-P4]&lt;/font&gt;" style="shape=process;backgroundOutline=1;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="220" y="380" width="540" height="40" as="geometry" />
+        </mxCell>
+
+        
+        <mxCell id="iso_e3_disp" value="&lt;b&gt;PILAR E3.3: MESIN TAMPILAN HMI DISPLAY (OLED SSD1306)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Kompilasi Framebuffer Layar SPLN (Auto-Scroll 5s / Navigasi Tombol) &amp;amp; LED PB7 [Tab 5.3 &amp;amp; FlowChartE3-P3]&lt;/font&gt;" style="shape=process;backgroundOutline=1;rounded=0;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="220" y="432" width="540" height="40" as="geometry" />
         </mxCell>
 
         
         <mxCell id="iso_delay" value="&lt;b&gt;Tunda Siklus 100 ms (osDelay)&lt;/b&gt;" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
-          <mxGeometry x="350" y="410" width="260" height="32" as="geometry" />
+          <mxGeometry x="370" y="484" width="240" height="30" as="geometry" />
         </mxCell>
 
         
-        <mxCell id="iso_isr" value="&lt;b&gt;JALUR ASINKRON &amp;amp; INTERRUPT SERVICE ROUTINE (ISR)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Event Seketika: EXTI AC-Fail (Last-Gasp), Tombol HMI, ADE IRQ, UART RX [Tab 6]&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;" vertex="1" parent="1">
-          <mxGeometry x="200" y="458" width="560" height="42" as="geometry" />
+        <mxCell id="iso_isr" value="&lt;b&gt;JALUR ASINKRON &amp;amp; INTERRUPT SERVICE ROUTINE (ISR)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;EXTI PC3 (AC-Fail Last-Gasp), EXTI PA0/PB6 (Navigasi Tombol), EXTI PB5/PB1 (ADE IRQ), UART RX [Tab 6]&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;align=center;" vertex="1" parent="1">
+          <mxGeometry x="220" y="528" width="540" height="40" as="geometry" />
         </mxCell>
 
         
-        <mxCell id="iso_hw" value="&lt;b&gt;LAPISAN PERANGKAT KERAS &amp;amp; MEDIA PENYIMPANAN&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;Flash NOR 4MB (SPI2), OLED SSD1306 (I2C3), AFE ADE9000 (SPI1), Modem/Optik (USART) [Tab 7]&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
-          <mxGeometry x="200" y="516" width="560" height="44" as="geometry" />
+        
+        <mxCell id="iso_hw_flash" value="&lt;b&gt;SPI2 NOR FLASH (4 MB)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Direct Access Storage&lt;br/&gt;Profil Beban &amp;amp; Logbook FIFO&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="586" width="210" height="56" as="geometry" />
         </mxCell>
 
         
-        <mxCell id="iso_nav" value="&lt;b&gt;PANDUAN REFERENSI TAB:&lt;/b&gt; [Tab 2] Bootstrapping | [Tab 3] Metrologi | [Tab 4] DLMS | [Tab 5] Aplikasi E3 | [Tab 6] ISR | [Tab 7] Hardware &amp;amp; Pinout" style="rounded=1;whiteSpace=wrap;html=1;fontSize=9.5;align=center;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="130" y="576" width="700" height="34" as="geometry" />
+        <mxCell id="iso_hw_afe" value="&lt;b&gt;AFE ADE9000 &amp;amp; RELAI&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;SPI1 DREADY PE11 &amp;amp; IRQ&lt;br/&gt;Koil Breaker PE7&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="275" y="586" width="200" height="56" as="geometry" />
+        </mxCell>
+
+        
+        <mxCell id="iso_hw_comm" value="&lt;b&gt;MODEM &amp;amp; OPTIK (USART)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Transceiver Komunikasi HES&lt;br/&gt;USART2 Modem, USART3 Optik&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="586" width="200" height="56" as="geometry" />
+        </mxCell>
+
+        
+        <mxCell id="iso_hw_disp" value="&lt;b&gt;OLED SSD1306 (I2C3)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Display Device HMI&lt;br/&gt;Layar Parameter Standar SPLN&lt;/font&gt;" style="shape=display;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="725" y="586" width="215" height="56" as="geometry" />
+        </mxCell>
+
+        
+        <mxCell id="iso_nav" value="&lt;b&gt;PANDUAN REFERENSI TAB:&lt;/b&gt; [Tab 2] Bootstrapping | [Tab 3] Metrologi | [Tab 4] DLMS | [Tab 5] Aplikasi E3 (5.1 FSM, 5.2 Storage, 5.3 HMI) | [Tab 6] ISR | [Tab 7] Hardware &amp;amp; Pinout" style="rounded=1;whiteSpace=wrap;html=1;fontSize=9.5;align=center;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="140" y="658" width="700" height="32" as="geometry" />
         </mxCell>
 
         
@@ -78,11 +104,19 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="e_e2_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="iso_e2" target="iso_e3">
+        <mxCell id="e_e2_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="iso_e2" target="iso_e3_fsm">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="e_e3_dly" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="iso_e3" target="iso_delay">
+        <mxCell id="e_e3_fsm_nvram" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="iso_e3_fsm" target="iso_e3_nvram">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_e3_nvram_disp" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="iso_e3_nvram" target="iso_e3_disp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_e3_dly" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="iso_e3_disp" target="iso_delay">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
@@ -90,24 +124,32 @@
         <mxCell id="e_dly_rtos" value="Looping 100 ms" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=10;fontStyle=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="iso_delay" target="iso_rtos">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="110" y="426" />
-              <mxPoint x="110" y="198" />
+              <mxPoint x="80" y="499" />
+              <mxPoint x="80" y="188" />
             </Array>
           </mxGeometry>
         </mxCell>
 
         
-        <mxCell id="e_e3_hw" value="Akses NVRAM &amp;amp; Display" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;dashed=1;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="iso_e3" target="iso_hw">
+        <mxCell id="e_nvram_flash" value="Tulis Profil Beban &amp;amp; Logbook" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;dashed=1;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontStyle=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="iso_e3_nvram" target="iso_hw_flash">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="830" y="371" />
-              <mxPoint x="830" y="538" />
+              <mxPoint x="145" y="400" />
             </Array>
           </mxGeometry>
         </mxCell>
 
         
-        <mxCell id="e_isr_hw" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="iso_isr" target="iso_hw">
+        <mxCell id="e_disp_oled" value="Render Framebuffer I2C3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;dashed=1;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="iso_e3_disp" target="iso_hw_disp">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="832" y="452" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        
+        <mxCell id="e_isr_hw" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="iso_isr" target="iso_hw_comm">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 

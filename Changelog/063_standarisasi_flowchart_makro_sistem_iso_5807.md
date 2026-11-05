@@ -38,10 +38,13 @@ Untuk menjaga agar diagram tetap sangat mudah dipahami (*readable at a glance*),
    - Setiap kotak makro kini hanya memuat 1 judul utama tebal (*bold title*) dan 1 baris sub-deskripsi padat dengan penanda rujukan tab (contoh: `[Tab 3]`, `[Tab 4]`, `[Tab 5 & FlowChartE3]`).
    - Jarak antar-elemen (*vertical gap*) diseragamkan presisi tepat 16 piksel, dan tinggi keseluruhan diagram menjadi sangat proporsional (~660px) sehingga muat penuh di satu layar monitor tanpa perlu scrolling.
 
-4. **Konversi Tema Black & White (B&W) & Evaluasi Pilar E3:**
+4. **Konversi Tema Black & White (B&W) & Pemetaan Eksplisit Sub-Pilar E3:**
    - Seluruh warna diubah ke tema monokrom standar publikasi teknis ISO/IEEE: background putih murni (`#ffffff`), border hitam pekat (`#000000;strokeWidth=1.5..2`), dan teks hitam kontras tinggi.
-   - Pilar E3 (Domain Inti Kita) diberikan aksen garis batas tebal ganda (*strokeWidth=2*) dan shading abu-abu sangat muda (`#f8f9fa`) agar langsung teridentifikasi sebagai inti aplikasi smart meter.
-   - Dilakukan audit struktural terhadap 4 sub-proses pada `Acuan/FlowChartE3.drawio` (Siklus 100ms, FSM Sabotase/Relai, Tampilan HMI, Manajemen Padam/Stop 2). Disimpulkan bahwa penyebutan 4 fungsi inti ini di dalam blok Predefined Process E3 adalah pendekatan arsitektural terbaik agar Tab 1 tetap mempertahankan level abstraksi makro (*System Overview*) tanpa menimbulkan visual clutter.
+   - **Penyelesaian Kelemahan Black-Box E3:** Untuk menjawab kelemahan di mana sebelumnya tidak terlihat sub-fungsi mana yang mengakses NVRAM dan Display, Pilar E3 dipecah secara transparan menjadi 3 sub-proses terstruktur:
+     1. **E3.1:** `Tarif ToU & FSM Relai Breaker` (Proteksi sabotase & kendali breaker relai).
+     2. **E3.2:** `Perekaman Flash NVRAM` (Penyimpanan Load Profile 15-menit & Logbook) $\rightarrow$ Mengalirkan garis putus-putus (*dashed line*) di **koridor kiri** ($x = 145$) langsung ke atas **SPI2 NOR Flash (4 MB)**.
+     3. **E3.3:** `Mesin Tampilan HMI Display` (Framebuffer SPLN & auto-scroll) $\rightarrow$ Mengalirkan garis putus-putus (*dashed line*) di **koridor kanan** ($x = 832$) langsung ke atas **OLED SSD1306 (I2C3)**.
+   - **Arsitektur Simetris Beban (Zero Crossings):** Koridor kiri didedikasikan untuk NVRAM Storage, koridor kanan untuk OLED Display, dan kolom tengah untuk alur sekuensial program FreeRTOS 100 ms. Seluruh panah tidak saling memotong (0 garis silang).
 
 | Simbol / Elemen | Klausul ISO 5807:1985 | Bentuk / Tipe Draw.io | Implementasi dalam Sistem Smart Meter |
 | :--- | :--- | :--- | :--- |
