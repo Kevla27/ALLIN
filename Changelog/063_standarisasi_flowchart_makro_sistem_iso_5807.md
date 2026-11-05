@@ -33,11 +33,10 @@ Untuk menjaga agar diagram tetap sangat mudah dipahami (*readable at a glance*),
    - **Jalur Asinkron & ISR:** Ditempatkan rapi di bawah siklus utama tanpa memotong alur lain.
    - **Lapisan Hardware & Media Penyimpanan:** Ditempatkan di dasar sistem dengan perincian lengkap Flash NOR, OLED SSD1306, ADE9000, dan Modem/Optik.
 
-2. **Pemisahan Koridor Panah (Bebas Tabrakan Teks & Garis):**
-   - **Koridor Kiri (x=100):** Jalur loop kembali 100 ms dari `osDelay` ke `SIKLUS UTAMA FREERTOS` dengan label bersih tanpa terpotong canvas.
-   - **Koridor Kanan (x=830):** Jalur interaksi dari Pilar E3 ke Lapisan Hardware tanpa memotong kotak atau teks tunda.
-   - **Total Garis Bersilangan:** **0 Garis (Zero Crossings)**.
-   - **Total Teks Bertumpukan:** **0 Teks (Zero Overlaps)**.
+3. **Penyederhanaan Teks & Tipografi Ringkas (*Concise Text Optimization*):**
+   - Menghapus deskripsi panjang dan daftar register/pin yang bertele-tele pada kotak makro.
+   - Setiap kotak makro kini hanya memuat 1 judul utama tebal (*bold title*) dan 1 baris sub-deskripsi padat dengan penanda rujukan tab (contoh: `[Tab 3]`, `[Tab 4]`, `[Tab 5 & FlowChartE3]`).
+   - Jarak antar-elemen (*vertical gap*) diseragamkan presisi tepat 16 piksel, dan tinggi keseluruhan diagram menjadi sangat proporsional (~660px) sehingga muat penuh di satu layar monitor tanpa perlu scrolling.
 
 | Simbol / Elemen | Klausul ISO 5807:1985 | Bentuk / Tipe Draw.io | Implementasi dalam Sistem Smart Meter |
 | :--- | :--- | :--- | :--- |
