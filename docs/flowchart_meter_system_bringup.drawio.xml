@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <mxfile host="Electron" modified="2026-11-05T04:20:00.000Z" agent="Antigravity Smart Meter Integrator" version="21.6.8" type="device">
   <diagram id="Def_meter_system_bringup" name="Definisi: meter_system_bringup">
     <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
@@ -6,114 +6,113 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
-        <!-- HEADER TITLE & METADATA BANNER -->
+        
         <mxCell id="hdr1" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;DEFINISI SUB-RUTIN: meter_system_bringup()&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#555555&quot;&gt;Detail Implementasi Predefined Process Tab 2 (Bootstrapping) | File: NonSecure/Core/Src/meter_system_bridge.c (Baris 49–75)&lt;/font&gt;" style="text;html=1;strokeColor=#000000;strokeWidth=1;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" vertex="1" parent="1">
           <mxGeometry x="140" y="20" width="600" height="42" as="geometry" />
         </mxCell>
 
-        <!-- u0: TERMINAL START -->
+        
         <mxCell id="u0" value="&lt;b&gt;SUB-RUTIN: meter_system_bringup()&lt;/b&gt;&lt;br&gt;Titik Masuk Sub-rutin Inisialisasi Layanan Sistem Terpadu&lt;br&gt;&lt;font color=&quot;#555555&quot;&gt;(Parameter: huart_opt, huart_modem, hadc_telemetry)&lt;/font&gt;" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="240" y="80" width="400" height="52" as="geometry" />
         </mxCell>
 
-        <!-- u1: BINDING CONTEXT -->
+        
         <mxCell id="u1" value="&lt;b&gt;BINDING HANDLE UART &amp;amp; RESET CONTEXT&lt;/b&gt;&lt;br&gt;s_console_uart = huart_modem &amp;amp; memset(&amp;amp;s_meas, 0, sizeof(s_meas))" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="250" y="156" width="380" height="44" as="geometry" />
         </mxCell>
 
-        <!-- u2: CONSOLE I/O & BANNER -->
+        
         <mxCell id="u2" value="&lt;b&gt;INISIALISASI CONSOLE I/O &amp;amp; BOOT BANNER&lt;/b&gt;&lt;br&gt;console_io_init(bridge_console_uart_tx) &amp;amp; Cetak Boot Banner via USART2" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="250" y="224" width="380" height="44" as="geometry" />
         </mxCell>
 
-        <!-- u3: PREDEFINED PROCESS - METROLOGI -->
-        <mxCell id="u3" value="&lt;b&gt;INISIALISASI LAYANAN METROLOGI LISTRIK&lt;/b&gt;&lt;br&gt;e1_metrology_service_init(): SPI1 ADE9000, Register DSP &amp;amp; Kalibrasi" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
+        
+        <mxCell id="u3" value="&lt;b&gt;INISIALISASI LAYANAN METROLOGI LISTRIK&lt;/b&gt;&lt;br&gt;e1_metrology_service_init(): SPI1 ADE9000, Register DSP &amp;amp; Kalibrasi" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="240" y="292" width="400" height="44" as="geometry" />
         </mxCell>
 
-        <!-- u4: PREDEFINED PROCESS - DLMS/COSEM -->
-        <mxCell id="u4" value="&lt;b&gt;INISIALISASI LAYANAN PROTOKOL DLMS/COSEM&lt;/b&gt;&lt;br&gt;e2_dlms_service_init(opt) &amp;amp; e2_dlms_service_set_modem_uart(modem)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
+        
+        <mxCell id="u4" value="&lt;b&gt;INISIALISASI LAYANAN PROTOKOL DLMS/COSEM&lt;/b&gt;&lt;br&gt;e2_dlms_service_init(opt) &amp;amp; e2_dlms_service_set_modem_uart(modem)" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="240" y="360" width="400" height="44" as="geometry" />
         </mxCell>
 
-        <!-- u5: PREDEFINED PROCESS - SMART METER APP & HMI -->
-        <mxCell id="u5" value="&lt;b&gt;INISIALISASI APLIKASI SMART METER &amp;amp; HMI&lt;/b&gt;&lt;br&gt;e3_meter_app_init(IDPEL, hadc): FSM Relai, Tamper &amp;amp; Display OLED" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
+        
+        <mxCell id="u5" value="&lt;b&gt;INISIALISASI APLIKASI SMART METER &amp;amp; HMI&lt;/b&gt;&lt;br&gt;e3_meter_app_init(IDPEL, hadc): FSM Relai, Tamper &amp;amp; Display OLED" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="240" y="428" width="400" height="44" as="geometry" />
         </mxCell>
 
-        <!-- u6: DECISION CHECKPOINT NVRAM -->
+        
         <mxCell id="u6" value="&lt;b&gt;nvram_load_energy_checkpoint(&amp;amp;cp)&lt;/b&gt;&lt;br&gt;Checkpoint Valid di NVRAM?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="280" y="496" width="320" height="66" as="geometry" />
         </mxCell>
 
-        <!-- u7a: RESTORE STAND ENERGI (BRANCH YA) -->
+        
         <mxCell id="u7a" value="&lt;b&gt;PULIHKAN STAND ENERGI DARI CHECKPOINT&lt;/b&gt;&lt;br&gt;s_meas.active_energy = cp.active_energy (Import, Export, Reactive)" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="250" y="594" width="380" height="44" as="geometry" />
         </mxCell>
 
-        <!-- u7b: DEFAULT ZERO (BRANCH TIDAK) -->
+        
         <mxCell id="u7b" value="&lt;b&gt;GUNAKAN NILAI AWAL DEFAULT (NOL)&lt;/b&gt;&lt;br&gt;Context s_meas Tetap 0 (Fresh Start / Boot Perdana)" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="670" y="507" width="300" height="44" as="geometry" />
         </mxCell>
 
-        <!-- u8: LOG STATUS SIAP -->
-        <mxCell id="u8" value="&lt;b&gt;CETAK LOG KONFIRMASI LAYANAN SIAP&lt;/b&gt;&lt;br&gt;printf(&quot;[BRIDGE] All Services Initialized
-&quot;) ke Console UART" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
+        
+        <mxCell id="u8" value="&lt;b&gt;CETAK LOG KONFIRMASI LAYANAN SIAP&lt;/b&gt;&lt;br&gt;printf(&quot;[BRIDGE] All Services Initialized &quot;) ke Console UART" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="250" y="662" width="380" height="44" as="geometry" />
         </mxCell>
 
-        <!-- u9: TERMINAL RETURN -->
+        
         <mxCell id="u9" value="&lt;b&gt;SELESAI (RETURN KE main.c)&lt;/b&gt;&lt;br&gt;Kembali ke Alur Bootstrapping: Siap Inisialisasi Kernel FreeRTOS" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="240" y="730" width="400" height="46" as="geometry" />
         </mxCell>
 
-        <!-- EDGES / CONNECTOR PANAH -->
-        <!-- u0 -> u1 -->
+        
+        
         <mxCell id="eu0_u1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u0" target="u1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- u1 -> u2 -->
+        
         <mxCell id="eu1_u2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u1" target="u2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- u2 -> u3 -->
+        
         <mxCell id="eu2_u3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u2" target="u3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- u3 -> u4 -->
+        
         <mxCell id="eu3_u4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u3" target="u4">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- u4 -> u5 -->
+        
         <mxCell id="eu4_u5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u4" target="u5">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- u5 -> u6 -->
+        
         <mxCell id="eu5_u6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u5" target="u6">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- u6 -> u7a ([Ya]) -->
+        
         <mxCell id="eu6_u7a" value="&lt;b&gt;[Ya] Valid&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=10;fontFamily=Helvetica;" edge="1" parent="1" source="u6" target="u7a">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- u6 -> u7b ([Tidak]) -->
+        
         <mxCell id="eu6_u7b" value="&lt;b&gt;[Tidak] Kosong / Gagal&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=10;fontFamily=Helvetica;" edge="1" parent="1" source="u6" target="u7b">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- u7a -> u8 -->
+        
         <mxCell id="eu7a_u8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u7a" target="u8">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- u7b -> u8 (Merges into u8 from east side) -->
+        
         <mxCell id="eu7b_u8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="u7b" target="u8">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
@@ -122,7 +121,7 @@
           </mxGeometry>
         </mxCell>
 
-        <!-- u8 -> u9 -->
+        
         <mxCell id="eu8_u9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" edge="1" parent="1" source="u8" target="u9">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>

@@ -237,17 +237,17 @@
         </mxCell>
 
         
-        <mxCell id="u3" value="&lt;b&gt;INISIALISASI LAYANAN METROLOGI LISTRIK&lt;/b&gt;&lt;br&gt;e1_metrology_service_init(): SPI1 ADE9000, Register DSP &amp;amp; Kalibrasi" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="u3" value="&lt;b&gt;INISIALISASI LAYANAN METROLOGI LISTRIK&lt;/b&gt;&lt;br&gt;e1_metrology_service_init(): SPI1 ADE9000, Register DSP &amp;amp; Kalibrasi" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="240" y="292" width="400" height="44" as="geometry" />
         </mxCell>
 
         
-        <mxCell id="u4" value="&lt;b&gt;INISIALISASI LAYANAN PROTOKOL DLMS/COSEM&lt;/b&gt;&lt;br&gt;e2_dlms_service_init(opt) &amp;amp; e2_dlms_service_set_modem_uart(modem)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="u4" value="&lt;b&gt;INISIALISASI LAYANAN PROTOKOL DLMS/COSEM&lt;/b&gt;&lt;br&gt;e2_dlms_service_init(opt) &amp;amp; e2_dlms_service_set_modem_uart(modem)" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="240" y="360" width="400" height="44" as="geometry" />
         </mxCell>
 
         
-        <mxCell id="u5" value="&lt;b&gt;INISIALISASI APLIKASI SMART METER &amp;amp; HMI&lt;/b&gt;&lt;br&gt;e3_meter_app_init(IDPEL, hadc): FSM Relai, Tamper &amp;amp; Display OLED" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="u5" value="&lt;b&gt;INISIALISASI APLIKASI SMART METER &amp;amp; HMI&lt;/b&gt;&lt;br&gt;e3_meter_app_init(IDPEL, hadc): FSM Relai, Tamper &amp;amp; Display OLED" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="240" y="428" width="400" height="44" as="geometry" />
         </mxCell>
 

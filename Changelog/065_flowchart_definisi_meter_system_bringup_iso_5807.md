@@ -38,9 +38,9 @@ Implementasi sub-rutin `meter_system_bringup()` dipetakan ke dalam simpul ISO 58
 | **`u0`** | Terminal (Stadium) | Baris 49: `void meter_system_bringup(...)` | Titik masuk sub-rutin dengan penerimaan parameter `huart_opt`, `huart_modem`, `hadc_telemetry`. |
 | **`u1`** | Process (Persegi Panjang) | Baris 51–52: `s_console_uart = huart_modem; memset(&s_meas, 0, ...);` | Binding pointer UART modem sebagai kanal logging dan pembersihan memori buffer context pengukuran `s_meas`. |
 | **`u2`** | Process (Persegi Panjang) | Baris 55–56: `console_io_init(...); console_io_print_boot_banner(...);` | Registrasi fungsi callback transmisi console I/O dan pencetakan banner identitas meter ke terminal USART2 (19200 bps). |
-| **`u3`** | Predefined Process | Baris 59: `e1_metrology_service_init();` | Inisialisasi SPI1 sensor metrologi ADE9000, konfigurasi register DSP, kalibrasi gain/offset, dan aktivasi pin IRQ. |
-| **`u4`** | Predefined Process | Baris 60–61: `e2_dlms_service_init(huart_opt); e2_dlms_service_set_modem_uart(huart_modem);` | Inisialisasi parser DLMS/COSEM, katalog objek OBIS, dan binding kanal port optik USART3 serta modem USART2. |
-| **`u5`** | Predefined Process | Baris 62: `e3_meter_app_init(METER_CONFIG_CUSTOMER_ID, hadc_telemetry);` | Inisialisasi modul inti: FSM Relai pemutus beban, 8 sensor tamper sabotase, sub-sistem display OLED SPLN, dan ADC telemetri. |
+| **`u3`** | Process (Persegi Panjang) | Baris 59: `e1_metrology_service_init();` | Inisialisasi SPI1 sensor metrologi ADE9000, konfigurasi register DSP, kalibrasi gain/offset, dan aktivasi pin IRQ. |
+| **`u4`** | Process (Persegi Panjang) | Baris 60–61: `e2_dlms_service_init(huart_opt); e2_dlms_service_set_modem_uart(huart_modem);` | Inisialisasi parser DLMS/COSEM, katalog objek OBIS, dan binding kanal port optik USART3 serta modem USART2. |
+| **`u5`** | Process (Persegi Panjang) | Baris 62: `e3_meter_app_init(METER_CONFIG_CUSTOMER_ID, hadc_telemetry);` | Inisialisasi modul inti: FSM Relai pemutus beban, 8 sensor tamper sabotase, sub-sistem display OLED SPLN, dan ADC telemetri. |
 | **`u6`** | Decision (Belah Ketupat) | Baris 66: `if (nvram_load_energy_checkpoint(&cp))` | Evaluasi ketersediaan data checkpoint energi yang valid di memori non-volatile (SPI2 Flash / Backup Register). |
 | **`u7a`** | Process (Branch [Ya]) | Baris 68–70: `s_meas.active_energy_wh = cp...;` | Memulihkan stand akumulasi energi aktif/reaktif terakhir dari checkpoint NVRAM ke dalam memori operasional. |
 | **`u7b`** | Process (Branch [Tidak]) | Jalur alternatif (else implisit) | Mempertahankan nilai akumulasi energi default nol (kondisi fresh start atau cold boot pertama pabrik). |
@@ -71,3 +71,4 @@ Sesuai protokol pre-flight SOP (`Acuan/SOP_SISTEM_KERJA_AI.md`), seluruh rangkai
    Total Test time (real) = 0.18 sec
    ```
    Status: **12/12 Passed (100%)**.
+
