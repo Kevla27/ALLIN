@@ -43,7 +43,23 @@ Memetakan entitas eksternal (*terminator*) yang berinteraksi langsung dengan bat
   10. `Paket APDU DLMS, Profil Beban & Notifikasi Trap/Last-Gasp` (Sistem $\rightarrow$ HES)
 
 ### B. DFD Level 1: Dekomposisi Fungsional Tiga Pilar (Fokus Pilar E3)
-Mendekomposisi proses internal menjadi 3 pilar utama dengan standarisasi aliran data frasa benda dan pemisahan kaku antara sinyal fisik analog dengan data logis:
+Mendekomposisi proses internal menjadi 3 pilar utama dengan arsitektur tata letak terstruktur (*grid pipeline* 5-kolom) bebas tabrakan garis (*zero-collision*), tanpa offset parent group yang merusak perutean garis (*all parent="1"*), dan standarisasi aliran data frasa benda:
+- **Arsitektur Tata Letak 5-Kolom Terstruktur:**
+  - **Kolom 1 (Kiri Atas):** Entitas Masukan Fisik Grid (`ent_grid_l1`).
+  - **Kolom 2 (Kiri):** Pilar E1 (`p1_0` Metrologi ADE9000 & `bridge_e1_e3`) di bagian atas; di bawahnya berbaris Entitas Eksternal Lokal (`ent_load_l1` Beban, `ent_tamper_l1` Sabotase, `ent_user_l1` Pelanggan) yang posisinya tepat sejajar horizontal dengan sub-proses E3 pasangannya.
+  - **Kolom 3 (Tengah):** Pilar E3 (Jantung Logika Bisnis & Aplikasi Smart Meter):
+    - Baris 1: `3.1 Billing ToU` & `3.2 Load Profile/MD`
+    - Baris 2: `3.3 Pengelola Relai SPLN` (sejajar lurus horizontal dengan `ent_load_l1`)
+    - Baris 3: `3.4 Deteksi Sabotase 8-Vektor` (sejajar lurus horizontal dengan `ent_tamper_l1`)
+    - Baris 4: `3.5 Antarmuka HMI OLED & Tombol` (sejajar lurus horizontal dengan `ent_user_l1`)
+    - Baris 5: `3.6 Manajemen Daya Last-Gasp` & `3.7 Console CLI`
+    - Baris 6: 4 Data Stores NVM (`D1 Checkpoint`, `D2 Logbook FIFO`, `D3 Load Profile 60-hari`, `D4 Tabel Tarif ToU`)
+  - **Kolom 4 (Tengah-Kanan):** Pilar E2 (`2.0 Tumpukan Protokol DLMS/COSEM`) melayani objek OBIS dan APDU remote disconnect.
+  - **Kolom 5 (Kanan):** Entitas Eksternal Komunikasi AMI & Lapangan (`ent_hes_l1` HES 4G/NB-IoT dan `ent_opt_l1` Petugas Lapangan Port Optik).
+- **Eliminasi Total Cacat Visual (Zero Out-of-Bounds & Zero Spaghetti):**
+  - Mengubah seluruh elemen sel dan garis menjadi `parent="1"` agar terhindar dari *coordinate offset bug* Draw.io yang sebelumnya melempar panah keluar kanvas hingga x > 2300.
+  - Menetapkan titik belok (*waypoint coordinates*) eksplisit pada celah kanal antar-kolom sehingga tidak ada satu pun garis panah yang menabrak teks maupun menembus badan kotak sub-proses lain.
+  - Menggunakan latar belakang label solid putih (`labelBackgroundColor=#ffffff`) dengan padding yang pas agar garis tidak memotong teks.
 - **Proses 1.0 (Pilar E1 - Metrologi Listrik ADE9000):** Menerima sinyal fisik 3-fasa & interrupt DREADY PE11; melakukan sampling ADC SPI1 8kSPS & konversi DSP; menyalurkan data pengukuran mentah ke jembatan sistem `meter_system_bridge.c` (`meter_measurements_t s_meas`).
 - **Proses 3.0 (Pilar E3 - Logika Bisnis Aplikasi Smart Meter / Jantung Sistem):**
   - Menerima `Data Pengukuran Listrik Terfilter (meter_measurements_t)` dari bridge untuk diolah oleh seluruh sub-proses:
