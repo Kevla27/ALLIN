@@ -25,25 +25,22 @@ Untuk mengunci kontrak antarmuka data tersebut secara resmi dan memudahkan pengu
 ### A. DFD Level 0: Diagram Konteks Sistem Smart Meter 3-Fasa
 Memetakan entitas eksternal (*terminator*) yang berinteraksi langsung dengan batas sistem meter, dengan proses utama `0.0` dirancang murni sebagai **Kotak Hitam (*Black Box*)** tanpa mencantumkan rincian sub-pilar internal:
 - **Proses 0.0:** `SISTEM SMART METER 3-FASA TERTANAM (Host MCU STM32U585 Cortex-M33)`.
-- **Konsistensi Frasa Kata Benda (Noun Phrases):** Seluruh label aliran data diselaraskan menjadi murni kata benda (*data/signal packet*):
-  - `Sinyal Tegangan/Arus Analog, ZX & Status AC_FAIL` (dari Jaringan Listrik PLN).
-  - `Sinyal Pemicu Sabotase Fisik (EXTI)` (dari Vektor Sabotase).
-  - `Sinyal Tombol Navigasi & Konfirmasi Rekoneksi` (dari Pelanggan).
-  - `Data Tampilan Layar OLED & Indikator LED PB7` (ke Pelanggan).
-  - `Sinyal Pulsa Koil Relai Trip/Close (PC8/PC9)` (ke Instalasi Beban).
-  - `Sinyal Status Kontak Umpan Balik Relai (PC7)` (dari Instalasi Beban).
-  - `Paket Perintah Audit OBIS & Konfigurasi IDPEL (Optik)` (dari Petugas HHU).
-  - `Frame Respons HDLC Data Meter (Optik)` (ke Petugas HHU).
-  - `Paket Perintah Remote Disconnect & Waktu RTC (Modem)` (dari Sistem HES).
-  - `Paket APDU DLMS (Profil Beban, Trap & Last-Gasp)` (ke Sistem HES).
-- **Kerapian Visual & Latar Belakang Solid:** Seluruh label panah dikonfigurasi dengan latar putih solid (`labelBackgroundColor=#ffffff;fillColor=#ffffff`) sehingga garis panah tidak menembus teks saat diekspor ke PDF/dokumen laporan, serta orientasi teks vertikal (`horizontal=0`) pada panah vertikal agar tata letak tetap estetis dan terbaca sempurna.
-- **Entitas Eksternal:**
-  1. **Sensor CT/VT & Jaringan Listrik PLN:** Memasok sinyal analog tegangan 3-fasa, arus, zero-crossing, dan sinyal deteksi pemadaman `AC_FAIL_DET`.
-  2. **Vektor Sabotase & Anomali Fisik:** Memasok sinyal pemicu interupsi EXTI (tutup meter, tutup terminal, medan magnet kuat, netral bypass).
-  3. **Pelanggan Listrik:** Mengirim sinyal masukan tombol navigasi (PA0/PB6) dan konfirmasi penekanan simultan ($\blacktriangle + \blacktriangledown$) 1 detik; menerima data tayangan OLED 6 baris dan indikator alarm LED PB7.
-  4. **Instalasi Beban Pelanggan:** Menerima penyaluran daya (via pulsa koil trip PC8 / close PC9) dan mengirim sinyal umpan balik status kontak aux PC7.
-  5. **Petugas Lapangan PLN (HHU):** Berinteraksi via Port Optik depan (USART3 / IEC 62056-21) untuk pembacaan audit billing/logbook lokal dan konfigurasi IDPEL/No Seri.
-  6. **Sistem Pusat PLN (HES / AMI System):** Berinteraksi via Modem Seluler (USART2) untuk polling profil beban 15-menitan, sinkronisasi waktu RTC, perintah remote disconnect/reconnect (Class 70), serta menerima notifikasi seketika (*Push Trap* sabotase & *Last-Gasp*).
+- **Tata Letak Simetris Bebas Tumpang Tindih:**
+  - 3 Entitas Atas (`y=100`): Sensor/Jaringan Listrik (Kiri), Pelanggan Listrik (Tengah), Petugas Lapangan PLN (Kanan).
+  - 3 Entitas Bawah (`y=700`): Vektor Sabotase (Kiri), Instalasi Beban Pelanggan (Tengah), Sistem Pusat HES PLN (Kanan).
+  - Proses 0.0 tepat di tengah (`x=540, y=350, w=340, h=220`) dengan jarak bebas vertikal/horizontal $\ge 130$ px.
+- **Standarisasi Tata Bahasa Aliran Data (100% Frasa Benda):**
+  Seluruh panah aliran data distandarisasikan menjadi frasa benda (*noun phrases*) murni tanpa kata kerja imperatif, dilengkapi `labelBackgroundColor=#ffffff` solid dan `spacing=3` agar garis tidak menembus teks saat diekspor ke dokumen laporan:
+  1. `Sinyal Tegangan/Arus 3-Fasa, ZX & Status AC_FAIL` (Grid $\rightarrow$ Sistem)
+  2. `Sinyal Pemicu Sabotase & Anomali Fisik (EXTI)` (Tamper $\rightarrow$ Sistem)
+  3. `Sinyal Tombol Navigasi & Konfirmasi Rekoneksi (▲+▼)` (Pelanggan $\rightarrow$ Sistem)
+  4. `Data Tampilan Layar OLED & Status LED PB7` (Sistem $\rightarrow$ Pelanggan)
+  5. `Sinyal Pulsa Koil Relai Trip/Close (PC8/PC9)` (Sistem $\rightarrow$ Beban)
+  6. `Sinyal Umpan Balik Status Kontak Aux (PC7)` (Beban $\rightarrow$ Sistem)
+  7. `Paket Perintah Audit OBIS & Konfigurasi IDPEL (Optik)` (Petugas $\rightarrow$ Sistem)
+  8. `Frame Respons HDLC Data Billing & Logbook (Optik)` (Sistem $\rightarrow$ Petugas)
+  9. `Paket APDU Perintah Remote Disconnect & Sync RTC` (HES $\rightarrow$ Sistem)
+  10. `Paket APDU DLMS, Profil Beban & Notifikasi Trap/Last-Gasp` (Sistem $\rightarrow$ HES)
 
 ### B. DFD Level 1: Dekomposisi Fungsional Tiga Pilar (Fokus Pilar E3)
 Mendekomposisi proses internal menjadi 3 pilar utama dan 4 *data store* permanen:
