@@ -1,0 +1,719 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="Electron" agent="Antigravity AI" version="24.7.17">
+  <diagram id="tab1_macro_system" name="1. Ikhtisar Sistem Makro">
+    <mxGraphModel dx="1000" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 1. Terminator Mulai -->
+        <mxCell id="t1_start" value="Mulai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="353" y="25" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- 2. Data Masukan -->
+        <mxCell id="t1_in" value="Catu daya utama, parameter kalibrasi, dan konfigurasi TrustZone" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="77" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 3. Persiapan: Bootstrapping -->
+        <mxCell id="t1_boot" value="Bootstrapping TrustZone &amp;amp; Inisialisasi Periferal (Clocks, GPIO, SPI, I2C)" style="shape=hexagon;perimeter=hexagonPerimeter;fixedSize=1;size=20;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="137" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 4. Proses: Inisialisasi RTOS -->
+        <mxCell id="t1_rtos" value="Inisialisasi Penjadwal FreeRTOS &amp;amp; Antrean Antar-Tugas" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="197" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 5. Sub-Proses: Pilar E1 Metrologi -->
+        <mxCell id="t1_e1" value="Layanan Metrologi Listrik E1 (ADE9000 &amp;amp; Akuisisi Sampel)" style="shape=process;backgroundOutline=1;rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="255" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 6. Sub-Proses: Pilar E2 DLMS/COSEM -->
+        <mxCell id="t1_e2" value="Layanan Protokol Komunikasi DLMS/COSEM E2 (IEC 62056)" style="shape=process;backgroundOutline=1;rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="313" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 7. Sub-Proses: Pilar E3 Aplikasi & HMI -->
+        <mxCell id="t1_e3" value="Aplikasi Smart Meter &amp;amp; HMI E3 (Proteksi, Tarif, &amp;amp; Layar)" style="shape=process;backgroundOutline=1;rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="371" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 8. Proses: Sinkronisasi NVRAM -->
+        <mxCell id="t1_sync" value="Sinkronisasi Status Global &amp;amp; Pembaruan Buffer NVRAM" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="429" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 9. Keputusan: Indikasi Listrik Padam -->
+        <mxCell id="t1_d_pwr" value="Indikasi Listrik PLN Padam&#xa;(AC_FAIL)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="323" y="487" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 10. Cabang Ya: Mitigasi Padam -->
+        <mxCell id="t1_p_pwr" value="Eksekusi Mitigasi Pemadaman Listrik&#xa;&amp;amp; Transisi Low Power Stop 2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="580" y="498" width="200" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 11. Data Keluaran -->
+        <mxCell id="t1_out" value="Status relai, pulsa kalibrasi metrologi, respons DLMS, dan display HMI" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="577" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 12. Keputusan: Sistem Beroperasi Normal -->
+        <mxCell id="t1_d_norm" value="Sistem Beroperasi&#xa;Normal" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="323" y="637" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 13. Proses Tunda Siklus (Di kiri untuk loopback) -->
+        <mxCell id="t1_dly" value="Tunda Siklus 100 ms (osDelay)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="70" y="648" width="180" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 14. Terminator Selesai -->
+        <mxCell id="t1_end" value="Selesai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="353" y="727" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Tab 1 -->
+        <mxCell id="t1_e1_start" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t1_start" target="t1_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e2_in" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t1_in" target="t1_boot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e3_boot" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t1_boot" target="t1_rtos">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e4_rtos" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t1_rtos" target="t1_e1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e5_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t1_e1" target="t1_e2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e6_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t1_e2" target="t1_e3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e7_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t1_e3" target="t1_sync">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e8_sync" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t1_sync" target="t1_d_pwr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e9_pwr_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t1_d_pwr" target="t1_p_pwr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e10_pwr_join" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t1_p_pwr" target="t1_out">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="597" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t1_e11_pwr_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t1_d_pwr" target="t1_out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e12_out" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t1_out" target="t1_d_norm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e13_loop_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t1_d_norm" target="t1_dly">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_e14_dly_loop" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t1_dly" target="t1_e1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="40" y="667" />
+              <mxPoint x="40" y="274" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t1_e15_loop_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t1_d_norm" target="t1_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="tab2_metrology" name="2. Layanan Metrologi Listrik">
+    <mxGraphModel dx="1000" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 1. Terminator Mulai -->
+        <mxCell id="t2_start" value="Mulai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="353" y="25" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- 2. Data Masukan -->
+        <mxCell id="t2_in" value="Data register ADC ADE9000 via SPI1 dan koefisien kalibrasi" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="77" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 3. Proses: Baca Register -->
+        <mxCell id="t2_read" value="Baca Register Tegangan, Arus, &amp;amp; Daya via Bus SPI1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="137" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 4. Keputusan: Mode Sintetis -->
+        <mxCell id="t2_d_syn" value="Mode Beban Sintetis&#xa;Aktif" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="323" y="195" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 5. Cabang Ya: Injeksi Sintetis -->
+        <mxCell id="t2_p_syn" value="Injeksi Parameter Pengukuran&#xa;Sintetis Konsol CLI" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="580" y="206" width="200" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 6. Cabang Tidak: Konversi Riil ADC -->
+        <mxCell id="t2_p_real" value="Konversi Nilai Riil ADC ADE9000 dengan Faktor Skala" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="285" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 7. Proses: Hitung Daya & Energi -->
+        <mxCell id="t2_calc" value="Hitung Daya Aktif, Reaktif, Semu, &amp;amp; Akumulasi Energi 3-Fasa" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="343" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 8. Proses: Filter DSP -->
+        <mxCell id="t2_dsp" value="Filter DSP, Kompensasi Offset Drift, &amp;amp; Koreksi Sudut Fasa" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="401" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 9. Proses: Pulsa Kalibrasi -->
+        <mxCell id="t2_pulse" value="Pembangkit Pulsa Kalibrasi CF1/CF2 &amp;amp; Sinkronisasi Zero-Crossing" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="459" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 10. Data Keluaran -->
+        <mxCell id="t2_out" value="Struktur pengukuran global s_meas dan sinyal pulsa optik LED" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="517" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 11. Terminator Selesai -->
+        <mxCell id="t2_end" value="Selesai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="353" y="577" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Tab 2 -->
+        <mxCell id="t2_e1_start" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t2_start" target="t2_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_e2_in" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t2_in" target="t2_read">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_e3_read" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t2_read" target="t2_d_syn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_e4_syn_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t2_d_syn" target="t2_p_syn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_e5_syn_join" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t2_p_syn" target="t2_calc">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="362" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t2_e6_syn_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t2_d_syn" target="t2_p_real">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_e7_real_calc" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t2_p_real" target="t2_calc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_e8_calc_dsp" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t2_calc" target="t2_dsp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_e9_dsp_pulse" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t2_dsp" target="t2_pulse">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_e10_pulse_out" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t2_pulse" target="t2_out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_e11_out_end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t2_out" target="t2_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="tab3_dlms" name="3. Layanan Protokol DLMS-COSEM">
+    <mxGraphModel dx="1000" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 1. Terminator Mulai -->
+        <mxCell id="t3_start" value="Mulai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="353" y="25" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- 2. Data Masukan -->
+        <mxCell id="t3_in" value="Snapshot metrologi s_meas dan frame request DLMS/COSEM" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="77" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 3. Proses: Pemetaan OBIS -->
+        <mxCell id="t3_obis" value="Petakan Objek OBIS Standar SPLN D3.002 (V, I, P, Q, S, PF, Freq)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="137" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 4. Proses: Pembaruan Atribut COSEM -->
+        <mxCell id="t3_snap" value="Perbarui Atribut Nilai Register COSEM (Class ID 3 &amp;amp; 4)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="195" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 5. Proses: Profil Beban -->
+        <mxCell id="t3_prof" value="Sinkronisasi Buffer Capture Profil Beban (Class ID 7)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="253" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 6. Keputusan: Kriptografi -->
+        <mxCell id="t3_d_sec" value="Enkripsi &amp;amp; Otentikasi&#xa;Diperlukan" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="323" y="311" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 7. Cabang Ya: AES-128-GCM -->
+        <mxCell id="t3_p_sec" value="Enkripsi AES-128-GCM&#xa;&amp;amp; Generate Tag Integritas GMAC" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="580" y="322" width="200" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 8. Proses: Formatting HDLC -->
+        <mxCell id="t3_hdlc" value="Kompilasi Respons APDU &amp;amp; Pembentukan Frame HDLC" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="401" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 9. Data Keluaran -->
+        <mxCell id="t3_out" value="Frame respons HDLC/APDU dan status sesi asosiasi DLMS" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="459" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 10. Terminator Selesai -->
+        <mxCell id="t3_end" value="Selesai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="353" y="519" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Tab 3 -->
+        <mxCell id="t3_e1_start" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t3_start" target="t3_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_e2_in" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t3_in" target="t3_obis">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_e3_obis" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t3_obis" target="t3_snap">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_e4_snap" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t3_snap" target="t3_prof">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_e5_prof" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t3_prof" target="t3_d_sec">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_e6_sec_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t3_d_sec" target="t3_p_sec">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_e7_sec_join" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t3_p_sec" target="t3_hdlc">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t3_e8_sec_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t3_d_sec" target="t3_hdlc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_e9_hdlc_out" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t3_hdlc" target="t3_out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_e10_out_end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t3_out" target="t3_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="tab4_app_hub" name="4. Aplikasi Smart Meter &amp; HMI">
+    <mxGraphModel dx="1000" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 1. Terminator Mulai -->
+        <mxCell id="t4_start" value="Mulai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="353" y="25" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- 2. Data Masukan -->
+        <mxCell id="t4_in" value="Sinyal pengukuran metrologi E1, status RTC, dan telemetri baterai" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="77" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 3. Proses: Baca Snapshot -->
+        <mxCell id="t4_snap" value="Baca Snapshot Metrologi E1 &amp;amp; Jam RTC" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="137" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 4. Proses: Tarif ToU -->
+        <mxCell id="t4_tou" value="Tentukan Tarif ToU (WBP / LWBP)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="195" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 5. Proses: Telemetri ADC -->
+        <mxCell id="t4_adc" value="Ukur Baterai &amp;amp; Superkapasitor (ADC4 Tiap 5s)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="253" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 6. Proses: Proteksi & Sabotase -->
+        <mxCell id="t4_prot" value="Logika Proteksi Relai &amp;amp; Deteksi Sabotase (FSM)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="311" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 7. Proses: Kedip LED -->
+        <mxCell id="t4_led" value="Perbarui Irama Kedip LED Alarm (PB7)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="369" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 8. Proses: Integrasi MD -->
+        <mxCell id="t4_md" value="Hitung Integrasi Maximum Demand (15 Menit)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="427" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 9. Keputusan: Interval 15 Menit -->
+        <mxCell id="t4_d_15m" value="Interval 15 Menit&#xa;Tercapai" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="323" y="485" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 10. Cabang Ya: Flash NVRAM -->
+        <mxCell id="t4_p_nvram" value="Tulis Record Profil Beban&#xa;ke Flash NVRAM (SPI2)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="580" y="496" width="200" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 11. Proses: Tampilan HMI -->
+        <mxCell id="t4_hmi" value="Mesin Tampilan HMI &amp;amp; Carousel Layar OLED" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="575" width="340" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 12. Keputusan: AC_FAIL -->
+        <mxCell id="t4_d_pwr" value="Indikasi Listrik PLN Padam&#xa;(AC_FAIL)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="323" y="633" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 13. Cabang Ya: Manajemen Listrik Padam -->
+        <mxCell id="t4_p_pwr" value="Manajemen Listrik Padam&#xa;&amp;amp; Masuk Mode Stop 2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="580" y="644" width="200" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 14. Data Keluaran -->
+        <mxCell id="t4_out" value="Status relai beban, data profil NVRAM, dan visualisasi OLED" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="243" y="723" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 15. Terminator Selesai -->
+        <mxCell id="t4_end" value="Selesai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="353" y="783" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Tab 4 -->
+        <mxCell id="t4_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t4_start" target="t4_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t4_in" target="t4_snap">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t4_snap" target="t4_tou">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t4_tou" target="t4_adc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t4_adc" target="t4_prot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t4_prot" target="t4_led">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t4_led" target="t4_md">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t4_md" target="t4_d_15m">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e9_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t4_d_15m" target="t4_p_nvram">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e10_join" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t4_p_nvram" target="t4_hmi">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="594" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t4_e11_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t4_d_15m" target="t4_hmi">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t4_hmi" target="t4_d_pwr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e13_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t4_d_pwr" target="t4_p_pwr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e14_join" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t4_p_pwr" target="t4_out">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="743" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t4_e15_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t4_d_pwr" target="t4_out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_e16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="t4_out" target="t4_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="tab5_asynchronous_isr" name="5. Jalur Asinkron &amp; ISR">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ==================== KOLOM KIRI: UART RX ISR ==================== -->
+        <!-- 1. Terminator Mulai UART -->
+        <mxCell id="u_start" value="Mulai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="210" y="25" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- 2. Data Masukan UART -->
+        <mxCell id="u_in" value="Byte karakter masuk dari register UART RX" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="110" y="77" width="320" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 3. Keputusan: ASCII CLI -->
+        <mxCell id="u_d_cli" value="Format Karakter&#xa;ASCII CLI" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="180" y="137" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- 4. Cabang Ya: Kirim ke Konsol CLI -->
+        <mxCell id="u_p_cli" value="Kirim Karakter ke&#xa;Konsol Eksekusi CLI" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="380" y="145" width="150" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 5. Cabang Tidak: Push Ring Buffer HDLC -->
+        <mxCell id="u_p_push" value="Push Byte ke Ring Buffer HDLC/DLMS" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="110" y="212" width="320" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 6. Keputusan: Frame Lengkap & Valid -->
+        <mxCell id="u_d_hdlc" value="Frame Lengkap &amp;amp;&#xa;FCS Valid" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="180" y="270" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- 7. Cabang Ya: Dekode APDU DLMS -->
+        <mxCell id="u_p_parse" value="Dekode Layanan APDU DLMS (Get, Set, Action)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="110" y="345" width="320" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 8. Proses: Eksekusi & Kompilasi Respons -->
+        <mxCell id="u_p_exec" value="Eksekusi Perintah &amp;amp; Kompilasi Respons HDLC" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="110" y="403" width="320" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 9. Data Keluaran UART -->
+        <mxCell id="u_out" value="Transmisi frame respons HDLC via DMA/UART TX" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="110" y="461" width="320" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 10. Proses: Re-arm UART Interupsi -->
+        <mxCell id="u_p_rearm" value="Aktifkan Kembali Interupsi RX (HAL_UART_Receive_IT)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="110" y="521" width="320" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 11. Terminator Selesai UART -->
+        <mxCell id="u_end" value="Selesai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="210" y="579" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Kolom Kiri UART -->
+        <mxCell id="ue_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_start" target="u_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ue_2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_in" target="u_d_cli">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ue_3_cli_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_d_cli" target="u_p_cli">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ue_4_cli_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_d_cli" target="u_p_push">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ue_5_push_d" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_p_push" target="u_d_hdlc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ue_6_hdlc_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_d_hdlc" target="u_p_parse">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ue_7_hdlc_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_d_hdlc" target="u_p_rearm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="455" y="297" />
+              <mxPoint x="455" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ue_8_cli_join" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="u_p_cli" target="u_p_rearm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="455" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ue_9_parse" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_p_parse" target="u_p_exec">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ue_10_exec" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_p_exec" target="u_out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ue_11_out" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_out" target="u_p_rearm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ue_12_rearm" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="u_p_rearm" target="u_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+
+        <!-- ==================== KOLOM KANAN: GPIO EXTI ISR ==================== -->
+        <!-- 1. Terminator Mulai EXTI -->
+        <mxCell id="x_start" value="Mulai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="790" y="25" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- 2. Data Masukan EXTI -->
+        <mxCell id="x_in" value="Sinyal trigger pin interupsi GPIO EXTI" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="690" y="77" width="320" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 3. Keputusan 1: AC_FAIL (PC3) -->
+        <mxCell id="x_d1" value="Pin Terpicu AC_FAIL&#xa;(PC3)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="760" y="137" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- 4. Aksi 1: Last-Gasp -->
+        <mxCell id="x_act1" value="Trigger Event Last-Gasp&#xa;&amp;amp; NVM Checkpoint" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="960" y="145" width="170" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 5. Keputusan 2: Tombol HMI (PA0) -->
+        <mxCell id="x_d2" value="Pin Terpicu Tombol HMI&#xa;(PA0)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="760" y="212" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- 6. Aksi 2: Navigasi Tombol -->
+        <mxCell id="x_act2" value="Kirim Event Tombol HMI&#xa;&amp;amp; Wakeup Display" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="960" y="220" width="170" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 7. Keputusan 3: ADE9000 IRQ (PB0) -->
+        <mxCell id="x_d3" value="Pin Terpicu ADE9000 IRQ&#xa;(PB0)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="760" y="287" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- 8. Aksi 3: Event Sensor -->
+        <mxCell id="x_act3" value="Set Flag Pembacaan&#xa;Cepat Metrologi" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="960" y="295" width="170" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 9. Keputusan 4: Sinyal AUX (PB1) -->
+        <mxCell id="x_d4" value="Pin Terpicu Sinyal AUX&#xa;(PB1)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=10;spacingRight=10;spacingTop=2;spacingBottom=2;" vertex="1" parent="1">
+          <mxGeometry x="760" y="362" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- 10. Aksi 4: Catat Event AUX -->
+        <mxCell id="x_act4" value="Catat Event Eksternal AUX&#xa;ke Logbook Kejadian" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="960" y="370" width="170" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 11. Data Keluaran EXTI -->
+        <mxCell id="x_out" value="Notifikasi event ke task RTOS via EventFlags/Direct" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=20;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=15;spacingRight=15;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="690" y="442" width="320" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 12. Proses: Clear Pending Flag EXTI -->
+        <mxCell id="x_clear" value="Bersihkan Pending Flag Interupsi EXTI (PR Register)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;spacingTop=4;spacingBottom=4;" vertex="1" parent="1">
+          <mxGeometry x="690" y="502" width="320" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- 13. Terminator Selesai EXTI -->
+        <mxCell id="x_end" value="Selesai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="790" y="560" width="120" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Kolom Kanan EXTI -->
+        <mxCell id="xe_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="x_start" target="x_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xe_2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="x_in" target="x_d1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xe_d1_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d1" target="x_act1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xe_d1_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d1" target="x_d2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xe_d2_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d2" target="x_act2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xe_d2_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d2" target="x_d3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xe_d3_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d3" target="x_act3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xe_d3_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d3" target="x_d4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xe_d4_ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d4" target="x_act4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xe_d4_no" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;spacing=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_d4" target="x_out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Bus Penyatu dari Aksi 1, 2, 3, 4 ke x_out -->
+        <mxCell id="xe_act1_bus" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_act1" target="x_out">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1045" y="462" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xe_act2_bus" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_act2" target="x_out">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1045" y="462" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xe_act3_bus" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_act3" target="x_out">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1045" y="462" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xe_act4_bus" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="x_act4" target="x_out">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1045" y="462" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xe_out_clear" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="x_out" target="x_clear">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xe_clear_end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;" edge="1" parent="1" source="x_clear" target="x_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

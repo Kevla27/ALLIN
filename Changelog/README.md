@@ -69,6 +69,12 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-059**](059_penyambungan_cipher_backend_dan_sinkronisasi_log_billing_dlms.md) | 03-11-2026 | Penyambungan Security Suite 0 Cipher Backend, Ciphered SET-Request, dan Sinkronisasi Profile DLMS (Event Log & Billing History) | `E2/*`, `Changelog/*` | Selesai |
 | [**LOG-060**](060_penghapusan_modul_audio_buzzer_dan_penjernihan_pb7_led_alm.md) | 04-11-2026 | Penghapusan Modul Audio Buzzer dan Penjernihan Peran Pin PB7 sebagai LED_ALM (Kuning) Sesuai Standar SPLN & PIN.docx | `E3/*`, `NonSecure/CMakeLists.txt`, `Changelog/*` | Selesai |
 | [**LOG-061**](061_integrasi_pembaruan_e2_disconnect_control_block_transfer_anti_bruteforce.md) | 04-11-2026 | Integrasi Pembaruan Pilar E2 (Disconnect Control Class 70, Block Transfer, Anti-Bruteforce & NVM Counter) | `E2/*`, `E3/app/*`, `NonSecure/CMakeLists.txt`, `Changelog/*` | Selesai |
+| [**LOG-070**](070_eliminasi_tab6_hardware_fokus_murni_software_flowchart.md) | 05-11-2026 | Eliminasi Tab 6 Hardware & Penataan Ulang Flowchart Sistem Fokus Murni Software Logic | `docs/system_flowchart.drawio`, `Changelog/*` | Selesai |
+| [**LOG-071**](071_pembuatan_uml_state_machine_diagram_fsm_sistem_dan_relai.md) | 05-11-2026 | Pembuatan UML State Machine Diagram untuk FSM Sistem, Relai Pembatas Beban, dan HMI | `docs/*`, `Changelog/*` | Selesai |
+| [**LOG-072**](072_pembuatan_dfd_level_0_dan_level_1_arsitektur_tiga_pilar.md) | 05-11-2026 | Pembuatan DFD Level 0 (Context Diagram) dan Level 1 Arsitektur Tiga Pilar | `docs/*`, `Changelog/*` | Selesai |
+| [**LOG-073**](073_pembuatan_flowchart_standar_ansi_pilar_e3.md) | 05-11-2026 | Pembuatan Flowchart Standar ANSI/ISO 5807 untuk Pilar E3 (Aplikasi Smart Meter) | `docs/e3_flowchart_ansi.drawio`, `Changelog/*` | Selesai |
+| [**LOG-074**](074_pembuatan_flowchart_sistem_standar_ansi.md) | 06-11-2026 | Pembuatan Salinan Flowchart Sistem 5-Tab Berstandar ANSI/ISO 5807 | `docs/system_flowchart_ansi.drawio`, `Changelog/*` | Selesai |
+| [**LOG-075**](075_audit_dan_penyempurnaan_integritas_dfd_sistem.md) | 06-11-2026 | Audit & Penyempurnaan Integritas Data Flow Diagram (DFD) Sistem Level 0 & Level 1 | `docs/system_dfd_diagram.drawio.xml`, `Changelog/*` | Selesai |
 
 ---
 
