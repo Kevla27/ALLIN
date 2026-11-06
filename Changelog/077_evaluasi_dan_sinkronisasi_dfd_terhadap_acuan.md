@@ -48,9 +48,10 @@ Menindaklanjuti evaluasi komprehensif terhadap berkas [`docs/system_dfd_diagram.
 
 ## 3. Hasil Verifikasi Geometri, Kompilasi & Unit Test
 
-1. **Verifikasi Geometri & Perutean Ortogonal Draw.io XML:**
-   - **Tab 1 (DFD Level 0):** 8 vertices, 10 edges — `0` vertex overlaps, `0` edge-vertex hits, `0` collinear overlaps, `0` label collisions.
-   - **Tab 2 (DFD Level 1):** 11 vertices, 19 edges — `0` vertex overlaps, `0` edge-vertex hits, `0` collinear overlaps, `0` label collisions.
-   - **Tab 3 (DFD Level 2):** 19 vertices, 32 edges — `0` vertex overlaps, `0` edge-vertex hits, `0` collinear overlaps, `0` label collisions.
+1. **Verifikasi Geometri & Perutean Ortogonal Draw.io XML (Tata Letak Kompak Terlokalisasi):**
+   - **Tab 1 (DFD Level 0):** Kanvas `1600 x 1060 px`, 8 vertices, 10 edges — `0` vertex overlaps, `0` edge-vertex hits, `0` collinear overlaps, `0` label collisions.
+   - **Tab 2 (DFD Level 1):** Kanvas `1880 x 1080 px`, 11 vertices, 19 edges — `0` vertex overlaps, `0` edge-vertex hits, `0` collinear overlaps, `0` label collisions.
+   - **Tab 3 (DFD Level 2 — Kompak Opsi 1):** Kanvas diperkecil dari `2020 x 1260 px` menjadi **`1640 x 1000 px`** (setara ukuran Level 0) dengan melokalisasi keempat *Data Store* (`D1`–`D4`) tepat di dekat proses utamanya (`D4` di atas `3.1`, `D3` di atas `3.2`, `D2` di samping `3.4`, `D1` di bawah `3.6`) dan menggabungkan pasangan panah bolak-balik (*Read/Write* & *Request/Response*) menjadi panah dua-arah (`↔`, 19 vertices, 26 edges pendek) — `0` vertex overlaps, `0` edge-vertex hits, `0` collinear overlaps, `0` label collisions.
 2. **Kompilasi Firmware C (`ninja -C NonSecure/build`):** **0 Error, 0 Warning**.
 3. **Unit Test CTest (`ctest --test-dir E3/build`):** **12/12 Passed (100%)**.
+
