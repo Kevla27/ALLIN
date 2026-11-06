@@ -24,7 +24,7 @@ Audit mencakup verifikasi sintaks XML, keterhubungan titik sumber (*source*) dan
 | 1 | **DFD Level 0 (Diagram 1)** | Panah `df_tech_sys` (`Perintah Audit OBIS & Set IDPEL`) kehilangan atribut `source="ent_tech"`, menyebabkan panah melayang tanpa titik jangkar di Draw.io. | Ditambahkan atribut `source="ent_tech"` dengan titik keluar `exitX=0; exitY=0.75` dan titik masuk `entryX=1; entryY=0.5`. Panah kini terjangkar 100% valid. | **Selesai** |
 | 2 | **DFD Level 0 (Diagram 1)** | Kanvas diatur pada `pageWidth="827"` (A4 Portrait), padahal elemen diagram membentang hingga $X = 1380\text{ px}$, menyebabkan kanvas terpotong saat diekspor. | Disesuaikan kanvas ke dimensi proporsional `pageWidth="1460"` dan `pageHeight="1000"` (Landscape) dengan banner header $1380\text{ px}$. | **Selesai** |
 | 3 | **DFD Level 0 (Diagram 1)** | Entitas beban (`ent_load`) berada di koordinat $X = 460$, melenceng 10 px dari sumbu simetris Proses `p0` ($X = 470$) dan `ent_user` ($X = 470$). Entitas `ent_tech` ($X = 1101$) melenceng dari `ent_hes` ($X = 1100$). | Dilakukan perataan (*alignment*) presisi: `ent_load` digeser ke $X = 470$, `ent_tech` digeser ke $X = 1100$, dan garis kontrol relai dirapikan secara simetris. | **Selesai** |
-| 4 | **DFD Level 1 (Diagram 2)** | Entitas petugas lapangan menggunakan ID `ent_opt`, berbeda dengan Level 0 yang menggunakan `ent_tech`. | ID entitas diselaraskan menjadi `ent_tech` di kedua diagram agar konsistensi kodefikasi model data 100% identik. | **Selesai** |
+| 4 | **DFD Level 1 (Diagram 2)** | Penataan ulang tata letak spasial dan perutean ortogonal bebas tabrakan sesuai model Draw.io pengguna. | Mengadopsi langsung model XML pengguna: penataan koordinat `p1_0` ($X=480$), `ds_nvm` ($Y=660$), `ent_tamper` ($Y=397$), `ent_user` ($Y=750$), `ent_load` ($Y=740$), `ent_hes` ($X=1490$), dan `ent_opt` ($X=1380$). | **Selesai** |
 
 ---
 
@@ -56,3 +56,4 @@ Berdasarkan kaidah baku DFD Gane & Sarson / Yourdon & DeMarco, seluruh aliran da
    - `ninja -C NonSecure/build`: **0 Error, 0 Warning**.
 3. **Unit Test CTest (Pilar E3):**
    - `ctest --test-dir E3/build`: **12/12 Passed (100%)**.
+
