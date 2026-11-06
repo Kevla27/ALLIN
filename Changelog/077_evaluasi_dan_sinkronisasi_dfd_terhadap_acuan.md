@@ -55,10 +55,12 @@ Menindaklanjuti evaluasi komprehensif terhadap berkas [`docs/system_dfd_diagram.
 
 ## 3. Hasil Verifikasi Geometri, Kompilasi & Unit Test
 
-1. **Verifikasi Geometri, Perutean Ortogonal & Kepatuhan Panah Searah Murni (`BiDir=0`):**
-   - **Tab 1 (DFD Level 0):** Kanvas `1600 x 1060 px`, 8 vertices, 10 edges — `BiDir=0`, `EV=0`, `Collinear=0`, `LL=0`, `LV=0`.
-   - **Tab 2 (DFD Level 1):** Kanvas `1880 x 1080 px`, 11 vertices, 19 edges — `BiDir=0`, `EV=0`, `Collinear=0`, `LL=0`, `LV=0`.
-   - **Tab 3 (DFD Level 2 — Kompak Opsi 2 dengan Panah 100% Searah Murni):** Kanvas **`1680 x 1040 px`** (setara ukuran Level 0) dengan 5 Sub-Proses Inti (`3.1`–`3.5`), 3 *Data Store* Terlokalisasi (`D1`–`D3`), 7 Entitas Batas (total 16 vertices), dan **32 panah searah murni (`BiDir=0`, 2 panah terpisah untuk setiap pasangan Baca/Tulis dan Perintah/Respons)** — `BiDir=0`, `EV=0`, `Collinear=0`, `LL=0`, `LV=0`.
+1. **Verifikasi Geometri, Perutean Ortogonal Presisi (`Jog=0`), Kepatuhan Panah Searah Murni (`BiDir=0`) & Bebas Tabrakan Garis-Label (`EL=0`):**
+   - Diperbaiki mekanisme perutean pada elips proses (`exitPerimeter=0;entryPerimeter=0;` dengan koordinat batas elips matematis presisi) dan penempatan label menggunakan `<mxPoint x="DX" y="DY" as="offset" />` (`y="0"` pada `mxGeometry`) agar Draw.io tidak membuat patahan horizontal tersembunyi (*implicit jog*) yang menggeser label vertikal ke atas kotak `D1`, `D3`, dan `Pelanggan Listrik`.
+   - Ditata ulang posisi `bnd_cli` (*Port Uji & Diagnostik CLI*) ke sisi kiri bawah (langsung di sebelah `Proses 3.4`) dan `bnd_grid` (*Deteksi Daya & Grid*) ke sisi kanan bawah (langsung di sebelah `Proses 3.5` dan `3.3`) sehingga menghilangkan persilangan garis melintang di bagian bawah diagram.
+   - **Tab 1 (DFD Level 0):** Kanvas `1600 x 1060 px`, 8 vertices, 10 edges — `BiDir=0, Jog=0, EV=0, Collinear=0, LL=0, LV=0, EL=0`.
+   - **Tab 2 (DFD Level 1):** Kanvas `1880 x 1080 px`, 11 vertices, 19 edges — `BiDir=0, Jog=0, EV=0, Collinear=0, LL=0, LV=0, EL=0`.
+   - **Tab 3 (DFD Level 2 — Kompak Opsi 2 dengan Panah 100% Searah Murni):** Kanvas **`1720 x 1060 px`** dengan 5 Sub-Proses Inti (`3.1`–`3.5`), 3 *Data Store* Terlokalisasi (`D1`–`D3`), 7 Entitas Batas (total 16 vertices), dan **32 panah searah murni (`BiDir=0`, 2 panah terpisah untuk setiap pasangan Baca/Tulis dan Perintah/Respons)** — `BiDir=0, Jog=0, EV=0, Collinear=0, LL=0, LV=0, EL=0`.
 2. **Kompilasi Firmware C (`ninja -C NonSecure/build`):** **0 Error, 0 Warning**.
 3. **Unit Test CTest (`ctest --test-dir E3/build`):** **12/12 Passed (100%)**.
 

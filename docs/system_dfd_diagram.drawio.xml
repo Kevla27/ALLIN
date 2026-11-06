@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<mxfile host="Electron" modified="2026-11-06T10:25:00.000Z" agent="Antigravity Smart Meter Integrator" version="21.6.8" type="device">
+<mxfile host="Electron" modified="2026-11-06T11:20:00.000Z" agent="Antigravity Smart Meter Integrator" version="21.6.8" type="device">
   <diagram id="DFD_Level_0_Context" name="DFD Level 0: Diagram Konteks">
-    <mxGraphModel dx="1790" dy="1019" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1060" math="0" shadow="0">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1060" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -29,75 +29,75 @@
         <mxCell id="ent_hes" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;SISTEM PUSAT PLN (HES / AMI SYSTEM)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Modem Seluler 4G/NB-IoT (USART2/LPUART1 PA2/PA3, PD5)&lt;br/&gt;- Port Serial RS-485/RS-232 (USART1 PA9/PA10, DE PA12, PD4)&lt;br/&gt;- Perintah Disconnect/Reconnect (Cls 70), Set ToU &amp;amp; RTC&lt;br/&gt;- Penerima APDU DLMS AES-GCM-128, Trap &amp;amp; Last-Gasp&lt;/div&gt;" vertex="1">
           <mxGeometry x="1210" y="640" width="340" height="135" as="geometry" />
         </mxCell>
-        <mxCell id="df_grid_sys" edge="1" parent="1" source="ent_grid" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5;exitY=1;entryX=0;entryY=0.25;" value="Sinyal V/I 3-Fasa, Zero-Cross (PE8),&lt;br/&gt;AC_FAIL (PC3) &amp;amp; VBAT/VCAP">
-          <mxGeometry relative="1" x="0.25" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_grid_sys" edge="1" parent="1" source="ent_grid" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.0670;entryY=0.2500;entryPerimeter=0;" value="Sinyal V/I 3-Fasa, Zero-Cross (PE8),&lt;br/&gt;AC_FAIL (PC3) &amp;amp; VBAT/VCAP">
+          <mxGeometry relative="1" x="0.250" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
             <Array as="points">
-              <mxPoint x="190" y="450" />
+              <mxPoint x="190.0" y="450.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_tamper_sys" edge="1" parent="1" source="ent_tamper" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5;exitY=0;entryX=0;entryY=0.75;" value="Interupsi Sabotase Tutup (PC13/PE6),&lt;br/&gt;Magnet (PE4) &amp;amp; IRQ AFE (PB5/PB1)">
-          <mxGeometry relative="1" x="0.25" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_tamper_sys" edge="1" parent="1" source="ent_tamper" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5000;exitY=0.0000;exitPerimeter=0;entryX=0.0670;entryY=0.7500;entryPerimeter=0;" value="Interupsi Sabotase Tutup (PC13/PE6),&lt;br/&gt;Magnet (PE4) &amp;amp; IRQ AFE (PB5/PB1)">
+          <mxGeometry relative="1" x="0.250" y="0" as="geometry">
+            <mxPoint x="0" y="18" as="offset" />
             <Array as="points">
-              <mxPoint x="190" y="590" />
+              <mxPoint x="190.0" y="590.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_user_sys" edge="1" parent="1" source="ent_user" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.25;exitY=1;entryX=0.25;entryY=0.05;" value="Input Tombol (PA0/PB6)&lt;br/&gt;&amp;amp; Rekoneksi (▲+▼)">
-          <mxGeometry relative="1" x="-0.2" y="-55" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_user_sys" edge="1" parent="1" source="ent_user" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.2500;exitY=1.0000;exitPerimeter=0;entryX=0.2500;entryY=0.0670;entryPerimeter=0;" value="Input Tombol (PA0/PB6)&lt;br/&gt;&amp;amp; Rekoneksi (▲+▼)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="-85" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_sys_user" edge="1" parent="1" source="p0" target="ent_user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.75;exitY=0.05;entryX=0.75;entryY=1;" value="Tayangan OLED SPLN,&lt;br/&gt;LED (PB7) &amp;amp; Buzzer (PB8)">
-          <mxGeometry relative="1" x="-0.2" y="55" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_sys_user" edge="1" parent="1" source="p0" target="ent_user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.7500;exitY=0.0670;exitPerimeter=0;entryX=0.7500;entryY=1.0000;entryPerimeter=0;" value="Tayangan OLED SPLN,&lt;br/&gt;LED (PB7) &amp;amp; Buzzer (PB8)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="88" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_sys_load" edge="1" parent="1" source="p0" target="ent_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.25;exitY=0.95;entryX=0.25;entryY=0;" value="Pulsa Koil Relai (PC8/PC9)&lt;br/&gt;&amp;amp; AUX_OUT (PD8)">
-          <mxGeometry relative="1" x="-0.2" y="58" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_sys_load" edge="1" parent="1" source="p0" target="ent_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.2500;exitY=0.9330;exitPerimeter=0;entryX=0.2500;entryY=0.0000;entryPerimeter=0;" value="Pulsa Koil Relai (PC8/PC9)&lt;br/&gt;&amp;amp; AUX_OUT (PD8)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="-88" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_load_sys" edge="1" parent="1" source="ent_load" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.75;exitY=0;entryX=0.75;entryY=0.95;" value="Status Kontak Aux (PC6/PC7)&lt;br/&gt;&amp;amp; AUX_IN (PD10/14)">
-          <mxGeometry relative="1" x="-0.2" y="-60" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_load_sys" edge="1" parent="1" source="ent_load" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.7500;exitY=0.0000;exitPerimeter=0;entryX=0.7500;entryY=0.9330;entryPerimeter=0;" value="Status Kontak Aux (PC6/PC7)&lt;br/&gt;&amp;amp; AUX_IN (PD10/14)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="76" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_sys_tech" edge="1" parent="1" source="p0" target="ent_tech" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.95;exitY=0.22;entryX=0;entryY=0.35;" value="Respons Frame HDLC, Pulsa CF1/CF2&lt;br/&gt;(PE12/13) &amp;amp; Status Log CLI">
-          <mxGeometry relative="1" x="0.55" y="-16" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_sys_tech" edge="1" parent="1" source="p0" target="ent_tech" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.9152;exitY=0.2214;exitPerimeter=0;entryX=0.0000;entryY=0.3481;entryPerimeter=0;" value="Respons Frame HDLC, Pulsa CF1/CF2&lt;br/&gt;(PE12/13) &amp;amp; Status Log CLI">
+          <mxGeometry relative="1" x="0.550" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
             <Array as="points">
-              <mxPoint x="960" y="441.6" />
-              <mxPoint x="960" y="257.25" />
+              <mxPoint x="960.0" y="442.0" />
+              <mxPoint x="960.0" y="257.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_tech_sys" edge="1" parent="1" source="ent_tech" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0;exitY=0.75;entryX=1;entryY=0.42;" value="Perintah Audit OBIS, Set IDPEL&lt;br/&gt;(Optik USART3) &amp;amp; Uji CLI">
-          <mxGeometry relative="1" x="-0.55" y="16" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_tech_sys" edge="1" parent="1" source="ent_tech" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.7481;exitPerimeter=0;entryX=0.9938;entryY=0.4214;entryPerimeter=0;" value="Perintah Audit OBIS, Set IDPEL&lt;br/&gt;(Optik USART3) &amp;amp; Uji CLI">
+          <mxGeometry relative="1" x="-0.550" y="0" as="geometry">
+            <mxPoint x="0" y="18" as="offset" />
             <Array as="points">
-              <mxPoint x="1010" y="311.25" />
-              <mxPoint x="1010" y="497.6" />
+              <mxPoint x="1010.0" y="311.0" />
+              <mxPoint x="1010.0" y="498.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_hes_sys" edge="1" parent="1" source="ent_hes" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0;exitY=0.3;entryX=1;entryY=0.62;" value="Perintah Disconnect Cls 70,&lt;br/&gt;Set ToU/Kontrak &amp;amp; Sync RTC">
-          <mxGeometry relative="1" x="-0.55" y="-16" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_hes_sys" edge="1" parent="1" source="ent_hes" target="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.2963;exitPerimeter=0;entryX=0.9850;entryY=0.6214;entryPerimeter=0;" value="Perintah Disconnect Cls 70,&lt;br/&gt;Set ToU/Kontrak &amp;amp; Sync RTC">
+          <mxGeometry relative="1" x="-0.550" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
             <Array as="points">
-              <mxPoint x="1010" y="680.5" />
-              <mxPoint x="1010" y="553.6" />
+              <mxPoint x="1030.0" y="680.0" />
+              <mxPoint x="1030.0" y="554.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_sys_hes" edge="1" parent="1" source="p0" target="ent_hes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.95;exitY=0.8;entryX=0;entryY=0.75;" value="APDU DLMS (AES-128), Profil Beban&lt;br/&gt;90-Hari, Trap &amp;amp; Last-Gasp">
-          <mxGeometry relative="1" x="0.55" y="16" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_sys_hes" edge="1" parent="1" source="p0" target="ent_hes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.9000;exitY=0.8000;exitPerimeter=0;entryX=0.0000;entryY=0.7481;entryPerimeter=0;" value="APDU DLMS (AES-128), Profil Beban&lt;br/&gt;90-Hari, Trap &amp;amp; Last-Gasp">
+          <mxGeometry relative="1" x="0.550" y="0" as="geometry">
+            <mxPoint x="0" y="18" as="offset" />
             <Array as="points">
-              <mxPoint x="960" y="604" />
-              <mxPoint x="960" y="741.25" />
+              <mxPoint x="985.0" y="604.0" />
+              <mxPoint x="985.0" y="741.0" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -113,466 +113,449 @@
           <mxGeometry x="40" y="20" width="1800" height="46" as="geometry" />
         </mxCell>
         <mxCell id="p1_0" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;1.0&lt;/b&gt;&lt;hr style=&quot;margin:3px 0;&quot;/&gt;&lt;b&gt;SUB-SISTEM METROLOGI &amp;amp; DSP&lt;br/&gt;(PILAR E1 - IC AFE ADE9000)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;- Sampling ADC SPI1 8kSPS (PA4..PA7)&lt;br/&gt;- Kalkulasi RMS V, I, P, Q, S, PF &amp;amp; Frekuensi&lt;br/&gt;- Deteksi Anomali Listrik (PB5 IRQ0 / PB1 IRQ1)&lt;br/&gt;- Output Pulsa Tera Optik CF1/CF2 (PE12/PE13)&lt;/font&gt;" vertex="1">
-          <mxGeometry x="450" y="120" width="290" height="165" as="geometry" />
+          <mxGeometry x="450" y="130" width="290" height="165" as="geometry" />
         </mxCell>
         <mxCell id="p3_0" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=3;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.0&lt;/b&gt;&lt;hr style=&quot;margin:4px 0;&quot;/&gt;&lt;b&gt;SUB-SISTEM LOGIKA APLIKASI &amp;amp; SISTEM&lt;br/&gt;(PILAR E3 - JANTUNG METER)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;- Engine Billing Bulanan &amp;amp; Tarif ToU 8-Zona&lt;br/&gt;- Profil Beban 15-Menit (23-Kanal, 90 Hari) &amp;amp; Peak MD&lt;br/&gt;- Pengelola Relai Kontaktor &amp;amp; Proteksi (SPLN D3.006)&lt;br/&gt;- Evaluasi 9 Vektor Tamper, 8 Alarm HW &amp;amp; 12 Event&lt;br/&gt;- Antarmuka HMI OLED (PD2/PD3), Tombol &amp;amp; LED (PB7)&lt;br/&gt;- Manajemen Daya Last-Gasp (&amp;lt;15ms, PC3) &amp;amp; Konsol CLI&lt;/font&gt;" vertex="1">
-          <mxGeometry x="680" y="340" width="370" height="250" as="geometry" />
+          <mxGeometry x="680" y="350" width="370" height="250" as="geometry" />
         </mxCell>
         <mxCell id="p2_0" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;2.0&lt;/b&gt;&lt;hr style=&quot;margin:3px 0;&quot;/&gt;&lt;b&gt;SUB-SISTEM PROTOKOL DLMS/COSEM&lt;br/&gt;(PILAR E2)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;- Framing HDLC Modem (USART2/LPUART1) &amp;amp; Optik (USART3)&lt;br/&gt;- Keamanan Kriptografi HLS-5 AES-GCM-128&lt;br/&gt;- Katalog Objek OBIS (Class 1, 3, 4, 7, 8, 70)&lt;br/&gt;- Parser Layanan APDU GET / SET / ACTION &amp;amp; Push&lt;/font&gt;" vertex="1">
-          <mxGeometry x="1080" y="120" width="290" height="165" as="geometry" />
+          <mxGeometry x="1080" y="130" width="290" height="165" as="geometry" />
         </mxCell>
-        <mxCell id="ds_nvm" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D1..D4 | MEMORI PERSISTEN NVM (NOR FLASH SPI2 W25Q32 4MB PB12..15 &amp;amp; INTERNAL)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;D1: Checkpoint Energi &amp;amp; Relai | D2: 3 Logbook FIFO (Alarm, Event, Tamper &amp;gt;=30 Entri) | D3: Profil Beban 90-Hari &amp;amp; Billing 12-Bln | D4: Tarif ToU &amp;amp; IDPEL&lt;/font&gt;" vertex="1">
-          <mxGeometry x="580" y="730" width="570" height="65" as="geometry" />
+        <mxCell id="ds_nvm" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D1..D3 | MEMORI PERSISTEN NVM (NOR FLASH SPI2 W25Q32 4MB PB12..15 &amp;amp; INTERNAL)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;D1: Tarif ToU, Profil Beban 90-Hari &amp;amp; Billing 12-Bln | D2: 3 Logbook FIFO (Alarm, Event, Tamper &amp;gt;=30 Entri) | D3: Checkpoint Energi &amp;amp; Status Relai&lt;/font&gt;" vertex="1">
+          <mxGeometry x="580" y="740" width="570" height="65" as="geometry" />
         </mxCell>
         <mxCell id="ent_grid" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;JARINGAN LISTRIK &amp;amp; CATU DAYA PLN&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Trafo Tegangan (Va..Vc) &amp;amp; Arus (Ia..In)&lt;br/&gt;- Sinyal Deteksi Padam AC_FAIL_DET (PC3)&lt;br/&gt;- Sinyal Zero-Crossing ADE_CF3_ZX (PE8)&lt;br/&gt;- Sinyal VBAT (PD11) &amp;amp; VCAP (PC2)&lt;/div&gt;" vertex="1">
-          <mxGeometry x="40" y="140" width="270" height="125" as="geometry" />
+          <mxGeometry x="40" y="150" width="270" height="125" as="geometry" />
         </mxCell>
         <mxCell id="ent_tamper" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;SENSOR SABOTASE FISIK&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Saklar Buka Tutup Meter (PC13 / TAMP_IN1)&lt;br/&gt;- Saklar Buka Terminal (PE6 / TAMP_IN3 - ERR20)&lt;br/&gt;- Sensor Magnetik Hall Effect (PE4 / EXTI4 - ERR25)&lt;/div&gt;" vertex="1">
-          <mxGeometry x="40" y="430" width="270" height="115" as="geometry" />
+          <mxGeometry x="40" y="440" width="270" height="115" as="geometry" />
         </mxCell>
         <mxCell id="ent_user" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;PELANGGAN LISTRIK&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Tombol Navigasi Layar (PA0 UP / PB6 DN)&lt;br/&gt;- Konfirmasi Rekoneksi Simultan (▲+▼ &amp;gt;= 1s)&lt;br/&gt;- Display OLED SSD1306 (PD2/PD3)&lt;br/&gt;- Indikator LED Alarm (PB7) &amp;amp; Buzzer (PB8)&lt;/div&gt;" vertex="1">
-          <mxGeometry x="220" y="845" width="280" height="120" as="geometry" />
+          <mxGeometry x="220" y="855" width="280" height="120" as="geometry" />
         </mxCell>
         <mxCell id="ent_load" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;INSTALASI BEBAN &amp;amp; KONTROL BANTU&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Pasokan Daya Terhubung / Terputus&lt;br/&gt;- Koil Breaker Trip (PC8) / Close (PC9)&lt;br/&gt;- Kontak Umpan Balik Relai AUX (PC6 / PC7)&lt;br/&gt;- Kontrol Bantu AUX_IN (PD10/14) &amp;amp; AUX_OUT (PD8)&lt;/div&gt;" vertex="1">
-          <mxGeometry x="1200" y="845" width="290" height="120" as="geometry" />
+          <mxGeometry x="1200" y="855" width="290" height="120" as="geometry" />
         </mxCell>
         <mxCell id="ent_hes" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;SISTEM PUSAT PLN (HES / AMI)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Modem 4G/NB-IoT (USART2/LPUART1 PA2/PA3, PD5)&lt;br/&gt;- Port RS-485/RS-232 (USART1 PA9/PA10, PD4)&lt;br/&gt;- Perintah Disconnect Cls 70, Set ToU &amp;amp; Sync RTC&lt;br/&gt;- Penerima APDU DLMS, Trap &amp;amp; Last-Gasp&lt;/div&gt;" vertex="1">
-          <mxGeometry x="1550" y="140" width="280" height="125" as="geometry" />
+          <mxGeometry x="1530" y="150" width="280" height="125" as="geometry" />
         </mxCell>
         <mxCell id="ent_opt" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;PETUGAS PLN (HHU) &amp;amp; BANGKU UJI TERA&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Port Optik Depan IEC 62056-21 (USART3 PB10/PB11)&lt;br/&gt;- Audit Billing Bulanan &amp;amp; 3 Logbook FIFO&lt;br/&gt;- Pulsa Tera Optik CF1/CF2 (PE12/PE13)&lt;br/&gt;- Konsol Uji Diagnostik Serial CLI (USART2)&lt;/div&gt;" vertex="1">
-          <mxGeometry x="1530" y="420" width="300" height="130" as="geometry" />
+          <mxGeometry x="1520" y="430" width="290" height="130" as="geometry" />
         </mxCell>
-        <mxCell id="df_grid_e1" edge="1" parent="1" source="ent_grid" target="p1_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" value="Sinyal V/I Analog&lt;br/&gt;3-Fasa">
-          <mxGeometry relative="1" y="-12" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_grid_e1" edge="1" parent="1" source="ent_grid" target="p1_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.4960;exitPerimeter=0;entryX=0.0000;entryY=0.4970;entryPerimeter=0;" value="Sinyal V/I Analog&lt;br/&gt;3-Fasa">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_grid_e3" edge="1" parent="1" source="ent_grid" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5;exitY=1;entryX=0.05;entryY=0.3;" value="AC_FAIL (PC3), Zero-Cross (PE8)&lt;br/&gt;&amp;amp; VBAT/VCAP (PD11/PC2)">
-          <mxGeometry relative="1" x="0.25" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_grid_e3" edge="1" parent="1" source="ent_grid" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.0510;entryY=0.2800;entryPerimeter=0;" value="AC_FAIL (PC3), Zero-Cross (PE8)&lt;br/&gt;&amp;amp; VBAT/VCAP (PD11/PC2)">
+          <mxGeometry relative="1" x="0.100" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
             <Array as="points">
-              <mxPoint x="175" y="415" />
+              <mxPoint x="175.0" y="420.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_e1_e3" edge="1" parent="1" source="p1_0" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5;exitY=1;entryX=0.18;entryY=0.08;" value="Vektor Pengukuran (s_meas)&lt;br/&gt;&amp;amp; IRQ AFE (PB5/PB1)">
-          <mxGeometry relative="1" x="-0.3" y="70" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_e1_e3" edge="1" parent="1" source="p1_0" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.3040;entryY=0.0400;entryPerimeter=0;" value="Vektor Pengukuran (s_meas)&lt;br/&gt;&amp;amp; IRQ AFE (PB5/PB1)">
+          <mxGeometry relative="1" x="-0.400" y="0" as="geometry">
+            <mxPoint x="-85" y="0" as="offset" />
             <Array as="points">
-              <mxPoint x="595" y="360" />
+              <mxPoint x="595.0" y="360.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_e1_opt_cf" edge="1" parent="1" source="p1_0" target="ent_opt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5;exitY=0;entryX=0;entryY=0.15;" value="Pulsa Kalibrasi Optik CF1/CF2 (PE12/PE13)">
-          <mxGeometry relative="1" x="-0.2" y="-10" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_e1_opt_cf" edge="1" parent="1" source="p1_0" target="ent_opt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5000;exitY=0.0000;exitPerimeter=0;entryX=1.0000;entryY=0.2692;entryPerimeter=0;" value="Pulsa Kalibrasi Optik CF1/CF2 (PE12/PE13)">
+          <mxGeometry relative="1" x="-0.250" y="0" as="geometry">
+            <mxPoint x="0" y="-12" as="offset" />
             <Array as="points">
-              <mxPoint x="595" y="85" />
-              <mxPoint x="1450" y="85" />
-              <mxPoint x="1450" y="439.5" />
+              <mxPoint x="595.0" y="95.0" />
+              <mxPoint x="1845.0" y="95.0" />
+              <mxPoint x="1845.0" y="465.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_tamper_e3" edge="1" parent="1" source="ent_tamper" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.59;" value="Interupsi Sabotase Fisik&lt;br/&gt;(PC13, PE6, PE4)">
-          <mxGeometry relative="1" y="-16" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_tamper_e3" edge="1" parent="1" source="ent_tamper" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.4957;exitPerimeter=0;entryX=0.0078;entryY=0.5880;entryPerimeter=0;" value="Interupsi Sabotase Fisik&lt;br/&gt;(PC13, PE6, PE4)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_user_e3_btn" edge="1" parent="1" source="ent_user" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.35;exitY=0;entryX=0.06;entryY=0.8;" value="Input Tombol (PA0/PB6)&lt;br/&gt;&amp;amp; Rekoneksi (▲+▼)">
-          <mxGeometry relative="1" x="-0.35" y="-60" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_user_e3_btn" edge="1" parent="1" source="ent_user" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.3500;exitY=0.0000;exitPerimeter=0;entryX=0.1000;entryY=0.8000;entryPerimeter=0;" value="Input Tombol (PA0/PB6)&lt;br/&gt;&amp;amp; Rekoneksi (▲+▼)">
+          <mxGeometry relative="1" x="-0.350" y="0" as="geometry">
+            <mxPoint x="-75" y="0" as="offset" />
             <Array as="points">
-              <mxPoint x="318" y="540" />
+              <mxPoint x="318.0" y="550.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_e3_user_disp" edge="1" parent="1" source="p3_0" target="ent_user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.18;exitY=0.92;entryX=0.75;entryY=0;" value="Tayangan OLED, LED (PB7)&lt;br/&gt;&amp;amp; Buzzer (PB8)">
-          <mxGeometry relative="1" x="-0.15" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_e3_user_disp" edge="1" parent="1" source="p3_0" target="ent_user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.1784;exitY=0.8828;exitPerimeter=0;entryX=0.7500;entryY=0.0000;entryPerimeter=0;" value="Tayangan OLED, LED (PB7)&lt;br/&gt;&amp;amp; Buzzer (PB8)">
+          <mxGeometry relative="1" x="-0.150" y="0" as="geometry">
+            <mxPoint x="0" y="18" as="offset" />
             <Array as="points">
-              <mxPoint x="746.6" y="630" />
-              <mxPoint x="430" y="630" />
+              <mxPoint x="746.0" y="640.0" />
+              <mxPoint x="430.0" y="640.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_e3_load_trip" edge="1" parent="1" source="p3_0" target="ent_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.82;exitY=0.92;entryX=0.25;entryY=0;" value="Pulsa Koil Relai (PC8/PC9)&lt;br/&gt;&amp;amp; AUX_OUT (PD8)">
-          <mxGeometry relative="1" x="-0.15" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_e3_load_trip" edge="1" parent="1" source="p3_0" target="ent_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.8216;exitY=0.8828;exitPerimeter=0;entryX=0.2483;entryY=0.0000;entryPerimeter=0;" value="Pulsa Koil Relai (PC8/PC9)&lt;br/&gt;&amp;amp; AUX_OUT (PD8)">
+          <mxGeometry relative="1" x="0.150" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
             <Array as="points">
-              <mxPoint x="983.4" y="630" />
-              <mxPoint x="1272.5" y="630" />
+              <mxPoint x="984.0" y="640.0" />
+              <mxPoint x="1272.0" y="640.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_load_e3_aux" edge="1" parent="1" source="ent_load" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.65;exitY=0;entryX=0.95;entryY=0.78;" value="Status Kontak Aux (PC6/PC7)&lt;br/&gt;&amp;amp; AUX_IN (PD10/14)">
-          <mxGeometry relative="1" x="0.35" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_load_e3_aux" edge="1" parent="1" source="ent_load" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.6483;exitY=0.0000;exitPerimeter=0;entryX=0.8470;entryY=0.8600;entryPerimeter=0;" value="Status Kontak Aux (PC6/PC7)&lt;br/&gt;&amp;amp; AUX_IN (PD10/14)">
+          <mxGeometry relative="1" x="-0.350" y="0" as="geometry">
+            <mxPoint x="85" y="0" as="offset" />
             <Array as="points">
-              <mxPoint x="1388.5" y="535" />
+              <mxPoint x="1388.0" y="565.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_e3_ds_write" edge="1" parent="1" source="p3_0" target="ds_nvm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.35;exitY=1;entryX=0.4;entryY=0;" value="Checkpoint, Logbook FIFO,&lt;br/&gt;Profil Beban &amp;amp; Konfigurasi">
-          <mxGeometry relative="1" x="0.0" y="75" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_e3_ds_write" edge="1" parent="1" source="p3_0" target="ds_nvm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.2973;exitY=0.9571;exitPerimeter=0;entryX=0.3684;entryY=0.0000;entryPerimeter=0;" value="Checkpoint, Logbook FIFO,&lt;br/&gt;Profil Beban &amp;amp; Konfigurasi">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="-95" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_ds_e3_read" edge="1" parent="1" source="ds_nvm" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.6;exitY=0;entryX=0.65;entryY=1;" value="Restorasi Energi/Relai,&lt;br/&gt;Histori &amp;amp; Parameter Tarif ToU">
-          <mxGeometry relative="1" x="0.0" y="80" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_ds_e3_read" edge="1" parent="1" source="ds_nvm" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.6316;exitY=0.0000;exitPerimeter=0;entryX=0.7027;entryY=0.9571;entryPerimeter=0;" value="Restorasi Energi/Relai,&lt;br/&gt;Histori &amp;amp; Parameter Tarif ToU">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="95" y="22" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_e3_e2_obis" edge="1" parent="1" source="p3_0" target="p2_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.95;exitY=0.25;entryX=0.35;entryY=1;" value="Data OBIS (Billing, Beban,&lt;br/&gt;Relai Cls 70 &amp;amp; Log/Trap)">
-          <mxGeometry relative="1" x="-0.35" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_e3_e2_obis" edge="1" parent="1" source="p3_0" target="p2_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.9319;exitY=0.2480;exitPerimeter=0;entryX=0.3448;entryY=0.9753;entryPerimeter=0;" value="Data OBIS (Billing, Beban,&lt;br/&gt;Relai Cls 70 &amp;amp; Log/Trap)">
+          <mxGeometry relative="1" x="-0.250" y="0" as="geometry">
+            <mxPoint x="0" y="18" as="offset" />
             <Array as="points">
-              <mxPoint x="1181.5" y="402.5" />
+              <mxPoint x="1180.0" y="412.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_e2_e3_cmd" edge="1" parent="1" source="p2_0" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0;exitY=0.5;entryX=0.75;entryY=0.05;" value="Perintah Cls 70, Set ToU/IDPEL&lt;br/&gt;&amp;amp; Sync RTC">
-          <mxGeometry relative="1" x="-0.35" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_e2_e3_cmd" edge="1" parent="1" source="p2_0" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.4970;exitPerimeter=0;entryX=0.7514;entryY=0.0678;entryPerimeter=0;" value="Perintah Cls 70, Set ToU/IDPEL&lt;br/&gt;&amp;amp; Sync RTC">
+          <mxGeometry relative="1" x="-0.350" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
             <Array as="points">
-              <mxPoint x="957.5" y="202.5" />
+              <mxPoint x="958.0" y="212.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_p2_hes" edge="1" parent="1" source="p2_0" target="ent_hes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=1;exitY=0.35;entryX=0;entryY=0.3;" value="APDU DLMS (AES-128),&lt;br/&gt;Trap &amp;amp; Last-Gasp">
-          <mxGeometry relative="1" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_p2_hes" edge="1" parent="1" source="p2_0" target="ent_hes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.9774;exitY=0.3515;exitPerimeter=0;entryX=0.0000;entryY=0.3040;entryPerimeter=0;" value="APDU DLMS (AES-128),&lt;br/&gt;Trap &amp;amp; Last-Gasp">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_hes_p2" edge="1" parent="1" source="ent_hes" target="p2_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0;exitY=0.75;entryX=0.98;entryY=0.69;" value="Perintah HES, Set Tarif&lt;br/&gt;&amp;amp; Sync RTC">
-          <mxGeometry relative="1" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_hes_p2" edge="1" parent="1" source="ent_hes" target="p2_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.7520;exitPerimeter=0;entryX=0.9621;entryY=0.6909;entryPerimeter=0;" value="Perintah HES, Set Tarif&lt;br/&gt;&amp;amp; Sync RTC">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="18" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_p2_opt" edge="1" parent="1" source="p2_0" target="ent_opt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.88;exitY=0.85;entryX=0.25;entryY=0;" value="Data Billing, Profil&lt;br/&gt;&amp;amp; Logbook (Optik)">
-          <mxGeometry relative="1" x="0.15" y="16" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_p2_opt" edge="1" parent="1" source="p2_0" target="ent_opt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.8793;exitY=0.8258;exitPerimeter=0;entryX=0.2483;entryY=0.0000;entryPerimeter=0;" value="Data Billing, Profil&lt;br/&gt;&amp;amp; Logbook (Optik)">
+          <mxGeometry relative="1" x="0.150" y="0" as="geometry">
+            <mxPoint x="0" y="18" as="offset" />
             <Array as="points">
-              <mxPoint x="1335.2" y="340" />
-              <mxPoint x="1605" y="340" />
+              <mxPoint x="1335.0" y="350.0" />
+              <mxPoint x="1592.0" y="350.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_opt_p2" edge="1" parent="1" source="ent_opt" target="p2_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.55;exitY=0;entryX=0.68;entryY=0.98;" value="Perintah Audit OBIS&lt;br/&gt;&amp;amp; Set IDPEL (Optik)">
-          <mxGeometry relative="1" x="-0.1" y="-16" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_opt_p2" edge="1" parent="1" source="ent_opt" target="p2_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5517;exitY=0.0000;exitPerimeter=0;entryX=0.6793;entryY=0.9667;entryPerimeter=0;" value="Perintah Audit OBIS&lt;br/&gt;&amp;amp; Set IDPEL (Optik)">
+          <mxGeometry relative="1" x="-0.100" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
             <Array as="points">
-              <mxPoint x="1695" y="300" />
-              <mxPoint x="1277.2" y="300" />
+              <mxPoint x="1680.0" y="310.0" />
+              <mxPoint x="1277.0" y="310.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_opt_e3_cli" edge="1" parent="1" source="ent_opt" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0;exitY=0.35;entryX=1;entryY=0.5;" value="Perintah ASCII CLI&lt;br/&gt;Uji &amp;amp; Diagnostik">
-          <mxGeometry relative="1" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_opt_e3_cli" edge="1" parent="1" source="ent_opt" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.3462;exitPerimeter=0;entryX=1.0000;entryY=0.5000;entryPerimeter=0;" value="Perintah ASCII CLI&lt;br/&gt;Uji &amp;amp; Diagnostik">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="-18" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="df_e3_opt_cli" edge="1" parent="1" source="p3_0" target="ent_opt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.98;exitY=0.65;entryX=0;entryY=0.7;" value="Respons Eksekusi&lt;br/&gt;&amp;amp; Status Log CLI">
-          <mxGeometry relative="1" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="df_e3_opt_cli" edge="1" parent="1" source="p3_0" target="ent_opt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.9737;exitY=0.6600;exitPerimeter=0;entryX=0.0000;entryY=0.6538;entryPerimeter=0;" value="Respons Eksekusi&lt;br/&gt;&amp;amp; Status Log CLI">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="18" as="offset" />
           </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
   <diagram id="dfd_level_2_pilar_e3" name="DFD Level 2: Dekomposisi Pilar E3">
-    <mxGraphModel dx="1450" dy="920" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1680" pageHeight="1040" math="0" shadow="0">
+    <mxGraphModel dx="1480" dy="960" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1720" pageHeight="1060" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="hdr2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=12;align=center;fontFamily=Helvetica;" value="&lt;b style=&quot;font-size: 14.5px;&quot;&gt;DATA FLOW DIAGRAM (DFD) LEVEL 2: DEKOMPOSISI PROSES 3.0 (PILAR E3 - APLIKASI SMART METER)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Dekomposisi Kompak 5 Sub-Proses Inti (3.1–3.5) &amp;amp; 3 Data Store Terlokalisasi (D1–D3) dengan Panah Searah Murni (Sesuai Design For ECE, Desain Sistem, PIN.docx &amp;amp; SPLN D3.006:2021)&lt;/font&gt;" vertex="1">
-          <mxGeometry x="40" y="20" width="1600" height="44" as="geometry" />
+          <mxGeometry x="35" y="18" width="1650" height="44" as="geometry" />
         </mxCell>
         <mxCell id="bnd_e1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;SUBSISTEM METROLOGI&lt;br/&gt;(PILAR E1 - IC AFE ADE9000)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Sampling SPI1 ADE9000 (PA4..PA7)&lt;br/&gt;- Vektor Pengukuran s_meas (V, I, P, Q, S, PF)&lt;br/&gt;- IRQ Anomali Listrik PB5 (IRQ0) &amp;amp; PB1 (IRQ1)&lt;/div&gt;" vertex="1">
-          <mxGeometry x="40" y="215" width="235" height="105" as="geometry" />
+          <mxGeometry x="35" y="225" width="230" height="105" as="geometry" />
         </mxCell>
         <mxCell id="bnd_tamper" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;SENSOR SABOTASE FISIK&lt;br/&gt;(TAMPER HARDWARE)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Saklar Tutup Meter (PC13 / TAMP_IN1)&lt;br/&gt;- Saklar Tutup Terminal (PE6 / TAMP_IN3 - ERR20)&lt;br/&gt;- Sensor Magnetik Hall (PE4 / EXTI4 - ERR25)&lt;/div&gt;" vertex="1">
-          <mxGeometry x="40" y="470" width="235" height="100" as="geometry" />
-        </mxCell>
-        <mxCell id="bnd_grid" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;DETEKSI DAYA &amp;amp; GRID&lt;br/&gt;(POWER &amp;amp; ZX MONITOR)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Sinyal Padam AC_FAIL_DET (PC3)&lt;br/&gt;- Sinyal Zero-Crossing ADE_CF3_ZX (PE8)&lt;br/&gt;- Monitor VBAT (PD11) &amp;amp; VCAP (PC2)&lt;/div&gt;" vertex="1">
-          <mxGeometry x="40" y="720" width="235" height="105" as="geometry" />
-        </mxCell>
-        <mxCell id="ds_d1" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D1 | MEMORI TARIF ToU, PROFIL BEBAN (90-HR) &amp;amp; BILLING (12-BLN)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8px;&quot;&gt;Skedul WBP/LWBP 8-Zona, Kontrak VA, IDPEL, Profil 15-M (23-Kanal) &amp;amp; Peak MD (SPI2 4MB)&lt;/font&gt;" vertex="1">
-          <mxGeometry x="340" y="80" width="360" height="56" as="geometry" />
-        </mxCell>
-        <mxCell id="p3_1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.1&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;ENGINE BILLING, TARIF ToU&lt;br/&gt;&amp;amp; PROFIL BEBAN (15-M)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Kalkulasi Energi WBP/LWBP, Billing 12-Bln,&lt;br/&gt;Integrasi 23-Kanal 15-M (90-Hr), Peak MD,&lt;br/&gt;&amp;amp; Konfigurasi Kontrak/RTC&lt;/font&gt;" vertex="1">
-          <mxGeometry x="390" y="205" width="245" height="130" as="geometry" />
-        </mxCell>
-        <mxCell id="p3_2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.2&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;DETEKSI SABOTASE (9 TAMPER),&lt;br/&gt;ALARM &amp;amp; LOGBOOK FIFO&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Evaluasi 9 Vektor Tamper, 8 Alarm HW&lt;br/&gt;(ERR00..27), 12 Event, &amp;amp; Pencatatan&lt;br/&gt;3 Antrean Logbook FIFO&lt;/font&gt;" vertex="1">
-          <mxGeometry x="390" y="455" width="245" height="130" as="geometry" />
-        </mxCell>
-        <mxCell id="p3_4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.4&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;ANTARMUKA HMI OLED,&lt;br/&gt;TOMBOL &amp;amp; KONSOL CLI&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;25 Layar SPLN (Auto 5s / Manual), Rotasi&lt;br/&gt;ERR 3s, Kedip LED PB7, Buzzer PB8,&lt;br/&gt;&amp;amp; Parser Diagnostik CLI (USART2)&lt;/font&gt;" vertex="1">
-          <mxGeometry x="390" y="705" width="245" height="130" as="geometry" />
-        </mxCell>
-        <mxCell id="bnd_user" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;PELANGGAN LISTRIK&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Tombol Navigasi (PA0 UP / PB6 DN) &amp;amp; (▲+▼ 1s)&lt;br/&gt;- Display OLED SSD1306 (PD2/PD3)&lt;br/&gt;- Indikator LED Alarm (PB7) &amp;amp; Buzzer (PB8)&lt;/div&gt;" vertex="1">
-          <mxGeometry x="370" y="905" width="285" height="95" as="geometry" />
-        </mxCell>
-        <mxCell id="ds_d2" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D2 | 3 REGISTER LOGBOOK FIFO (&amp;gt;= 30 ENTRI/LOG)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8px;&quot;&gt;Antrean FIFO Terpisah: Log Alarm (8), Log Event (12) &amp;amp; Log Tamper (9)&lt;/font&gt;" vertex="1">
-          <mxGeometry x="790" y="220" width="300" height="56" as="geometry" />
-        </mxCell>
-        <mxCell id="p3_3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.3&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;PENGELOLA RELAI &amp;amp;&lt;br/&gt;PROTEKSI (SPLN D3.006)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;FSM Relai (CONNECTED, READY,&lt;br/&gt;LOCKED OUT), Zero-Cross Switch,&lt;br/&gt;Proteksi Beban/Tegangan &amp;amp; AUX&lt;/font&gt;" vertex="1">
-          <mxGeometry x="810" y="455" width="240" height="130" as="geometry" />
-        </mxCell>
-        <mxCell id="p3_5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.5&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;MANAJEMEN DAYA &amp;amp;&lt;br/&gt;LAST-GASP (STOP 2)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Emergency Save (&amp;lt;15ms) ke D3,&lt;br/&gt;Wakeup Layar 10s saat Padam,&lt;br/&gt;Power Gating &amp;amp; Stop 2 (4.5µA)&lt;/font&gt;" vertex="1">
-          <mxGeometry x="810" y="705" width="240" height="130" as="geometry" />
-        </mxCell>
-        <mxCell id="ds_d3" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D3 | FLASH CHECKPOINT ENERGI &amp;amp; STATUS RELAI&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8px;&quot;&gt;Simpan Darurat Last-Gasp (&amp;lt;15ms) &amp;amp; Restorasi Saat Boot&lt;/font&gt;" vertex="1">
-          <mxGeometry x="780" y="915" width="300" height="56" as="geometry" />
-        </mxCell>
-        <mxCell id="bnd_e2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;PROTOKOL DLMS/COSEM&lt;br/&gt;(PILAR E2)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Modem HES USART2/LPUART1 (AES-128)&lt;br/&gt;- Port Optik HHU USART3 (PB10/PB11)&lt;br/&gt;- Layanan GET / SET / ACTION Objek OBIS&lt;br/&gt;- Perintah Disconnect Cls 70 &amp;amp; Sync RTC Cls 8&lt;/div&gt;" vertex="1">
-          <mxGeometry x="1360" y="185" width="275" height="125" as="geometry" />
-        </mxCell>
-        <mxCell id="bnd_load" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;INSTALASI BEBAN &amp;amp; KONTROL BANTU&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Pasokan Daya Terhubung / Terputus&lt;br/&gt;- Koil Latching Relai Trip (PC8) / Close (PC9)&lt;br/&gt;- Kontak Umpan Balik Relai AUX (PC6 / PC7)&lt;br/&gt;- Kontrol Bantu AUX_IN (PD10/14) &amp;amp; AUX_OUT (PD8)&lt;/div&gt;" vertex="1">
-          <mxGeometry x="1360" y="460" width="275" height="120" as="geometry" />
+          <mxGeometry x="35" y="475" width="230" height="100" as="geometry" />
         </mxCell>
         <mxCell id="bnd_cli" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;PORT UJI &amp;amp; DIAGNOSTIK&lt;br/&gt;(PETUGAS / TEST BENCH)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Serial CLI Interaktif (USART2 PA2/PA3)&lt;br/&gt;- Injeksi Beban Sintetis &amp;amp; Audit Register&lt;/div&gt;" vertex="1">
-          <mxGeometry x="1360" y="720" width="275" height="105" as="geometry" />
+          <mxGeometry x="35" y="725" width="230" height="105" as="geometry" />
         </mxCell>
-        <mxCell id="f_e1_31" edge="1" parent="1" source="bnd_e1" target="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.48;" value="Vektor Pengukuran&lt;br/&gt;Listrik (s_meas)">
-          <mxGeometry relative="1" y="-13" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="ds_d1" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D1 | MEMORI TARIF ToU, PROFIL BEBAN (90-HR) &amp;amp; BILLING (12-BLN)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8px;&quot;&gt;Skedul WBP/LWBP 8-Zona, Kontrak VA, IDPEL, Profil 15-M (23-Kanal) &amp;amp; Peak MD (SPI2 4MB)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="385" y="76" width="360" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.1&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;ENGINE BILLING, TARIF ToU&lt;br/&gt;&amp;amp; PROFIL BEBAN (15-M)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Kalkulasi Energi WBP/LWBP, Billing 12-Bln,&lt;br/&gt;Integrasi 23-Kanal 15-M (90-Hr), Peak MD,&lt;br/&gt;&amp;amp; Konfigurasi Kontrak/RTC&lt;/font&gt;" vertex="1">
+          <mxGeometry x="440" y="215" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.2&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;DETEKSI SABOTASE (9 TAMPER),&lt;br/&gt;ALARM &amp;amp; LOGBOOK FIFO&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Evaluasi 9 Vektor Tamper, 8 Alarm HW&lt;br/&gt;(ERR00..27), 12 Event, &amp;amp; Pencatatan&lt;br/&gt;3 Antrean Logbook FIFO&lt;/font&gt;" vertex="1">
+          <mxGeometry x="440" y="460" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.4&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;ANTARMUKA HMI OLED,&lt;br/&gt;TOMBOL &amp;amp; KONSOL CLI&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;25 Layar SPLN (Auto 5s / Manual), Rotasi&lt;br/&gt;ERR 3s, Kedip LED PB7, Buzzer PB8,&lt;br/&gt;&amp;amp; Parser Diagnostik CLI (USART2)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="440" y="710" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_user" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;PELANGGAN LISTRIK&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Tombol Navigasi (PA0 UP / PB6 DN) &amp;amp; (▲+▼ 1s)&lt;br/&gt;- Display OLED SSD1306 (PD2/PD3)&lt;br/&gt;- Indikator LED Alarm (PB7) &amp;amp; Buzzer (PB8)&lt;/div&gt;" vertex="1">
+          <mxGeometry x="420" y="930" width="290" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_d2" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D2 | 3 REGISTER LOGBOOK FIFO (&amp;gt;= 30 ENTRI/LOG)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8px;&quot;&gt;Antrean FIFO Terpisah: Log Alarm (8), Log Event (12) &amp;amp; Log Tamper (9)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="865" y="245" width="300" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.3&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;PENGELOLA RELAI &amp;amp;&lt;br/&gt;PROTEKSI (SPLN D3.006)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;FSM Relai (CONNECTED, READY,&lt;br/&gt;LOCKED OUT), Zero-Cross Switch,&lt;br/&gt;Proteksi Beban/Tegangan &amp;amp; AUX&lt;/font&gt;" vertex="1">
+          <mxGeometry x="890" y="460" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.5&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;MANAJEMEN DAYA &amp;amp;&lt;br/&gt;LAST-GASP (STOP 2)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Emergency Save (&amp;lt;15ms) ke D3,&lt;br/&gt;Wakeup Layar 10s saat Padam,&lt;br/&gt;Power Gating &amp;amp; Stop 2 (4.5µA)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="890" y="710" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_d3" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D3 | FLASH CHECKPOINT ENERGI &amp;amp; STATUS RELAI&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8px;&quot;&gt;Simpan Darurat Last-Gasp (&amp;lt;15ms) &amp;amp; Restorasi Saat Boot&lt;/font&gt;" vertex="1">
+          <mxGeometry x="865" y="935" width="300" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_e2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;PROTOKOL DLMS/COSEM&lt;br/&gt;(PILAR E2)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Modem HES USART2/LPUART1 (AES-128)&lt;br/&gt;- Port Optik HHU USART3 (PB10/PB11)&lt;br/&gt;- Layanan GET / SET / ACTION Objek OBIS&lt;br/&gt;- Perintah Disconnect Cls 70 &amp;amp; Sync RTC Cls 8&lt;/div&gt;" vertex="1">
+          <mxGeometry x="1410" y="185" width="275" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_load" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;INSTALASI BEBAN &amp;amp; KONTROL BANTU&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Pasokan Daya Terhubung / Terputus&lt;br/&gt;- Koil Latching Relai Trip (PC8) / Close (PC9)&lt;br/&gt;- Kontak Umpan Balik Relai AUX (PC6 / PC7)&lt;br/&gt;- Kontrol Bantu AUX_IN (PD10/14) &amp;amp; AUX_OUT (PD8)&lt;/div&gt;" vertex="1">
+          <mxGeometry x="1410" y="465" width="275" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_grid" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;DETEKSI DAYA &amp;amp; GRID&lt;br/&gt;(POWER &amp;amp; ZX MONITOR)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Sinyal Padam AC_FAIL_DET (PC3)&lt;br/&gt;- Sinyal Zero-Crossing ADE_CF3_ZX (PE8)&lt;br/&gt;- Monitor VBAT (PD11) &amp;amp; VCAP (PC2)&lt;/div&gt;" vertex="1">
+          <mxGeometry x="1410" y="725" width="275" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="f_e1_31" edge="1" parent="1" source="bnd_e1" target="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.4762;exitPerimeter=0;entryX=0.0015;entryY=0.4615;entryPerimeter=0;" value="Vektor Pengukuran&lt;br/&gt;Listrik (s_meas)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="-16" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_e1_32" edge="1" parent="1" source="bnd_e1" target="p3_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5;exitY=1;entryX=0.18;entryY=0.06;" value="Anomali Listrik &amp;amp; IRQ AFE&lt;br/&gt;(PB5/PB1: ERR21..27)">
-          <mxGeometry relative="1" x="-0.05" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_e1_32" edge="1" parent="1" source="bnd_e1" target="p3_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.2600;entryY=0.0614;entryPerimeter=0;" value="Anomali Listrik &amp;amp; IRQ AFE&lt;br/&gt;(PB5/PB1: ERR21..27)">
+          <mxGeometry relative="1" x="-0.150" y="0" as="geometry">
+            <mxPoint x="-20" y="-16" as="offset" />
             <Array as="points">
-              <mxPoint x="157.5" y="395" />
-              <mxPoint x="434.1" y="395" />
+              <mxPoint x="150.0" y="418.0" />
+              <mxPoint x="505.0" y="418.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_31_d1_w" edge="1" parent="1" source="p3_1" target="ds_d1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3;exitY=0;entryX=0.343;entryY=1;" value="Rekaman Profil 15-M,&lt;br/&gt;Billing &amp;amp; Update ToU">
-          <mxGeometry relative="1" x="0.0" y="-65" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_31_d1_w" edge="1" parent="1" source="p3_1" target="ds_d1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3000;exitY=0.0417;exitPerimeter=0;entryX=0.3611;entryY=1.0000;entryPerimeter=0;" value="Rekaman Profil 15-M,&lt;br/&gt;Billing &amp;amp; Update ToU">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="-78" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_d1_31_r" edge="1" parent="1" source="ds_d1" target="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.685;exitY=1;entryX=0.8;entryY=0;" value="Parameter Tarif ToU,&lt;br/&gt;Kontrak &amp;amp; Histori">
-          <mxGeometry relative="1" x="0.0" y="-62" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_d1_31_r" edge="1" parent="1" source="ds_d1" target="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5278;exitY=1.0000;exitPerimeter=0;entryX=0.5400;entryY=0.0016;entryPerimeter=0;" value="Parameter Tarif ToU,&lt;br/&gt;Kontrak &amp;amp; Histori">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="62" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_31_33" edge="1" parent="1" source="p3_1" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.85;exitY=0.92;entryX=0.18;entryY=0.08;" value="V_rms, I_rms, S_total&lt;br/&gt;&amp;amp; Batas Kontrak">
-          <mxGeometry relative="1" x="0.0" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_31_33" edge="1" parent="1" source="p3_1" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.7800;exitY=0.9142;exitPerimeter=0;entryX=0.2200;entryY=0.0858;entryPerimeter=0;" value="V_rms, I_rms, S_total&lt;br/&gt;&amp;amp; Batas Kontrak">
+          <mxGeometry relative="1" x="0.250" y="0" as="geometry">
+            <mxPoint x="0" y="-16" as="offset" />
             <Array as="points">
-              <mxPoint x="598.25" y="365" />
-              <mxPoint x="853.2" y="365" />
+              <mxPoint x="635.0" y="390.0" />
+              <mxPoint x="945.0" y="390.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_31_34" edge="1" parent="1" source="p3_1" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.35;exitY=0.98;entryX=0.18;entryY=0.08;" value="Data Energi ToU,&lt;br/&gt;V/I/P/PF &amp;amp; IDPEL">
-          <mxGeometry relative="1" x="0.72" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_31_34" edge="1" parent="1" source="p3_1" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.1059;exitY=0.8077;exitPerimeter=0;entryX=0.0600;entryY=0.2625;entryPerimeter=0;" value="Data Energi ToU,&lt;br/&gt;V/I/P/PF &amp;amp; IDPEL">
+          <mxGeometry relative="1" x="0.350" y="0" as="geometry">
+            <mxPoint x="-52" y="0" as="offset" />
             <Array as="points">
-              <mxPoint x="475.75" y="355" />
-              <mxPoint x="325" y="355" />
-              <mxPoint x="325" y="680" />
-              <mxPoint x="434.1" y="680" />
+              <mxPoint x="375.0" y="320.0" />
+              <mxPoint x="375.0" y="695.0" />
+              <mxPoint x="455.0" y="695.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_34_31_cli" edge="1" parent="1" source="p3_4" target="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.06;exitY=0.25;entryX=0.08;entryY=0.78;" value="Vektor Beban&lt;br/&gt;Sintetis Uji CLI">
-          <mxGeometry relative="1" x="-0.45" y="-52" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_34_31_cli" edge="1" parent="1" source="p3_4" target="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.1600;exitY=0.1334;exitPerimeter=0;entryX=0.1600;entryY=0.8666;entryPerimeter=0;" value="Vektor Beban&lt;br/&gt;Sintetis Uji CLI">
+          <mxGeometry relative="1" x="0.780" y="0" as="geometry">
+            <mxPoint x="-5" y="16" as="offset" />
             <Array as="points">
-              <mxPoint x="295" y="737.5" />
-              <mxPoint x="295" y="306.4" />
+              <mxPoint x="480.0" y="665.0" />
+              <mxPoint x="405.0" y="665.0" />
+              <mxPoint x="405.0" y="360.0" />
+              <mxPoint x="480.0" y="360.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_tamp_32" edge="1" parent="1" source="bnd_tamper" target="p3_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" value="Interupsi Sabotase&lt;br/&gt;(PC13, PE6, PE4)">
-          <mxGeometry relative="1" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_tamp_32" edge="1" parent="1" source="bnd_tamper" target="p3_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;" value="Interupsi Sabotase&lt;br/&gt;(PC13, PE6, PE4)">
+          <mxGeometry relative="1" x="-0.380" y="0" as="geometry">
+            <mxPoint x="0" y="-16" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_32_d2_w" edge="1" parent="1" source="p3_2" target="ds_d2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.92;exitY=0.18;entryX=0;entryY=0.25;" value="Rekaman FIFO Alarm,&lt;br/&gt;Event &amp;amp; Tamper">
-          <mxGeometry relative="1" x="0.55" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_32_d2_w" edge="1" parent="1" source="p3_2" target="ds_d2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.8608;exitY=0.1538;exitPerimeter=0;entryX=0.0000;entryY=0.2778;entryPerimeter=0;" value="Rekaman FIFO Alarm,&lt;br/&gt;Event &amp;amp; Tamper">
+          <mxGeometry relative="1" x="0.680" y="0" as="geometry">
+            <mxPoint x="-10" y="-16" as="offset" />
             <Array as="points">
-              <mxPoint x="665" y="478.4" />
-              <mxPoint x="665" y="234" />
+              <mxPoint x="735.0" y="480.0" />
+              <mxPoint x="735.0" y="260.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_d2_32_r" edge="1" parent="1" source="ds_d2" target="p3_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0;exitY=0.78;entryX=0.98;entryY=0.32;" value="Data Riwayat&lt;br/&gt;3 Logbook FIFO">
-          <mxGeometry relative="1" x="0.35" y="42" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_d2_32_r" edge="1" parent="1" source="ds_d2" target="p3_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.7407;exitPerimeter=0;entryX=0.9677;entryY=0.3231;entryPerimeter=0;" value="Data Riwayat&lt;br/&gt;3 Logbook FIFO">
+          <mxGeometry relative="1" x="-0.680" y="0" as="geometry">
+            <mxPoint x="0" y="16" as="offset" />
             <Array as="points">
-              <mxPoint x="710" y="263.7" />
-              <mxPoint x="710" y="496.6" />
+              <mxPoint x="760.0" y="285.0" />
+              <mxPoint x="760.0" y="502.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_32_33" edge="1" parent="1" source="p3_2" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" value="Status &amp;amp; Vektor Sabotase&lt;br/&gt;Aktif (9 Tamper)">
-          <mxGeometry relative="1" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_32_33" edge="1" parent="1" source="p3_2" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;" value="Status &amp;amp; Vektor Sabotase&lt;br/&gt;Aktif (9 Tamper)">
+          <mxGeometry relative="1" x="-0.220" y="0" as="geometry">
+            <mxPoint x="0" y="16" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_32_34" edge="1" parent="1" source="p3_2" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" value="Kode ERR00..27 &amp;amp;&lt;br/&gt;Kedip LED (PB7)">
-          <mxGeometry relative="1" x="-0.1" y="-52" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_32_34" edge="1" parent="1" source="p3_2" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.5000;entryY=0.0000;entryPerimeter=0;" value="Kode ERR00..27 &amp;amp;&lt;br/&gt;Kedip LED (PB7)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="-44" y="-8" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_34_33" edge="1" parent="1" source="p3_4" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.76;exitY=0.06;entryX=0.18;entryY=0.92;" value="Konfirmasi Simultan&lt;br/&gt;(▲+▼ &amp;gt;= 1s)">
-          <mxGeometry relative="1" x="0.0" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_34_33" edge="1" parent="1" source="p3_4" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.7800;exitY=0.0858;exitPerimeter=0;entryX=0.2200;entryY=0.9142;entryPerimeter=0;" value="Konfirmasi Simultan&lt;br/&gt;(▲+▼ &amp;gt;= 1s)">
+          <mxGeometry relative="1" x="-0.020" y="0" as="geometry">
+            <mxPoint x="0" y="-15" as="offset" />
             <Array as="points">
-              <mxPoint x="576.2" y="615" />
-              <mxPoint x="853.2" y="615" />
+              <mxPoint x="635.0" y="618.0" />
+              <mxPoint x="945.0" y="618.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_33_34" edge="1" parent="1" source="p3_3" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3;exitY=0.96;entryX=0.68;entryY=0.05;" value="Status FSM Relai&lt;br/&gt;(Ikon Layar)">
-          <mxGeometry relative="1" x="0.0" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_33_34" edge="1" parent="1" source="p3_3" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.1120;exitY=0.8154;exitPerimeter=0;entryX=0.6720;entryY=0.0305;entryPerimeter=0;" value="Status FSM Relai&lt;br/&gt;(Ikon Layar)">
+          <mxGeometry relative="1" x="0.220" y="0" as="geometry">
+            <mxPoint x="0" y="15" as="offset" />
             <Array as="points">
-              <mxPoint x="882" y="645" />
-              <mxPoint x="556.6" y="645" />
+              <mxPoint x="918.0" y="652.0" />
+              <mxPoint x="608.0" y="652.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_33_load" edge="1" parent="1" source="p3_3" target="bnd_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.98;exitY=0.35;entryX=0;entryY=0.32;" value="Pulsa Koil Relai (PC8/PC9)&lt;br/&gt;&amp;amp; AUX_OUT (PD8)">
-          <mxGeometry relative="1" x="0.18" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_33_load" edge="1" parent="1" source="p3_3" target="bnd_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.9615;exitY=0.3077;exitPerimeter=0;entryX=0.0000;entryY=0.2917;entryPerimeter=0;" value="Pulsa Koil Relai (PC8/PC9)&lt;br/&gt;&amp;amp; AUX_OUT (PD8)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="-16" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_load_33" edge="1" parent="1" source="bnd_load" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0;exitY=0.72;entryX=0.98;entryY=0.7;" value="Status Kontak Aux (PC6/PC7)&lt;br/&gt;&amp;amp; AUX_IN (PD10/14)">
-          <mxGeometry relative="1" x="-0.15" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_load_33" edge="1" parent="1" source="bnd_load" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.7083;exitPerimeter=0;entryX=0.9615;entryY=0.6923;entryPerimeter=0;" value="Status Kontak Aux (PC6/PC7)&lt;br/&gt;&amp;amp; AUX_IN (PD10/14)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="16" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_33_35" edge="1" parent="1" source="p3_3" target="p3_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" value="State Akhir&lt;br/&gt;FSM Relai">
-          <mxGeometry relative="1" x="0.1" y="-45" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_33_35" edge="1" parent="1" source="p3_3" target="p3_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.5000;entryY=0.0000;entryPerimeter=0;" value="State Akhir&lt;br/&gt;FSM Relai">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="48" y="0" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_31_35_snap" edge="1" parent="1" source="p3_1" target="p3_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.96;exitY=0.68;entryX=0.82;entryY=0.08;" value="Snapshot Akumulator&lt;br/&gt;Energi &amp;amp; Billing">
-          <mxGeometry relative="1" x="-0.28" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_31_35_snap" edge="1" parent="1" source="p3_1" target="p3_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.6800;exitY=0.9665;exitPerimeter=0;entryX=0.0692;entryY=0.2462;entryPerimeter=0;" value="Snapshot Akumulator&lt;br/&gt;Energi &amp;amp; Billing">
+          <mxGeometry relative="1" x="0.780" y="0" as="geometry">
+            <mxPoint x="-55" y="0" as="offset" />
             <Array as="points">
-              <mxPoint x="625.2" y="325" />
-              <mxPoint x="1105" y="325" />
-              <mxPoint x="1105" y="680" />
-              <mxPoint x="1006.8" y="680" />
+              <mxPoint x="610.0" y="430.0" />
+              <mxPoint x="855.0" y="430.0" />
+              <mxPoint x="855.0" y="742.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_grid_33" edge="1" parent="1" source="bnd_grid" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5;exitY=0;entryX=0.06;entryY=0.82;" value="Sinyal Zero-Crossing&lt;br/&gt;(ADE_CF3_ZX PE8)">
-          <mxGeometry relative="1" x="-0.4" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_grid_33" edge="1" parent="1" source="bnd_grid" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.4909;exitY=0.0000;exitPerimeter=0;entryX=0.8454;entryY=0.8615;entryPerimeter=0;" value="Sinyal Zero-Crossing&lt;br/&gt;(ADE_CF3_ZX PE8)">
+          <mxGeometry relative="1" x="-0.100" y="0" as="geometry">
+            <mxPoint x="0" y="-16" as="offset" />
             <Array as="points">
-              <mxPoint x="157.5" y="592" />
-              <mxPoint x="824.4" y="592" />
+              <mxPoint x="1545.0" y="625.0" />
+              <mxPoint x="1165.0" y="625.0" />
+              <mxPoint x="1165.0" y="572.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_grid_35" edge="1" parent="1" source="bnd_grid" target="p3_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5;exitY=1;entryX=0.18;entryY=0.92;" value="Sinyal AC_FAIL (PC3) &amp;amp;&lt;br/&gt;VBAT/VCAP (PD11/PC2)">
-          <mxGeometry relative="1" x="-0.62" y="14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_grid_35" edge="1" parent="1" source="bnd_grid" target="p3_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.4762;exitPerimeter=0;entryX=1.0000;entryY=0.5000;entryPerimeter=0;" value="Sinyal AC_FAIL (PC3) &amp;amp;&lt;br/&gt;VBAT/VCAP (PD11/PC2)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_35_34" edge="1" parent="1" source="p3_5" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.5000;exitPerimeter=0;entryX=1.0000;entryY=0.5000;entryPerimeter=0;" value="Mode Daya, Timer 10s&lt;br/&gt;&amp;amp; Power LCD (PD2/3)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_35_d3_w" edge="1" parent="1" source="p3_5" target="ds_d3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3400;exitY=0.9737;exitPerimeter=0;entryX=0.3667;entryY=0.0000;entryPerimeter=0;" value="Checkpoint Darurat&lt;br/&gt;Last-Gasp (&amp;lt;15ms)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="-75" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_d3_35_r" edge="1" parent="1" source="ds_d3" target="p3_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.6333;exitY=0.0000;exitPerimeter=0;entryX=0.6600;entryY=0.9737;entryPerimeter=0;" value="Restorasi Energi &amp;amp;&lt;br/&gt;State Relai Saat Boot">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="82" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_user_34" edge="1" parent="1" source="bnd_user" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3621;exitY=0.0000;exitPerimeter=0;entryX=0.3400;entryY=0.9737;entryPerimeter=0;" value="Input Tombol&lt;br/&gt;Navigasi (PA0/PB6)">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="-75" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_34_user" edge="1" parent="1" source="p3_4" target="bnd_user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.6600;exitY=0.9737;exitPerimeter=0;entryX=0.6379;entryY=0.0000;entryPerimeter=0;" value="Tayangan OLED,&lt;br/&gt;LED (PB7) &amp;amp; Buzzer">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="75" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_cli_34" edge="1" parent="1" source="bnd_cli" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.2857;exitPerimeter=0;entryX=0.0243;entryY=0.3462;entryPerimeter=0;" value="Perintah ASCII CLI&lt;br/&gt;Uji &amp;amp; Kalibrasi (USART2)">
+          <mxGeometry relative="1" x="-0.150" y="0" as="geometry">
+            <mxPoint x="0" y="-16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_34_cli" edge="1" parent="1" source="p3_4" target="bnd_cli" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0323;exitY=0.6769;exitPerimeter=0;entryX=1.0000;entryY=0.6952;entryPerimeter=0;" value="Respons Eksekusi&lt;br/&gt;&amp;amp; Status Log CLI">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_e2_31" edge="1" parent="1" source="bnd_e2" target="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.4909;exitY=0.0000;exitPerimeter=0;entryX=0.7665;entryY=0.0769;entryPerimeter=0;" value="Set Tarif ToU, Kontrak, IDPEL &amp;amp; Sync RTC (Cls 8)">
+          <mxGeometry relative="1" x="-0.050" y="0" as="geometry">
+            <mxPoint x="0" y="-12" as="offset" />
             <Array as="points">
-              <mxPoint x="157.5" y="855" />
-              <mxPoint x="853.2" y="855" />
+              <mxPoint x="1545.0" y="150.0" />
+              <mxPoint x="700.0" y="150.0" />
+              <mxPoint x="700.0" y="225.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_35_34" edge="1" parent="1" source="p3_5" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" value="Mode Daya, Timer 10s&lt;br/&gt;&amp;amp; Power LCD (PD2/3)">
-          <mxGeometry relative="1" y="-14" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="f_35_d3_w" edge="1" parent="1" source="p3_5" target="ds_d3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.35;exitY=1;entryX=0.38;entryY=0;" value="Checkpoint Darurat&lt;br/&gt;Last-Gasp (&amp;lt;15ms)">
-          <mxGeometry relative="1" x="0.0" y="62" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="f_d3_35_r" edge="1" parent="1" source="ds_d3" target="p3_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.65;exitY=0;entryX=0.688;entryY=1;" value="Restorasi Energi &amp;amp;&lt;br/&gt;State Relai Saat Boot">
-          <mxGeometry relative="1" x="0.0" y="65" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="f_user_34" edge="1" parent="1" source="bnd_user" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.32;exitY=0;entryX=0.291;entryY=1;" value="Input Tombol&lt;br/&gt;Navigasi (PA0/PB6)">
-          <mxGeometry relative="1" x="0.0" y="-58" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="f_34_user" edge="1" parent="1" source="p3_4" target="bnd_user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.71;exitY=1;entryX=0.681;entryY=0;" value="Tayangan OLED,&lt;br/&gt;LED (PB7) &amp;amp; Buzzer">
-          <mxGeometry relative="1" x="0.0" y="-58" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="f_31_e2" edge="1" parent="1" source="p3_1" target="bnd_e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.95;exitY=0.28;entryX=0;entryY=0.2;" value="OBIS Billing, Tarif ToU &amp;amp;&lt;br/&gt;Profil Beban (Cls 4 &amp;amp; 7)">
-          <mxGeometry relative="1" x="0.25" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_31_e2" edge="1" parent="1" source="p3_1" target="bnd_e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.9213;exitY=0.2308;exitPerimeter=0;entryX=0.0000;entryY=0.1360;entryPerimeter=0;" value="OBIS Billing, Tarif ToU &amp;amp;&lt;br/&gt;Profil Beban (Cls 4 &amp;amp; 7)">
+          <mxGeometry relative="1" x="0.150" y="0" as="geometry">
+            <mxPoint x="0" y="-16" as="offset" />
             <Array as="points">
-              <mxPoint x="750" y="241.4" />
-              <mxPoint x="750" y="210" />
+              <mxPoint x="718.0" y="245.0" />
+              <mxPoint x="718.0" y="202.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_e2_31" edge="1" parent="1" source="bnd_e2" target="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5;exitY=0;entryX=0.92;entryY=0.12;" value="Set Tarif ToU, Kontrak, IDPEL &amp;amp; Sync RTC (Cls 8)">
-          <mxGeometry relative="1" x="-0.05" y="-10" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_32_e2" edge="1" parent="1" source="p3_2" target="bnd_e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.8600;exitY=0.1530;exitPerimeter=0;entryX=0.0000;entryY=0.7200;entryPerimeter=0;" value="Trap Alarm Sabotase&lt;br/&gt;&amp;amp; Logbook OBIS">
+          <mxGeometry relative="1" x="0.000" y="0" as="geometry">
+            <mxPoint x="0" y="-16" as="offset" />
             <Array as="points">
-              <mxPoint x="1497.5" y="150" />
-              <mxPoint x="720" y="150" />
-              <mxPoint x="720" y="220.6" />
+              <mxPoint x="655.0" y="345.0" />
+              <mxPoint x="1215.0" y="345.0" />
+              <mxPoint x="1215.0" y="275.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_32_e2" edge="1" parent="1" source="p3_2" target="bnd_e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.85;exitY=0.12;entryX=0;entryY=0.75;" value="Trap Alarm Sabotase&lt;br/&gt;&amp;amp; Logbook OBIS">
-          <mxGeometry relative="1" x="0.05" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_e2_33" edge="1" parent="1" source="bnd_e2" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.2727;exitY=1.0000;exitPerimeter=0;entryX=0.6200;entryY=0.0146;entryPerimeter=0;" value="Perintah Disconnect/&lt;br/&gt;Reconnect (Class 70)">
+          <mxGeometry relative="1" x="-0.100" y="0" as="geometry">
+            <mxPoint x="0" y="-16" as="offset" />
             <Array as="points">
-              <mxPoint x="598.25" y="420" />
-              <mxPoint x="1150" y="420" />
-              <mxPoint x="1150" y="278.75" />
+              <mxPoint x="1485.0" y="380.0" />
+              <mxPoint x="1045.0" y="380.0" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="f_e2_33" edge="1" parent="1" source="bnd_e2" target="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3;exitY=1;entryX=0.75;entryY=0.05;" value="Perintah Disconnect/&lt;br/&gt;Reconnect (Class 70)">
-          <mxGeometry relative="1" x="0.18" y="-14" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="f_33_e2" edge="1" parent="1" source="p3_3" target="bnd_e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.8000;exitY=0.1000;exitPerimeter=0;entryX=0.6727;entryY=1.0000;entryPerimeter=0;" value="Status Relai &amp;amp;&lt;br/&gt;State Class 70">
+          <mxGeometry relative="1" x="0.050" y="0" as="geometry">
+            <mxPoint x="0" y="16" as="offset" />
             <Array as="points">
-              <mxPoint x="1442.5" y="355" />
-              <mxPoint x="990" y="355" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="f_33_e2" edge="1" parent="1" source="p3_3" target="bnd_e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.88;exitY=0.12;entryX=0.75;entryY=1;" value="Status Relai &amp;amp;&lt;br/&gt;State Class 70">
-          <mxGeometry relative="1" x="0.22" y="14" as="geometry">
-            <mxPoint as="offset" />
-            <Array as="points">
-              <mxPoint x="1021.2" y="390" />
-              <mxPoint x="1566.25" y="390" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="f_cli_34" edge="1" parent="1" source="bnd_cli" target="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3;exitY=0;entryX=0.88;entryY=0.15;" value="Perintah ASCII CLI&lt;br/&gt;Uji &amp;amp; Kalibrasi (USART2)">
-          <mxGeometry relative="1" x="-0.22" y="-14" as="geometry">
-            <mxPoint as="offset" />
-            <Array as="points">
-              <mxPoint x="1442.5" y="660" />
-              <mxPoint x="1150" y="660" />
-              <mxPoint x="1150" y="615" />
-              <mxPoint x="1080" y="615" />
-              <mxPoint x="1080" y="655" />
-              <mxPoint x="605.6" y="655" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="f_34_cli" edge="1" parent="1" source="p3_4" target="bnd_cli" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.85;exitY=0.92;entryX=0.3;entryY=1;" value="Respons Eksekusi &amp;amp; Status Log CLI">
-          <mxGeometry relative="1" x="0.58" y="12" as="geometry">
-            <mxPoint as="offset" />
-            <Array as="points">
-              <mxPoint x="598.25" y="885" />
-              <mxPoint x="1140" y="885" />
-              <mxPoint x="1140" y="855" />
-              <mxPoint x="1442.5" y="855" />
+              <mxPoint x="1090.0" y="418.0" />
+              <mxPoint x="1595.0" y="418.0" />
             </Array>
           </mxGeometry>
         </mxCell>
