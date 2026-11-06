@@ -187,12 +187,12 @@
         <mxPoint x="1080" y="470" as="targetPoint" />
       </mxGeometry>
     </mxCell>
-    <mxCell id="df_e3_ds_write" edge="1" parent="1" source="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=10;fontFamily=Helvetica;spacing=3;exitX=0.35;exitY=1;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;horizontal=0;" target="ds_nvm" value="Tulis Billing &amp;amp; Logbook">
+    <mxCell id="df_e3_ds_write" edge="1" parent="1" source="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=10;fontFamily=Helvetica;spacing=3;exitX=0.35;exitY=1;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;horizontal=0;" target="ds_nvm" value="Rekaman Billing &amp;amp; Logbook Tamper">
       <mxGeometry relative="1" x="-0.0398" y="6" as="geometry">
         <mxPoint as="offset" />
       </mxGeometry>
     </mxCell>
-    <mxCell id="df_ds_e3_read" edge="1" parent="1" source="ds_nvm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=10;fontFamily=Helvetica;spacing=3;exitX=0.6;exitY=0;exitDx=0;exitDy=0;entryX=0.65;entryY=1;entryDx=0;entryDy=0;horizontal=0;" target="p3_0" value="Baca Tarif &amp;amp; Konfigurasi">
+    <mxCell id="df_ds_e3_read" edge="1" parent="1" source="ds_nvm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fillColor=#ffffff;fontColor=#000000;fontSize=10;fontFamily=Helvetica;spacing=3;exitX=0.6;exitY=0;exitDx=0;exitDy=0;entryX=0.65;entryY=1;entryDx=0;entryDy=0;horizontal=0;" target="p3_0" value="Parameter Tarif &amp;amp; Konfigurasi">
       <mxGeometry relative="1" x="-0.1088" y="-14" as="geometry">
         <mxPoint as="offset" />
       </mxGeometry>
