@@ -765,9 +765,15 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
             GPIO_PinState blink_state = ((current_tick_ms / 500U) % 2U == 0U) ? GPIO_PIN_SET : GPIO_PIN_RESET;
             HAL_GPIO_WritePin(LED_ALM_GPIO_Port, LED_ALM_Pin, blink_state);
         }
+        else if (is_yellow_led_on)
+        {
+            HAL_GPIO_WritePin(LED_ALM_GPIO_Port, LED_ALM_Pin, GPIO_PIN_SET);
+        }
         else
         {
-            HAL_GPIO_WritePin(LED_ALM_GPIO_Port, LED_ALM_Pin, is_yellow_led_on ? GPIO_PIN_SET : GPIO_PIN_RESET);
+            /* Heartbeat: Saat meter beroperasi normal tanpa alarm, kedipkan LED periodik 1 Hz (500ms ON / 500ms OFF) */
+            GPIO_PinState blink_state = ((current_tick_ms / 500U) % 2U == 0U) ? GPIO_PIN_SET : GPIO_PIN_RESET;
+            HAL_GPIO_WritePin(LED_ALM_GPIO_Port, LED_ALM_Pin, blink_state);
         }
     }
 

@@ -157,6 +157,8 @@ static uint32_t OS_Tick_GetInterval (void);
 extern void SysTick_Handler     (void);
 /* FreeRTOS tick timer interrupt handler prototype */
 extern void xPortSysTickHandler (void);
+/* STM32 HAL tick increment function */
+extern void HAL_IncTick         (void);
 
 /*
   SysTick handler implementation that also clears overflow flag.
@@ -167,6 +169,9 @@ void SysTick_Handler (void) {
   /* Clear overflow flag */
   SysTick->CTRL;
 #endif
+
+  /* Increment STM32 HAL tick count for HAL_Delay() and HAL timeouts */
+  HAL_IncTick();
 
   if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
     /* Call tick handler */

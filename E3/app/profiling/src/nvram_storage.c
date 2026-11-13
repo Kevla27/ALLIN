@@ -20,7 +20,7 @@ static void spi2_flash_wait_busy(void)
 {
     uint8_t cmd = SPI_FLASH_CMD_RDSR1;
     uint8_t status = 0x01U;
-    uint32_t timeout_cycles = 100000U;
+    uint32_t timeout_cycles = 50U;
     while (timeout_cycles-- > 0U)
     {
         HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
@@ -29,7 +29,7 @@ static void spi2_flash_wait_busy(void)
             (void)HAL_SPI_Receive(&hspi2, &status, 1U, 2U);
         }
         HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
-        if ((status & 0x01U) == 0U)
+        if (status == 0xFFU || (status & 0x01U) == 0U)
         {
             break;
         }
