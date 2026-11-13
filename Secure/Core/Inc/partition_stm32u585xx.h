@@ -447,12 +447,12 @@
 //   <o.26> I2C2_ER_IRQn          <0=> Secure state
 //   <o.27> SPI1_IRQn             <0=> Secure state
 //   <o.28> SPI2_IRQn             <0=> Secure state
-//   <o.29> USART1_IRQn           <0=> Secure state
+//   <o.29> USART1_IRQn           <1=> Non-Secure state
 //   <o.30> USART2_IRQn           <1=> Non-Secure state
 //   <o.31> USART3_IRQn           <1=> Non-Secure state
 */
 
-#define NVIC_INIT_ITNS1_VAL      0xC0000000
+#define NVIC_INIT_ITNS1_VAL      0xE0000000
 
 /*
 //   </e>

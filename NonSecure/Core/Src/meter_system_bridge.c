@@ -26,6 +26,31 @@
 
 /* Handle UART untuk transmisi serial konsol / modem (USART2) */
 static UART_HandleTypeDef *s_console_uart = NULL;
+extern UART_HandleTypeDef huart1;
+static uint8_t s_vcp_rx_byte = 0U;
+
+#define VCP_RX_FIFO_SIZE 256U
+static volatile uint8_t  s_vcp_fifo[VCP_RX_FIFO_SIZE];
+static volatile uint16_t s_vcp_head = 0U;
+static volatile uint16_t s_vcp_tail = 0U;
+
+static inline void vcp_fifo_push(uint8_t b)
+{
+    uint16_t next = (s_vcp_head + 1U) % VCP_RX_FIFO_SIZE;
+    if (next != s_vcp_tail)
+    {
+        s_vcp_fifo[s_vcp_head] = b;
+        s_vcp_head = next;
+    }
+}
+
+static inline bool vcp_fifo_pop(uint8_t *b)
+{
+    if (s_vcp_head == s_vcp_tail) return false;
+    *b = s_vcp_fifo[s_vcp_tail];
+    s_vcp_tail = (s_vcp_tail + 1U) % VCP_RX_FIFO_SIZE;
+    return true;
+}
 
 /* Context data pengukuran listrik yang dikoordinasikan antar pilar */
 static meter_measurements_t s_meas;
@@ -36,9 +61,18 @@ static meter_measurements_t s_meas;
 
 static void bridge_console_uart_tx(const uint8_t *data, size_t len)
 {
-    if ((s_console_uart != NULL) && (data != NULL) && (len > 0U))
+    if ((data != NULL) && (len > 0U))
     {
-        HAL_UART_Transmit(s_console_uart, (uint8_t *)data, (uint16_t)len, 100U);
+        /* 1. Transmit ke ST-LINK Virtual COM Port (USART1 @ 115200 bps) jika terpasang */
+        if (huart1.Instance == USART1)
+        {
+            HAL_UART_Transmit(&huart1, (uint8_t *)data, (uint16_t)len, 200U);
+        }
+        /* 2. Transmit juga ke Modem UART (USART2 @ 19200 bps) */
+        if ((s_console_uart != NULL) && (s_console_uart->Instance != NULL))
+        {
+            HAL_UART_Transmit(s_console_uart, (uint8_t *)data, (uint16_t)len, 100U);
+        }
     }
 }
 
@@ -51,9 +85,15 @@ void meter_system_bringup(UART_HandleTypeDef *huart_opt, UART_HandleTypeDef *hua
     s_console_uart = huart_modem;
     memset(&s_meas, 0, sizeof(s_meas));
 
-    /* 1. Inisialisasi Console I/O & printf retargeting ke USART2 */
+    /* 1. Inisialisasi Console I/O & printf retargeting ke ST-LINK VCP (USART1) & USART2 */
     console_io_init(bridge_console_uart_tx);
-    console_io_print_boot_banner("SMART METER 3-PHASE STM32U585", "USART2 @ 19200 bps", 160U);
+    console_io_print_boot_banner("SMART METER 3-PHASE STM32U575 (NUCLEO)", "USART1 @ 115200 bps / USART2 @ 19200 bps", 160U);
+
+    /* Aktifkan interrupt penerimaan karakter serial CLI pada ST-LINK Virtual COM Port (USART1) */
+    if (huart1.Instance == USART1)
+    {
+        HAL_UART_Receive_IT(&huart1, &s_vcp_rx_byte, 1U);
+    }
 
     /* 2. Inisialisasi Layanan Terpadu Pilar E1 (Metrologi), E2 (DLMS/COSEM), dan E3 (Aplikasi) */
     e1_metrology_service_init();
@@ -110,8 +150,12 @@ void app_metering_step(void)
         delta_ms = 1U;
     }
 
-    /* 0. Proses antrean byte karakter Interactive Serial CLI dari USART2 */
+    /* 0. Proses antrean byte karakter Interactive Serial CLI dari USART1 (VCP) & USART2 (Modem) */
     uint8_t cli_byte = 0U;
+    while (vcp_fifo_pop(&cli_byte))
+    {
+        console_cli_process_rx_byte(cli_byte);
+    }
     while (e2_dlms_service_pop_cli_rx_byte(&cli_byte))
     {
         console_cli_process_rx_byte(cli_byte);
@@ -195,8 +239,31 @@ void app_metering_task_loop(void)
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+    if (huart != NULL && huart->Instance == USART1)
+    {
+        /* Simpan karakter CLI dari ST-LINK VCP ke FIFO non-blocking */
+        vcp_fifo_push(s_vcp_rx_byte);
+        HAL_UART_Receive_IT(&huart1, &s_vcp_rx_byte, 1U);
+        return;
+    }
+
     /* Serahkan pemrosesan byte optik (USART3) maupun modem (USART2) ke Pilar E2 */
     e2_dlms_service_uart_rx_callback(huart);
+}
+
+/**
+ * @brief Callback interrupt penanganan error UART (Overrun, Noise, Framing).
+ */
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+    if (huart != NULL && huart->Instance == USART1)
+    {
+        __HAL_UART_CLEAR_OREFLAG(huart);
+        __HAL_UART_CLEAR_NEFLAG(huart);
+        __HAL_UART_CLEAR_FEFLAG(huart);
+        huart->ErrorCode = HAL_UART_ERROR_NONE;
+        HAL_UART_Receive_IT(&huart1, &s_vcp_rx_byte, 1U);
+    }
 }
 
 /**

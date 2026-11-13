@@ -135,6 +135,29 @@ static void cli_inject_tamper(tamper_vector_t vec, bool asserted) {
     tamper_process_signal(&s_tamper_ctx, vec, asserted, s_now_epoch_sec);
 }
 
+static void cli_clear_tamper(void) {
+    /* 1. Bersihkan seluruh software tamper vector pada s_tamper_ctx */
+    tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_CASE_OPEN, false, s_now_epoch_sec);
+    tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_TERMINAL_OPEN, false, s_now_epoch_sec);
+    tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_MAGNETIC_FIELD, false, s_now_epoch_sec);
+    tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_NEUTRAL_BYPASS, false, s_now_epoch_sec);
+    tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_REVERSE_POWER, false, s_now_epoch_sec);
+    tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_PHASE_LOSS, false, s_now_epoch_sec);
+    tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_WRONG_SEQUENCE, false, s_now_epoch_sec);
+    tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_CROSS_PHASE, false, s_now_epoch_sec);
+    tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_LOW_PF_QUAD4, false, s_now_epoch_sec);
+    s_tamper_ctx.active_tamper_mask = 0U;
+
+    /* 2. Bersihkan hardware tamper latch pada peripheral TAMP domain VSW (TrustZone Secure) */
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    SECURE_ClearTamperLatch(0x07); /* Bit 0: Case Open (TAMP1F), Bit 1: Terminal (TAMP3F), Bit 2: Magnet (TAMP7F) */
+#endif
+
+    /* 3. Perbarui status tampilan OLED seketika agar kembali ke Carousel HMI normal */
+    display_set_tamper_status(&s_disp_ctx, 0U);
+    s_last_disp_print_ms = 0U;
+}
+
 static relay_state_t cli_get_relay_state(void) {
     return power_relay_get_state(&s_relay_ctx);
 }
@@ -339,6 +362,7 @@ void e3_meter_app_init(const char *customer_id, ADC_HandleTypeDef *hadc_telemetr
         .set_battery_voltage = cli_set_battery_voltage,
         .get_tamper_context = cli_get_tamper_context,
         .inject_tamper = cli_inject_tamper,
+        .clear_tamper = cli_clear_tamper,
         .get_relay_state = cli_get_relay_state,
         .get_relay_disconnect_reason = cli_get_relay_disconnect_reason,
         .relay_disconnect = cli_relay_disconnect,

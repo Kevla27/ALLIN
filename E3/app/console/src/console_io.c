@@ -32,6 +32,7 @@ static int cmd_meas(int argc, char *argv[]);
 static int cmd_energy(int argc, char *argv[]);
 static int cmd_relay(int argc, char *argv[]);
 static int cmd_tamper(int argc, char *argv[]);
+static int cmd_tamper_clear_alias(int argc, char *argv[]);
 static int cmd_alarm(int argc, char *argv[]);
 static int cmd_log(int argc, char *argv[]);
 static int cmd_demand(int argc, char *argv[]);
@@ -59,9 +60,10 @@ static const console_cmd_entry_t s_cmd_table[] = {
     {"pwr",      "Alias untuk status manajemen daya",      cmd_power},
     {"meas",     "Pengukuran listrik 3-fasa instan",       cmd_meas},
     {"energy",   "Akumulasi energi Wh/varh & ToU",         cmd_energy},
-    {"relay",    "Kontrol/inspeksi status relai kontaktor", cmd_relay},
-    {"tamper",   "Status sabotase atau simulasi injeksi",  cmd_tamper},
-    {"alarm",    "Status alarm internal hardware ERR00..07",cmd_alarm},
+    {"relay",        "Kontrol/inspeksi status relai kontaktor", cmd_relay},
+    {"tamper",       "Status sabotase, pembersihan latch atau simulasi", cmd_tamper},
+    {"clear_tamper", "Bersihkan status sabotase & hardware tamper latch", cmd_tamper_clear_alias},
+    {"alarm",        "Status alarm internal hardware ERR00..07",cmd_alarm},
     {"log",      "Membaca isi 3 register log FIFO SPLN",   cmd_log},
     {"demand",   "Status Maximum Demand 15-menit & reset", cmd_demand},
     {"time",     "Status kalender RTC & zona tarif ToU",   cmd_time},
@@ -159,7 +161,9 @@ static int cmd_help(int argc, char *argv[]) {
     printf("  relay trip <alasan>   : Trip relai (1:Manual, 2:Limiter, 3:Remote, 4:UnderVolt, 5:OverVolt)\n");
     printf("  relay reconnect       : Request reconnect (masuk state READY_ON)\n");
     printf("  relay confirm         : Konfirmasi rekoneksi fisik kontaktor\n");
+    printf("  tamper clear          : Bersihkan latch sabotase hardware & software (Tutup Meter/RUSAK)\n");
     printf("  tamper test <vec> <1|0>: Injeksi simulasi tamper (vector bitmask)\n");
+    printf("  clear_tamper          : Alias cepat membersihkan status sabotase (RUSAK)\n");
     printf("  alarm set <hex_mask>  : Injeksi alarm internal (ERR00..ERR07)\n");
     printf("  alarm clear           : Reset semua alarm internal ke nol\n");
     printf("  log <alarm|event|tamper>: Baca rekaman FIFO non-volatile\n");
@@ -437,6 +441,21 @@ static int cmd_tamper(int argc, char *argv[]) {
         return 0;
     }
 
+    if (str_equals_ignore_case(argv[1], "clear") || str_equals_ignore_case(argv[1], "reset")) {
+        if (s_hooks.clear_tamper != NULL) {
+            s_hooks.clear_tamper();
+        } else {
+            tamper_process_signal((tamper_context_t*)ctx, TAMPER_VECTOR_CASE_OPEN, false, 0);
+            tamper_process_signal((tamper_context_t*)ctx, TAMPER_VECTOR_TERMINAL_OPEN, false, 0);
+            tamper_process_signal((tamper_context_t*)ctx, TAMPER_VECTOR_MAGNETIC_FIELD, false, 0);
+            ((tamper_context_t*)ctx)->active_tamper_mask = 0U;
+        }
+        printf("\n[CLI] Status sabotase & hardware tamper latch BERHASIL DIBERSIHKAN.\n");
+        printf("  Active Tamper Mask: 0x%04lX\n", (unsigned long)tamper_get_active_mask(ctx));
+        printf("  Layar OLED kembali ke tampilan normal (Carousel SPLN).\n\n");
+        return 0;
+    }
+
     if (str_equals_ignore_case(argv[1], "test")) {
         if (argc < 4) {
             printf("[CLI] Sintaks: tamper test <vector_id> <1|0>\n");
@@ -455,8 +474,15 @@ static int cmd_tamper(int argc, char *argv[]) {
         }
     }
 
-    printf("[CLI] Sintaks tamper salah. Gunakan: tamper [status | test <vec> <1|0>]\n");
+    printf("[CLI] Sintaks tamper salah. Gunakan: tamper [status | clear | test <vec> <1|0>]\n");
     return -1;
+}
+
+static int cmd_tamper_clear_alias(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+    char *synthetic_argv[] = {"tamper", "clear"};
+    return cmd_tamper(2, synthetic_argv);
 }
 
 static int cmd_alarm(int argc, char *argv[]) {

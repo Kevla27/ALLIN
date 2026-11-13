@@ -175,7 +175,15 @@ header file. */
 
 /* USER CODE BEGIN Defines */
 /* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
-#define configUSE_TICKLESS_IDLE                  1
+#ifdef configENABLE_FPU
+#undef configENABLE_FPU
+#endif
+#define configENABLE_FPU                         1
+
+#ifdef configUSE_TICKLESS_IDLE
+#undef configUSE_TICKLESS_IDLE
+#endif
+#define configUSE_TICKLESS_IDLE                  0
 
 #undef configTOTAL_HEAP_SIZE
 #define configTOTAL_HEAP_SIZE                    ((size_t)32768)

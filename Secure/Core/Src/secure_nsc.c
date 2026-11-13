@@ -22,6 +22,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "secure_nsc.h"
+#include <stdbool.h>
 
 /** @addtogroup STM32U5xx_HAL_Examples
   * @{
@@ -169,9 +170,11 @@ CMSE_NS_ENTRY uint32_t SECURE_GetReactiveEnergyVarh(void)
 #define BOARD_CFG_TAMPER_MAGNET_LVL     1
 #endif
 
+static volatile uint8_t s_tamper_cleared_mask = 0U;
+
 /**
   * @brief  Membaca status hardware tamper latch dari peripheral TAMP (Domain VSW)
-  *         - Bit 0: PC13 (TAMP_IN1 - Case Open)
+  *         - Bit 0: PC13 (TAMP_IN1 - Case Open / Tombol B1 NUCLEO)
   *         - Bit 1: PE6  (TAMP_IN3 - Terminal Cover Open)
   *         - Bit 2: PE4  (TAMP_IN7 - Magnetic Field <= 500 mT)
   */
@@ -180,28 +183,84 @@ CMSE_NS_ENTRY uint32_t SECURE_GetTamperStatusMask(void)
   uint32_t mask = 0U;
   uint32_t sr   = TAMP->SR;
 
-  /* Periksa latch hardware TAMP->SR maupun status pin fisik Secure GPIO (PC13, PE6, PE4) */
-  if (((sr & TAMP_SR_TAMP1F) != 0U) ||
-      (HAL_GPIO_ReadPin(TAMP_CASE_OPEN_GPIO_Port, TAMP_CASE_OPEN_Pin) == (BOARD_CFG_TAMPER_CASE_OPEN_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET)))
+  /* Status pin fisik B1 pada NUCLEO: PC13 pull-up eksternal (unpressed = 1, pressed = 0) */
+  bool pin_case_open = (HAL_GPIO_ReadPin(TAMP_CASE_OPEN_GPIO_Port, TAMP_CASE_OPEN_Pin) == GPIO_PIN_RESET);
+  bool pin_term_open = (HAL_GPIO_ReadPin(TAMP_TERM_COVER_GPIO_Port, TAMP_TERM_COVER_Pin) == GPIO_PIN_SET);
+  bool pin_mag_field = (HAL_GPIO_ReadPin(SENSOR_MAGNET_GPIO_Port, SENSOR_MAGNET_Pin) == GPIO_PIN_SET);
+
+  /* Jika tombol fisik B1 ditekan kembali oleh user, batalkan status cleared override */
+  if (pin_case_open)
   {
-    mask |= (1U << 0); /* TAMPER_VECTOR_CASE_OPEN */
+    s_tamper_cleared_mask &= ~(1U << 0);
   }
-  if (((sr & TAMP_SR_TAMP3F) != 0U) ||
-      (HAL_GPIO_ReadPin(TAMP_TERM_COVER_GPIO_Port, TAMP_TERM_COVER_Pin) == (BOARD_CFG_TAMPER_TERM_OPEN_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET)))
+  if (pin_term_open)
   {
-    mask |= (1U << 1); /* TAMPER_VECTOR_TERMINAL_OPEN */
+    s_tamper_cleared_mask &= ~(1U << 1);
   }
-  if (((sr & TAMP_SR_TAMP7F) != 0U) ||
-      (HAL_GPIO_ReadPin(SENSOR_MAGNET_GPIO_Port, SENSOR_MAGNET_Pin) == (BOARD_CFG_TAMPER_MAGNET_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET)))
+  if (pin_mag_field)
   {
-    mask |= (1U << 2); /* TAMPER_VECTOR_MAGNETIC_FIELD */
-    if (HAL_GPIO_ReadPin(SENSOR_MAGNET_GPIO_Port, SENSOR_MAGNET_Pin) != (BOARD_CFG_TAMPER_MAGNET_LVL ? GPIO_PIN_SET : GPIO_PIN_RESET))
+    s_tamper_cleared_mask &= ~(1U << 2);
+  }
+
+  if ((s_tamper_cleared_mask & (1U << 0)) == 0U)
+  {
+    if (((sr & TAMP_SR_TAMP1F) != 0U) || pin_case_open)
     {
-      /* Bersihkan flag latch TAMP7F saat medan magnet telah dijauhkan agar pemulihan 10s ERR25 bekerja */
-      TAMP->SCR = TAMP_SCR_CTAMP7F;
+      mask |= (1U << 0); /* TAMPER_VECTOR_CASE_OPEN */
     }
   }
+
+  if ((s_tamper_cleared_mask & (1U << 1)) == 0U)
+  {
+    if (((sr & TAMP_SR_TAMP3F) != 0U) || pin_term_open)
+    {
+      mask |= (1U << 1); /* TAMPER_VECTOR_TERMINAL_OPEN */
+    }
+  }
+
+  if ((s_tamper_cleared_mask & (1U << 2)) == 0U)
+  {
+    if (((sr & TAMP_SR_TAMP7F) != 0U) || pin_mag_field)
+    {
+      mask |= (1U << 2); /* TAMPER_VECTOR_MAGNETIC_FIELD */
+      if (!pin_mag_field)
+      {
+        /* Bersihkan flag latch TAMP7F saat medan magnet telah dijauhkan agar pemulihan 10s ERR25 bekerja */
+        TAMP->SCR = TAMP_SCR_CTAMP7F;
+      }
+    }
+  }
+
   return mask;
+}
+
+/**
+  * @brief  Membersihkan status hardware tamper latch peripheral TAMP (Domain VSW)
+  *         Digunakan oleh perintah CLI untuk reset/clear status sabotase pada lingkungan pengujian
+  * @param  tamper_bitmask:
+  *         - Bit 0: Case Open (TAMP_IN1 / PC13)
+  *         - Bit 1: Terminal Cover Open (TAMP_IN3 / PE6)
+  *         - Bit 2: Magnetic Field (TAMP_IN7 / PE4)
+  */
+CMSE_NS_ENTRY void SECURE_ClearTamperLatch(uint32_t tamper_bitmask)
+{
+  uint32_t scr = 0U;
+  if ((tamper_bitmask & (1U << 0)) != 0U)
+  {
+    scr |= TAMP_SCR_CTAMP1F;
+    s_tamper_cleared_mask |= (1U << 0);
+  }
+  if ((tamper_bitmask & (1U << 1)) != 0U)
+  {
+    scr |= TAMP_SCR_CTAMP3F;
+    s_tamper_cleared_mask |= (1U << 1);
+  }
+  if ((tamper_bitmask & (1U << 2)) != 0U)
+  {
+    scr |= TAMP_SCR_CTAMP7F;
+    s_tamper_cleared_mask |= (1U << 2);
+  }
+  TAMP->SCR = scr;
 }
 
 static uint32_t rtc_days_from_civil(int y, unsigned m, unsigned d)
@@ -325,3 +384,4 @@ CMSE_NS_ENTRY uint8_t SECURE_IsLseClockHealthy(void)
   * @}
   */
 /* USER CODE END Non_Secure_CallLib */
+

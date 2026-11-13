@@ -61,6 +61,7 @@ typedef struct {
     void                        (*set_battery_voltage)(uint32_t vbat_mv);
     const tamper_context_t*     (*get_tamper_context)(void);
     void                        (*inject_tamper)(tamper_vector_t vec, bool asserted);
+    void                        (*clear_tamper)(void);
     relay_state_t               (*get_relay_state)(void);
     relay_reason_t              (*get_relay_disconnect_reason)(void);
     bool                        (*relay_disconnect)(relay_reason_t reason);

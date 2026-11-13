@@ -54,7 +54,7 @@ UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-
+UART_HandleTypeDef huart1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,7 +68,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
-
+static void MX_USART1_UART_Init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -111,6 +111,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
+  MX_USART1_UART_Init();
   /* Inisialisasi terpadu seluruh sistem dan Tiga Pilar (E1, E2, E3) via bridge */
   meter_system_bringup(&huart3, &huart2, &hadc4);
   /* USER CODE END 2 */
@@ -599,8 +600,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(ADE_NSS_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ADE_IRQ1_Pin ADE_IRQ0_Pin */
-  GPIO_InitStruct.Pin = ADE_IRQ1_Pin|ADE_IRQ0_Pin;
+  /*Configure GPIO pins : ADE_IRQ1_Pin ADE_IRQ0_Pin BTN_SCROLL_DN_Pin */
+  GPIO_InitStruct.Pin = ADE_IRQ1_Pin|ADE_IRQ0_Pin|BTN_SCROLL_DN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -616,16 +617,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = ADE_CF_ZX_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+  HAL_GPIO_Init(ADE_CF_ZX_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : ADE_DREADY_Pin */
-  GPIO_InitStruct.Pin = ADE_DREADY_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(ADE_DREADY_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : ADE_CF1_Pin ADE_CF2_Pin */
-  GPIO_InitStruct.Pin = ADE_CF1_Pin|ADE_CF2_Pin;
+  /*Configure GPIO pins : ADE_DREADY_Pin ADE_CF1_Pin ADE_CF2_Pin */
+  GPIO_InitStruct.Pin = ADE_DREADY_Pin|ADE_CF1_Pin|ADE_CF2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -635,14 +630,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : LED_ALM_Pin */
-  GPIO_InitStruct.Pin = LED_ALM_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(FLASH_SPI2_CS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : AUX_CTRL_OUT1_Pin EXT_WDI_PULSE_Pin LCD_PWR_EN_Pin LCD_BL_CTRL_Pin
                            RS232_PWR_EN_Pin MODEM_12V_EN_Pin */
@@ -672,11 +660,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(RELAY_TRIP_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BTN_SCROLL_DN_Pin */
-  GPIO_InitStruct.Pin = BTN_SCROLL_DN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(BTN_SCROLL_DN_GPIO_Port, &GPIO_InitStruct);
+  /*Configure GPIO pin : LED_ALM_Pin */
+  GPIO_InitStruct.Pin = LED_ALM_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LED_ALM_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
@@ -703,10 +692,8 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI10_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI10_IRQn);
 
-  /* EXTI11 (ADE_DREADY): Dinonaktifkan default pada mode polling periodik (Opsi A)
-     untuk menghemat daya & mencegah interrupt storm 8 kSPS; aktifkan saat streaming ADC dibutuhkan */
   HAL_NVIC_SetPriority(EXTI11_IRQn, 5, 0);
-  /* HAL_NVIC_EnableIRQ(EXTI11_IRQn); */
+  HAL_NVIC_EnableIRQ(EXTI11_IRQn);
 
   HAL_NVIC_SetPriority(EXTI12_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI12_IRQn);
@@ -742,7 +729,42 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+static void MX_USART1_UART_Init(void)
+{
+  /* 1. Clock enable for USART1 & GPIOA */
+  __HAL_RCC_USART1_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
 
+  /* 2. GPIO Configuration: PA9 -> USART1_TX, PA10 -> USART1_RX */
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* 3. USART1 Parameter Configuration (115200 bps, 8-N-1) */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart1.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /* 4. NVIC Interrupt Enable for USART1 */
+  HAL_NVIC_SetPriority(USART1_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(USART1_IRQn);
+}
 /* USER CODE END 4 */
 
 /**

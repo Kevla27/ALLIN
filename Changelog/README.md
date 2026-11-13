@@ -79,6 +79,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-077**](077_evaluasi_dan_sinkronisasi_dfd_terhadap_acuan.md) | 06-11-2026 | Evaluasi & Sinkronisasi Penuh DFD Sistem (Level 0, 1, 2) terhadap Dokumen Acuan | `docs/system_dfd_diagram.drawio.xml`, `Changelog/*` | Selesai |
 | [**LOG-078**](078_pemisahan_4_data_store_dfd_level_1.md) | 10-11-2026 | Pemisahan Menjadi 4 Data Store Terdedikasi pada DFD Level 1 (Tiga Pilar) | `Acuan/State_DF_D.xml`, `docs/system_dfd_diagram.drawio.xml`, `Changelog/*` | Selesai |
 | [**LOG-079**](079_root_cause_analysis_dan_perbaikan_porting_nucleo_u575.md) | 13-11-2026 | Root Cause Analysis (RCA) dan Resolusi Penuh Porting Smart Meter ke Target NUCLEO-U575ZI-Q | `Middlewares/.../cmsis_os2.c`, `FreeRTOSConfig.h`, `nvram_storage.c`, `e3_meter_app.c`, `main.c`, `meter_system_bridge.c` | Selesai |
+| [**LOG-080**](080_command_clear_tamper_latch_development_board.md) | 13-11-2026 | Penambahan Perintah CLI `tamper clear` dan Resolusi Hardware Tamper Latch PC13 pada NUCLEO-U575ZI-Q | `Secure/Core/Src/secure_nsc.c`, `Secure/Core/Inc/partition_stm32u585xx.h`, `meter_system_bridge.c`, `console_io.c`, `e3_meter_app.c` | Selesai |
 
 ---
 

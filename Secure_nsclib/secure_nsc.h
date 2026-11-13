@@ -46,9 +46,11 @@ uint32_t SECURE_GetReactiveEnergyVarh(void);
 void     SECURE_RecordPulseCF1(void);
 void     SECURE_RecordPulseCF2(void);
 uint32_t SECURE_GetTamperStatusMask(void);
+void     SECURE_ClearTamperLatch(uint32_t tamper_bitmask);
 uint32_t SECURE_GetRTCDateTime(void);
 void     SECURE_SetRTCDateTime(uint32_t epoch_sec);
 uint8_t  SECURE_IsLseClockHealthy(void);
 
 #endif /* SECURE_NSC_H */
 /* USER CODE END Non_Secure_CallLib_h */
+

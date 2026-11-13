@@ -104,6 +104,7 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN defaultTask */
+  portALLOCATE_SECURE_CONTEXT(configMINIMAL_SECURE_STACK_SIZE);
   extern void app_metering_task_loop(void);
   app_metering_task_loop();
   /* USER CODE END defaultTask */

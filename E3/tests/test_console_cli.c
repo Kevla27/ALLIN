@@ -57,6 +57,10 @@ static void mock_inject_tamper(tamper_vector_t vec, bool asserted) {
     tamper_process_signal(&s_mock_tamper_ctx, vec, asserted, 1727570400);
 }
 
+static void mock_clear_tamper(void) {
+    s_mock_tamper_ctx.active_tamper_mask = 0;
+}
+
 static relay_state_t mock_get_relay_state(void) {
     return s_mock_relay_state;
 }
@@ -217,6 +221,7 @@ void test_cli_core_commands(void) {
         .set_battery_voltage = mock_set_battery_voltage,
         .get_tamper_context = mock_get_tamper,
         .inject_tamper = mock_inject_tamper,
+        .clear_tamper = mock_clear_tamper,
         .get_relay_state = mock_get_relay_state,
         .get_relay_disconnect_reason = mock_get_relay_reason,
         .relay_disconnect = mock_relay_disconnect,
@@ -310,6 +315,19 @@ void test_cli_core_commands(void) {
     strcpy(cmd_buf, "tamper test 4 1"); /* TAMPER_VECTOR_MAGNETIC_FIELD */
     assert(console_cli_execute_command(cmd_buf) == 0);
     assert((tamper_get_active_mask(&s_mock_tamper_ctx) & TAMPER_VECTOR_MAGNETIC_FIELD) != 0);
+
+    /* 7b. Uji Tamper Clear & Alias clear_tamper */
+    strcpy(cmd_buf, "tamper clear");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(tamper_get_active_mask(&s_mock_tamper_ctx) == 0);
+
+    strcpy(cmd_buf, "tamper test 1 1"); /* TAMPER_VECTOR_CASE_OPEN */
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert((tamper_get_active_mask(&s_mock_tamper_ctx) & TAMPER_VECTOR_CASE_OPEN) != 0);
+
+    strcpy(cmd_buf, "clear_tamper");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+    assert(tamper_get_active_mask(&s_mock_tamper_ctx) == 0);
 
     /* 8. Uji Pembacaan 3 Log FIFO SPLN */
     strcpy(cmd_buf, "log alarm");
@@ -445,6 +463,7 @@ void test_cli_rx_stream_and_editing(void) {
         .set_battery_voltage = mock_set_battery_voltage,
         .get_tamper_context = mock_get_tamper,
         .inject_tamper = mock_inject_tamper,
+        .clear_tamper = mock_clear_tamper,
         .get_relay_state = mock_get_relay_state,
         .get_relay_disconnect_reason = mock_get_relay_reason,
         .relay_disconnect = mock_relay_disconnect,
