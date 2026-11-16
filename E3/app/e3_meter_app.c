@@ -578,9 +578,9 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
     if (!s_is_ac_failed)
     {
         uint8_t low_v_phases = 0U;
-        if (meas->voltage_r_dvolts < 1100U) low_v_phases++;
-        if (meas->voltage_s_dvolts < 1100U) low_v_phases++;
-        if (meas->voltage_t_dvolts < 1100U) low_v_phases++;
+        if (meas->voltage_r_dvolts < BOARD_CFG_RELAY_UNDERVOLT_DV) low_v_phases++;
+        if (meas->voltage_s_dvolts < BOARD_CFG_RELAY_UNDERVOLT_DV) low_v_phases++;
+        if (meas->voltage_t_dvolts < BOARD_CFG_RELAY_UNDERVOLT_DV) low_v_phases++;
         if (low_v_phases == 1U || low_v_phases == 2U)
         {
             tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_PHASE_LOSS, true, s_now_epoch_sec);

@@ -437,7 +437,7 @@ void display_get_spln_alarm_info(uint32_t alarm_mask, char *out_text, size_t tex
 }
 
 display_voltage_status_t display_get_voltage_status(uint32_t v_dvolts) {
-    if (v_dvolts > 0 && v_dvolts < 1150U) { /* < 0.5 Un (115.0 V) - SPLN Butir 10.3 Tabel 9 */
+    if (v_dvolts > 0 && v_dvolts < 1840U) { /* < 0.8 Un (184.0 V) - SPLN Butir 10.3 Tabel 9 Tersambung Tidak Langsung */
         return DISPLAY_VOLT_LOW;
     } else if (v_dvolts > 2760U) {          /* > 1.2 Un (276.0 V) - SPLN Butir 10.3 Tabel 9 */
         return DISPLAY_VOLT_HIGH;
@@ -1139,11 +1139,11 @@ switch (ctx->current_page) {
     frame->is_reverse_power = ((ctx->active_tamper_mask & TAMPER_VECTOR_REVERSE_POWER) != 0) ||
                               (ctx->meas_buffer.active_power_w < 0);
 
-    /* Evaluasi Keberadaan Fasa Tegangan (UR, US, UT >= 110.0V) */
+    /* Evaluasi Keberadaan Fasa Tegangan (UR, US, UT >= 184.0V) */
     frame->voltage_phases = 0x07;
-    if (ctx->meas_buffer.voltage_r_dvolts < 1100U) frame->voltage_phases &= ~0x01;
-    if (ctx->meas_buffer.voltage_s_dvolts < 1100U) frame->voltage_phases &= ~0x02;
-    if (ctx->meas_buffer.voltage_t_dvolts < 1100U) frame->voltage_phases &= ~0x04;
+    if (ctx->meas_buffer.voltage_r_dvolts < 1840U) frame->voltage_phases &= ~0x01;
+    if (ctx->meas_buffer.voltage_s_dvolts < 1840U) frame->voltage_phases &= ~0x02;
+    if (ctx->meas_buffer.voltage_t_dvolts < 1840U) frame->voltage_phases &= ~0x04;
 
     /* Evaluasi Keberadaan Fasa Arus (IR, IS, IT >= 20mA) */
     frame->current_phases = 0x07;

@@ -16,13 +16,13 @@ extern "C" {
 #endif
 
 /**
- * @brief Ambang Batas Proteksi Cut-Off Tegangan Pasok (SPLN D3.006: 2021 Butir 10.3 Tabel 9)
+ * @brief Ambang Batas Proteksi Cut-Off Tegangan Pasok (SPLN D3.006: 2021 Butir 10.3 Tabel 9 Tersambung Tidak Langsung Tanpa PT)
  * Satuan dalam deci-Volt (0.1 V)
  */
-#define SPLN_VOLT_UNDER_CUTOFF_DV    1100U /**< < 110.0 V: Relai Membuka Serempak Semua Fasa */
-#define SPLN_VOLT_UNDER_RECLOSE_DV   1150U /**< > 115.0 V: Relai Menutup Kembali (Histeresis 5 V) */
-#define SPLN_VOLT_OVER_CUTOFF_DV     2800U /**< > 280.0 V: Relai Membuka Serempak Semua Fasa */
-#define SPLN_VOLT_OVER_RECLOSE_DV    2760U /**< < 276.0 V: Relai Menutup Kembali (Histeresis 4 V) */
+#define SPLN_VOLT_UNDER_CUTOFF_DV    1840U /**< < 184.0 V: Relai Membuka Serempak Semua Fasa (0.8 Un) */
+#define SPLN_VOLT_UNDER_RECLOSE_DV   1890U /**< > 189.0 V: Relai Menutup Kembali (Histeresis 5 V) */
+#define SPLN_VOLT_OVER_CUTOFF_DV     2760U /**< > 276.0 V: Relai Membuka Serempak Semua Fasa (1.2 Un) */
+#define SPLN_VOLT_OVER_RECLOSE_DV    2720U /**< < 272.0 V: Relai Menutup Kembali (Histeresis 4 V) */
 
 /**
  * @brief Status Kontak Relai (Bistable Latching Relay)
@@ -43,8 +43,8 @@ typedef enum {
     RELAY_REASON_REMOTE_DISCONNECT, /**< Perintah Remote HES/DLMS */
     RELAY_REASON_REMOTE_RECONNECT,  /**< Perintah Reconnect HES/DLMS */
     RELAY_REASON_LOCAL_CONFIRM,     /**< Konfirmasi tombol lokal di meter */
-    RELAY_REASON_UNDER_VOLTAGE,     /**< Cut-Off Tegangan Rendah < 110V (SPLN Butir 10.3) */
-    RELAY_REASON_OVER_VOLTAGE       /**< Cut-Off Tegangan Lebih > 280V (SPLN Butir 10.3) */
+    RELAY_REASON_UNDER_VOLTAGE,     /**< Cut-Off Tegangan Rendah < 184V (SPLN Butir 10.3) */
+    RELAY_REASON_OVER_VOLTAGE       /**< Cut-Off Tegangan Lebih > 276V (SPLN Butir 10.3) */
 } relay_reason_t;
 
 /**
@@ -65,9 +65,9 @@ typedef struct {
     uint32_t       over_power_timer_sec; /**< Akumulator durasi kelebihan daya */
     uint32_t       last_event_timestamp; /**< Waktu event terakhir (Epoch UNIX) */
 
-    /* Status Proteksi Tegangan (SPLN Butir 10.3) */
-    bool           is_under_voltage_trip;/**< Flag relai trip akibat tegangan < 110V */
-    bool           is_over_voltage_trip; /**< Flag relai trip akibat tegangan > 280V */
+    /* Status Proteksi Tegangan (SPLN Butir 10.3 Tersambung Tidak Langsung Tanpa PT) */
+    bool           is_under_voltage_trip;/**< Flag relai trip akibat tegangan < 184V */
+    bool           is_over_voltage_trip; /**< Flag relai trip akibat tegangan > 276V */
 } power_relay_context_t;
 
 /**
@@ -96,11 +96,11 @@ bool power_relay_check_asymmetry(power_relay_context_t *ctx, uint32_t i_r_ma, ui
 bool power_relay_process_power(power_relay_context_t *ctx, int32_t active_power_w, uint32_t timestamp);
 
 /**
- * @brief Evaluasi Proteksi Cut-off Tegangan Rendah & Lebih (SPLN D3.006: 2021 Butir 10.3 Tabel 9)
- *        - Tegangan < 110.0 V: Relai membuka serempak semua fasa
- *        - Tegangan > 115.0 V: Relai menutup kembali (histeresis 5 V)
- *        - Tegangan > 280.0 V: Relai membuka serempak semua fasa
- *        - Tegangan < 276.0 V: Relai menutup kembali (histeresis 4 V)
+ * @brief Evaluasi Proteksi Cut-off Tegangan Rendah & Lebih (SPLN D3.006: 2021 Butir 10.3 Tabel 9 Tersambung Tidak Langsung Tanpa PT)
+ *        - Tegangan < 184.0 V: Relai membuka serempak semua fasa (0.8 Un)
+ *        - Tegangan > 189.0 V: Relai menutup kembali (histeresis 5 V)
+ *        - Tegangan > 276.0 V: Relai membuka serempak semua fasa (1.2 Un)
+ *        - Tegangan < 272.0 V: Relai menutup kembali (histeresis 4 V)
  * @param ctx Pointer ke konteks
  * @param v_r_dv Tegangan fasa R dalam desi-volt (0.1 V)
  * @param v_s_dv Tegangan fasa S dalam desi-volt (0.1 V)

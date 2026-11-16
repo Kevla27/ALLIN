@@ -86,11 +86,11 @@ bool power_relay_process_power(power_relay_context_t *ctx, int32_t active_power_
 bool power_relay_process_voltage(power_relay_context_t *ctx, uint32_t v_r_dv, uint32_t v_s_dv, uint32_t v_t_dv, uint32_t timestamp) {
     if (ctx == NULL) return false;
 
-    /* SPLN D3.006: 2021 Butir 10.3 Tabel 9:
-     * - Ketika tegangan pasok di bawah 110 V, maka relai akan membuka.
-     * - Ketika tegangan pasok di atas 115 V, maka relai akan menutup kembali.
-     * - Serta ketika tegangan pasok di atas 280 V, maka relai akan membuka.
-     * - Dan ketika tegangan pasok di bawah 276 V, maka relai akan menutup kembali.
+    /* SPLN D3.006: 2021 Butir 10.3 Tabel 9 (Tersambung Tidak Langsung Tanpa PT):
+     * - Ketika tegangan pasok di bawah 184 V (0.8 Un), maka relai akan membuka.
+     * - Ketika tegangan pasok di atas 189 V, maka relai akan menutup kembali.
+     * - Serta ketika tegangan pasok di atas 276 V (1.2 Un), maka relai akan membuka.
+     * - Dan ketika tegangan pasok di bawah 272 V, maka relai akan menutup kembali.
      * Operasi relai memutus semua fase secara serempak.
      * (Abaikan v_dv < 100 / < 10.0V yang merupakan indikasi padam total / saluran mati).
      */
@@ -102,7 +102,7 @@ bool power_relay_process_voltage(power_relay_context_t *ctx, uint32_t v_r_dv, ui
                               v_s_dv > SPLN_VOLT_OVER_CUTOFF_DV ||
                               v_t_dv > SPLN_VOLT_OVER_CUTOFF_DV);
 
-    /* 1. Pemutusan (Trip) akibat Under-Voltage (< 110 V) */
+    /* 1. Pemutusan (Trip) akibat Under-Voltage (< 184 V) */
     if (has_under_voltage) {
         ctx->is_under_voltage_trip = true;
         if (ctx->relay_state == RELAY_STATE_CONNECTED) {
@@ -112,7 +112,7 @@ bool power_relay_process_voltage(power_relay_context_t *ctx, uint32_t v_r_dv, ui
         return false;
     }
 
-    /* 2. Pemutusan (Trip) akibat Over-Voltage (> 280 V) */
+    /* 2. Pemutusan (Trip) akibat Over-Voltage (> 276 V) */
     if (has_over_voltage) {
         ctx->is_over_voltage_trip = true;
         if (ctx->relay_state == RELAY_STATE_CONNECTED) {
@@ -122,14 +122,14 @@ bool power_relay_process_voltage(power_relay_context_t *ctx, uint32_t v_r_dv, ui
         return false;
     }
 
-    /* 3. Pemulihan Otomatis Under-Voltage: Menutup kembali saat semua fasa > 115 V */
+    /* 3. Pemulihan Otomatis Under-Voltage: Menutup kembali saat semua fasa > 189 V */
     if (ctx->is_under_voltage_trip && ctx->last_reason == RELAY_REASON_UNDER_VOLTAGE) {
         bool has_active_phase = (v_r_dv > 100U || v_s_dv > 100U || v_t_dv > 100U);
-        bool all_above_115 = has_active_phase &&
+        bool all_above_reclose = has_active_phase &&
                               (v_r_dv == 0 || v_r_dv > SPLN_VOLT_UNDER_RECLOSE_DV) &&
                               (v_s_dv == 0 || v_s_dv > SPLN_VOLT_UNDER_RECLOSE_DV) &&
                               (v_t_dv == 0 || v_t_dv > SPLN_VOLT_UNDER_RECLOSE_DV);
-        if (all_above_115 && !has_over_voltage) {
+        if (all_above_reclose && !has_over_voltage) {
             ctx->relay_state = RELAY_STATE_CONNECTED;
             ctx->last_reason = RELAY_REASON_NONE;
             ctx->is_under_voltage_trip = false;
@@ -138,12 +138,12 @@ bool power_relay_process_voltage(power_relay_context_t *ctx, uint32_t v_r_dv, ui
         }
     }
 
-    /* 4. Pemulihan Otomatis Over-Voltage: Menutup kembali saat semua fasa < 276 V */
+    /* 4. Pemulihan Otomatis Over-Voltage: Menutup kembali saat semua fasa < 272 V */
     if (ctx->is_over_voltage_trip && ctx->last_reason == RELAY_REASON_OVER_VOLTAGE) {
-        bool all_below_276 = (v_r_dv < SPLN_VOLT_OVER_RECLOSE_DV &&
+        bool all_below_reclose = (v_r_dv < SPLN_VOLT_OVER_RECLOSE_DV &&
                               v_s_dv < SPLN_VOLT_OVER_RECLOSE_DV &&
                               v_t_dv < SPLN_VOLT_OVER_RECLOSE_DV);
-        if (all_below_276 && !has_under_voltage) {
+        if (all_below_reclose && !has_under_voltage) {
             ctx->relay_state = RELAY_STATE_CONNECTED;
             ctx->last_reason = RELAY_REASON_NONE;
             ctx->is_over_voltage_trip = false;
@@ -219,8 +219,8 @@ const char* power_relay_reason_to_string(relay_reason_t reason) {
         case RELAY_REASON_REMOTE_DISCONNECT: return "REMOTE_DISCONNECT";
         case RELAY_REASON_REMOTE_RECONNECT:  return "REMOTE_RECONNECT";
         case RELAY_REASON_LOCAL_CONFIRM:     return "LOCAL_CONFIRM";
-        case RELAY_REASON_UNDER_VOLTAGE:     return "UNDER_VOLTAGE (<110V)";
-        case RELAY_REASON_OVER_VOLTAGE:      return "OVER_VOLTAGE (>280V)";
+        case RELAY_REASON_UNDER_VOLTAGE:     return "UNDER_VOLTAGE (<184V)";
+        case RELAY_REASON_OVER_VOLTAGE:      return "OVER_VOLTAGE (>276V)";
         default:                             return "UNKNOWN";
     }
 }

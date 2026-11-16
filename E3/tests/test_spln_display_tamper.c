@@ -625,7 +625,7 @@ int main(void) {
     printf("  > Simbol Arah Arus Balik: is_reverse_power=true | Header '%s' [PASS]\n", frame.header_symbols);
 
     ctx.active_tamper_mask = 0;
-    ctx.meas_buffer.voltage_r_dvolts = 500; /* Drop fasa R < 110V */
+    ctx.meas_buffer.voltage_r_dvolts = 500; /* Drop fasa R < 184V */
     ctx.meas_buffer.voltage_s_dvolts = 2300;
     ctx.meas_buffer.voltage_t_dvolts = 2300;
     display_render_spln_frame(&ctx, &frame);
@@ -784,9 +784,9 @@ int main(void) {
     /* --------------------------------------------------------------------- */
     printf("[UJI 12] Verifikasi Indikator Lo Volt & Hi Volt (SPLN Butir 10.3 Tabel 9)...\n");
     assert(display_get_voltage_status(2300U) == DISPLAY_VOLT_NORMAL);
-    assert(display_get_voltage_status(1100U) == DISPLAY_VOLT_LOW);
-    assert(display_get_voltage_status(1149U) == DISPLAY_VOLT_LOW);
-    assert(display_get_voltage_status(1150U) == DISPLAY_VOLT_NORMAL);
+    assert(display_get_voltage_status(1800U) == DISPLAY_VOLT_LOW);
+    assert(display_get_voltage_status(1839U) == DISPLAY_VOLT_LOW);
+    assert(display_get_voltage_status(1840U) == DISPLAY_VOLT_NORMAL);
     assert(display_get_voltage_status(2760U) == DISPLAY_VOLT_NORMAL);
     assert(display_get_voltage_status(2800U) == DISPLAY_VOLT_HIGH);
 
@@ -794,8 +794,8 @@ int main(void) {
     display_set_tamper_status(&ctx, 0);
     display_set_internal_alarm(&ctx, 0);
 
-    /* Simulasi Fasa R Tegangan Rendah (98.0 V < 115.0 V) */
-    ctx.meas_buffer.voltage_r_dvolts = 980U;
+    /* Simulasi Fasa R Tegangan Rendah (180.0 V < 184.0 V) */
+    ctx.meas_buffer.voltage_r_dvolts = 1800U;
     ctx.current_page = DISP_PAGE_VOLTAGE_R;
     ctx.timer_accumulator_ms = 0;
 
@@ -804,12 +804,12 @@ int main(void) {
     assert(strcmp(frame.unit, "V") == 0);
     assert(frame.is_alarm_active == true);
     assert(strcmp(frame.alarm_code, "!ALM") == 0);
-    printf("  > Phase R Lo Volt (<115V): main_value='%s' | unit='%s' | alarm='%s' [PASS]\n",
+    printf("  > Phase R Lo Volt (<184V): main_value='%s' | unit='%s' | alarm='%s' [PASS]\n",
            frame.main_value, frame.unit, frame.alarm_code);
 
     display_render_frame(&ctx, l1, l2, l3, sizeof(l1));
     assert(strstr(l2, "[Lo Volt]") != NULL);
-    assert(strstr(l3, "Lo Volt (98.0 V)") != NULL);
+    assert(strstr(l3, "Lo Volt (180.0 V)") != NULL);
     printf("  > CLI Frame Lo Volt: L2='%s' | L3='%s' [PASS]\n", l2, l3);
 
     /* Simulasi Fasa S Tegangan Tinggi (285.0 V > 276.0 V) */

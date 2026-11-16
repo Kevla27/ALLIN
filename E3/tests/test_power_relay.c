@@ -196,49 +196,49 @@ void test_voltage_cutoff_protection(void) {
     assert(!ctx.is_over_voltage_trip);
     printf("   230V/230V/230V -> Normal, Relay CONNECTED [PASS]\n");
 
-    /* 2. Kondisi Under-Voltage: Fasa R anjlok ke 105 V (< 110 V = 1100 dV) */
-    tripped = power_relay_process_voltage(&ctx, 1050, 2300, 2300, 1001);
+    /* 2. Kondisi Under-Voltage: Fasa R anjlok ke 180 V (< 184 V = 1840 dV) */
+    tripped = power_relay_process_voltage(&ctx, 1800, 2300, 2300, 1001);
     assert(tripped);
     assert(ctx.relay_state == RELAY_STATE_DISCONNECTED);
     assert(ctx.last_reason == RELAY_REASON_UNDER_VOLTAGE);
     assert(ctx.is_under_voltage_trip == true);
-    printf("   Fasa R = 105V (< 110V) -> Relay TRIP! Reason: %s [PASS]\n", power_relay_reason_to_string(ctx.last_reason));
+    printf("   Fasa R = 180V (< 184V) -> Relay TRIP! Reason: %s [PASS]\n", power_relay_reason_to_string(ctx.last_reason));
 
-    /* 3. Fasa R naik sedikit ke 113 V (1130 dV, berada di antara 110 V dan 115 V) -> Histeresis, tetap TRIP */
-    tripped = power_relay_process_voltage(&ctx, 1130, 2300, 2300, 1002);
+    /* 3. Fasa R naik sedikit ke 186 V (1860 dV, berada di antara 184 V dan 189 V) -> Histeresis, tetap TRIP */
+    tripped = power_relay_process_voltage(&ctx, 1860, 2300, 2300, 1002);
     assert(!tripped);
     assert(ctx.relay_state == RELAY_STATE_DISCONNECTED);
     assert(ctx.is_under_voltage_trip == true);
-    printf("   Fasa R = 113V (Histeresis 110-115V) -> Relay tetap DISCONNECTED [PASS]\n");
+    printf("   Fasa R = 186V (Histeresis 184-189V) -> Relay tetap DISCONNECTED [PASS]\n");
 
-    /* 4. Fasa R pulih ke 118 V (> 115 V = 1150 dV) -> Harus Menutup Kembali (Auto-Reclose) */
-    tripped = power_relay_process_voltage(&ctx, 1180, 2300, 2300, 1003);
+    /* 4. Fasa R pulih ke 192 V (> 189 V = 1890 dV) -> Harus Menutup Kembali (Auto-Reclose) */
+    tripped = power_relay_process_voltage(&ctx, 1920, 2300, 2300, 1003);
     assert(!tripped);
     assert(ctx.relay_state == RELAY_STATE_CONNECTED);
     assert(ctx.is_under_voltage_trip == false);
-    printf("   Fasa R = 118V (> 115V) -> Relay Pulih Otomatis CONNECTED [PASS]\n");
+    printf("   Fasa R = 192V (> 189V) -> Relay Pulih Otomatis CONNECTED [PASS]\n");
 
-    /* 5. Kondisi Over-Voltage: Fasa T melonjak ke 285 V (> 280 V = 2800 dV) */
-    tripped = power_relay_process_voltage(&ctx, 2300, 2300, 2850, 1004);
+    /* 5. Kondisi Over-Voltage: Fasa T melonjak ke 280 V (> 276 V = 2760 dV) */
+    tripped = power_relay_process_voltage(&ctx, 2300, 2300, 2800, 1004);
     assert(tripped);
     assert(ctx.relay_state == RELAY_STATE_DISCONNECTED);
     assert(ctx.last_reason == RELAY_REASON_OVER_VOLTAGE);
     assert(ctx.is_over_voltage_trip == true);
-    printf("   Fasa T = 285V (> 280V) -> Relay TRIP! Reason: %s [PASS]\n", power_relay_reason_to_string(ctx.last_reason));
+    printf("   Fasa T = 280V (> 276V) -> Relay TRIP! Reason: %s [PASS]\n", power_relay_reason_to_string(ctx.last_reason));
 
-    /* 6. Fasa T turun sedikit ke 278 V (2780 dV, berada di antara 276 V dan 280 V) -> Histeresis, tetap TRIP */
-    tripped = power_relay_process_voltage(&ctx, 2300, 2300, 2780, 1005);
+    /* 6. Fasa T turun sedikit ke 274 V (2740 dV, berada di antara 272 V dan 276 V) -> Histeresis, tetap TRIP */
+    tripped = power_relay_process_voltage(&ctx, 2300, 2300, 2740, 1005);
     assert(!tripped);
     assert(ctx.relay_state == RELAY_STATE_DISCONNECTED);
     assert(ctx.is_over_voltage_trip == true);
-    printf("   Fasa T = 278V (Histeresis 276-280V) -> Relay tetap DISCONNECTED [PASS]\n");
+    printf("   Fasa T = 274V (Histeresis 272-276V) -> Relay tetap DISCONNECTED [PASS]\n");
 
-    /* 7. Fasa T turun ke 272 V (< 276 V = 2760 dV) -> Harus Menutup Kembali (Auto-Reclose) */
-    tripped = power_relay_process_voltage(&ctx, 2300, 2300, 2720, 1006);
+    /* 7. Fasa T turun ke 270 V (< 272 V = 2720 dV) -> Harus Menutup Kembali (Auto-Reclose) */
+    tripped = power_relay_process_voltage(&ctx, 2300, 2300, 2700, 1006);
     assert(!tripped);
     assert(ctx.relay_state == RELAY_STATE_CONNECTED);
     assert(ctx.is_over_voltage_trip == false);
-    printf("   Fasa T = 272V (< 276V) -> Relay Pulih Otomatis CONNECTED [PASS]\n\n");
+    printf("   Fasa T = 270V (< 272V) -> Relay Pulih Otomatis CONNECTED [PASS]\n\n");
 }
 
 int main(void) {

@@ -66,8 +66,8 @@ extern "C" {
 #define BOARD_CFG_RELAY_DUAL_COIL       1          /**< 1 = Dual-coil latching (SET & RESET terpisah), 0 = Single-coil */
 #define BOARD_CFG_RELAY_PULSE_MS        100U       /**< Lebar pulsa koil penggerak (100 ms) */
 #define BOARD_CFG_RELAY_FB_CLOSED_LVL   1          /**< 1 = GPIO_PIN_SET saat kontak tertutup, 0 = Active-low */
-#define BOARD_CFG_RELAY_UNDERVOLT_DV    1100U      /**< Ambang batas cut-off tegangan rendah (110.0V per SPLN LOG-025) */
-#define BOARD_CFG_RELAY_OVERVOLT_DV     2800U      /**< Ambang batas cut-off tegangan tinggi (280.0V per SPLN LOG-025) */
+#define BOARD_CFG_RELAY_UNDERVOLT_DV    1840U      /**< Ambang batas cut-off tegangan rendah (184.0V per SPLN D3.006 Tabel 9 Tidak Langsung) */
+#define BOARD_CFG_RELAY_OVERVOLT_DV     2760U      /**< Ambang batas cut-off tegangan tinggi (276.0V per SPLN D3.006 Tabel 9 Tidak Langsung) */
 #define BOARD_CFG_RELAY_UNDERVOLT_MS    3000U      /**< Durasi toleransi tegangan rendah sebelum trip (3 detik) */
 #define BOARD_CFG_RELAY_RECONNECT_MS    5000U      /**< Durasi tegangan stabil sebelum auto-reconnect (5 detik) */
 #define BOARD_CFG_RELAY_DUAL_BTN_MS     1000U      /**< Durasi penekanan tombol simultan konfirmasi reconnect (1 detik) */
@@ -133,8 +133,8 @@ extern "C" {
 #define BOARD_CFG_RELAY_DUAL_COIL       0          /**< 0 = Single-coil H-Bridge latching */
 #define BOARD_CFG_RELAY_PULSE_MS        80U        /**< Efisiensi pulsa koil 80 ms */
 #define BOARD_CFG_RELAY_FB_CLOSED_LVL   0          /**< Active-low kontak bantu NC */
-#define BOARD_CFG_RELAY_UNDERVOLT_DV    1100U
-#define BOARD_CFG_RELAY_OVERVOLT_DV     2800U
+#define BOARD_CFG_RELAY_UNDERVOLT_DV    1840U
+#define BOARD_CFG_RELAY_OVERVOLT_DV     2760U
 #define BOARD_CFG_RELAY_UNDERVOLT_MS    3000U
 #define BOARD_CFG_RELAY_RECONNECT_MS    5000U
 #define BOARD_CFG_RELAY_DUAL_BTN_MS     1000U
@@ -198,8 +198,8 @@ extern "C" {
 #define BOARD_CFG_RELAY_DUAL_COIL       1
 #define BOARD_CFG_RELAY_PULSE_MS        100U
 #define BOARD_CFG_RELAY_FB_CLOSED_LVL   1
-#define BOARD_CFG_RELAY_UNDERVOLT_DV    1100U
-#define BOARD_CFG_RELAY_OVERVOLT_DV     2800U
+#define BOARD_CFG_RELAY_UNDERVOLT_DV    1840U
+#define BOARD_CFG_RELAY_OVERVOLT_DV     2760U
 #define BOARD_CFG_RELAY_UNDERVOLT_MS    3000U
 #define BOARD_CFG_RELAY_RECONNECT_MS    5000U
 #define BOARD_CFG_RELAY_DUAL_BTN_MS     1000U

@@ -193,14 +193,14 @@ void display_get_spln_alarm_info(uint32_t alarm_mask, char *out_text, size_t tex
 void display_get_combined_error_info(uint32_t tamper_mask, uint32_t alarm_mask, uint32_t epoch_sec, char *out_text, size_t text_sz, char *out_code, size_t code_sz);
 
 /**
- * @brief Status julat batas operasi tegangan pasok (SPLN D3.006: 2021 Butir 10.3 Tabel 9)
- * - Normal: 0.5 Un s/d 1.2 Un (115.0 V s/d 276.0 V)
- * - Lo Volt: < 0.5 Un (< 115.0 V)
+ * @brief Status julat batas operasi tegangan pasok (SPLN D3.006: 2021 Butir 10.3 Tabel 9 Tersambung Tidak Langsung Tanpa PT)
+ * - Normal: 0.8 Un s/d 1.2 Un (184.0 V s/d 276.0 V)
+ * - Lo Volt: < 0.8 Un (< 184.0 V)
  * - Hi Volt: > 1.2 Un (> 276.0 V)
  */
 typedef enum {
     DISPLAY_VOLT_NORMAL = 0,
-    DISPLAY_VOLT_LOW,     /* < 0.5 Un (< 115.0 V) -> "Lo Volt" */
+    DISPLAY_VOLT_LOW,     /* < 0.8 Un (< 184.0 V) -> "Lo Volt" */
     DISPLAY_VOLT_HIGH     /* > 1.2 Un (> 276.0 V) -> "Hi Volt" */
 } display_voltage_status_t;
 

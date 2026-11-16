@@ -28,8 +28,8 @@ static void test_default_board_profile_oled(void) {
     /* Verifikasi konfigurasi relai & proteksi tegangan SPLN */
     assert(BOARD_CFG_RELAY_DUAL_COIL == 1);
     assert(BOARD_CFG_RELAY_PULSE_MS == 100U);
-    assert(BOARD_CFG_RELAY_UNDERVOLT_DV == 1100U); /* 110.0V */
-    assert(BOARD_CFG_RELAY_OVERVOLT_DV == 2800U);  /* 280.0V */
+    assert(BOARD_CFG_RELAY_UNDERVOLT_DV == 1840U); /* 184.0V */
+    assert(BOARD_CFG_RELAY_OVERVOLT_DV == 2760U);  /* 276.0V */
     assert(BOARD_CFG_RELAY_UNDERVOLT_MS == 3000U); /* 3 detik */
     assert(BOARD_CFG_RELAY_RECONNECT_MS == 5000U); /* 5 detik */
     assert(BOARD_CFG_RELAY_DUAL_BTN_MS == 1000U);  /* 1 detik */
