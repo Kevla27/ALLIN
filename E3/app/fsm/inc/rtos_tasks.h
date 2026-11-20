@@ -16,11 +16,11 @@ extern "C" {
 #include "tamper_manager.h"
 #include "power_relay_manager.h"
 
-/* Prioritas Task FreeRTOS */
-#define PRIORITY_TASK_TAMPER    4
-#define PRIORITY_TASK_PROFILING 3
-#define PRIORITY_TASK_DLMS      2
-#define PRIORITY_TASK_UI        1
+/* Prioritas Task FreeRTOS (Sesuai Bab 3.3 & CMSIS Hierarchy) */
+#define PRIORITY_TASK_TAMPER    32  /**< Task 1: Realtime Emergency Tamper (Prioritas Tertinggi) */
+#define PRIORITY_TASK_PROFILING 28  /**< Task 2: High Metrology & Profiling */
+#define PRIORITY_TASK_DLMS      24  /**< Task 3: Normal DLMS/COSEM HDLC Server */
+#define PRIORITY_TASK_UI        16  /**< Task 4: BelowNormal UI Display HMI */
 
 /* Ukuran Stack Task (Words) */
 #define STACK_SIZE_TAMPER       256

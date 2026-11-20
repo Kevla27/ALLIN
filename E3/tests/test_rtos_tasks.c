@@ -64,6 +64,23 @@ int main(void) {
     assert(tamper_get_active_mask(t_ctx) & TAMPER_VECTOR_TERMINAL_OPEN);
     printf("[TEST] Verify E3 Tamper Active Mask: SUCCESS\n");
 
+    /* 6. Uji Thread-Safe Measurement Snapshot (Publish & Get Snapshot) */
+    meter_measurements_t test_meas = {0};
+    test_meas.voltage_r_dvolts = 2200; /* 220.0 V */
+    test_meas.current_r_mamps  = 5000; /* 5.000 A */
+    test_meas.active_power_w   = 1100; /* 1100 W */
+    test_meas.active_energy_wh = 123456;
+    rtos_meter_data_publish(&test_meas);
+
+    meter_measurements_t read_meas = {0};
+    bool snap_ok = rtos_meter_data_get_snapshot(&read_meas);
+    assert(snap_ok == true);
+    assert(read_meas.voltage_r_dvolts == 2200);
+    assert(read_meas.current_r_mamps == 5000);
+    assert(read_meas.active_power_w == 1100);
+    assert(read_meas.active_energy_wh == 123456);
+    printf("[TEST] Verify Thread-Safe Measurement Snapshot (Publish/Get): SUCCESS\n");
+
     printf("\n>>> ALL RTOS TASKS, QUEUE & DLMS CONSUMER TESTS PASSED 100%%! <<<\n");
     printf("=========================================\n");
     return 0;

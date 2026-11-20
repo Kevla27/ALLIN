@@ -22,6 +22,9 @@
 #include "console_io.h"
 #include "nvram_storage.h"
 #include "wcet_profiler.h"
+#include "rtos_tasks.h"
+#include "display_task.h"
+#include "bsp_display_oled.h"
 
 /* -------------------------------------------------------------------------- */
 /* Variabel Statis Internal                                                  */
@@ -136,7 +139,16 @@ void meter_system_bringup(UART_HandleTypeDef *huart_opt, UART_HandleTypeDef *hua
         ADE9000_SPI_TransactionWrite(ADE9000_WR_LOCK, ADE9000_SPI_DATA_16BIT, ADE9000_WR_LOCK_KEY);
     }
 
-    printf("[BRIDGE] All Pillars (E1 Metrology, E2 DLMS, E3 App, FreeRTOS LowPower) initialized.\n");
+    /* 5. Inisialisasi FreeRTOS Subsystem IPC (Queue & Mutex) dan Daftarkan Driver Display */
+    rtos_system_init();
+    display_task_set_driver(bsp_display_oled_get_driver());
+    extern void bridge_metrology_sample_callback(meter_measurements_t *out_meas);
+    rtos_metrology_set_sample_cb(bridge_metrology_sample_callback);
+
+    /* Muat stand energi awal ke dalam published measurement snapshot secara thread-safe */
+    rtos_meter_data_publish(&s_meas);
+
+    printf("[BRIDGE] All Pillars (E1 Metrology, E2 DLMS, E3 App, FreeRTOS Preemptive) initialized.\n");
 }
 
 const meter_measurements_t *meter_system_get_measurements(void)
@@ -164,6 +176,65 @@ static uint32_t isqrt64(uint64_t val)
     return (uint32_t)res;
 }
 #endif
+
+void bridge_metrology_sample_callback(meter_measurements_t *out_meas)
+{
+    if (out_meas == NULL) return;
+
+    /* 1. Lakukan akuisisi data metrologi ADE9000 untuk durasi 1000 ms */
+    e1_metrology_service_step(out_meas, 1000U);
+
+#if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
+    if (e3_meter_app_is_synthetic_load_active())
+    {
+        synthetic_load_config_t synth;
+        e3_meter_app_get_synthetic_load(&synth);
+
+        out_meas->voltage_r_dvolts = synth.voltage_r_dv;
+        out_meas->voltage_s_dvolts = synth.voltage_s_dv;
+        out_meas->voltage_t_dvolts = synth.voltage_t_dv;
+
+        out_meas->current_r_mamps = synth.current_r_ma;
+        out_meas->current_s_mamps = synth.current_s_ma;
+        out_meas->current_t_mamps = synth.current_t_ma;
+        out_meas->current_n_mamps = synth.current_n_ma;
+
+        out_meas->active_power_w     = synth.active_power_w;
+        out_meas->reactive_power_var = synth.reactive_power_var;
+        out_meas->power_factor_ppm   = synth.power_factor_ppm;
+
+        int64_t p2 = (int64_t)out_meas->active_power_w * out_meas->active_power_w;
+        int64_t q2 = (int64_t)out_meas->reactive_power_var * out_meas->reactive_power_var;
+        out_meas->apparent_power_va = isqrt64((uint64_t)(p2 + q2));
+
+        if (out_meas->active_power_w > 0)
+        {
+            static uint32_t s_synth_wh_rem_mj = 0;
+            uint64_t mj = (uint64_t)out_meas->active_power_w * 1000U + s_synth_wh_rem_mj;
+            out_meas->active_energy_wh += (mj / 3600000ULL);
+            s_synth_wh_rem_mj = (uint32_t)(mj % 3600000ULL);
+        }
+        else if (out_meas->active_power_w < 0)
+        {
+            static uint32_t s_synth_imp_wh_rem_mj = 0;
+            uint64_t mj_imp = (uint64_t)(-out_meas->active_power_w) * 1000U + s_synth_imp_wh_rem_mj;
+            out_meas->active_energy_import_wh += (mj_imp / 3600000ULL);
+            s_synth_imp_wh_rem_mj = (uint32_t)(mj_imp % 3600000ULL);
+        }
+
+        if (out_meas->reactive_power_var != 0)
+        {
+            static uint32_t s_synth_varh_rem_mj = 0;
+            uint32_t abs_q = (uint32_t)((out_meas->reactive_power_var > 0) ? out_meas->reactive_power_var : -out_meas->reactive_power_var);
+            uint64_t mvar_s = (uint64_t)abs_q * 1000U + s_synth_varh_rem_mj;
+            out_meas->reactive_energy_varh += (mvar_s / 3600000ULL);
+            s_synth_varh_rem_mj = (uint32_t)(mvar_s % 3600000ULL);
+        }
+    }
+#endif
+
+    s_meas = *out_meas;
+}
 
 void app_metering_step(void)
 {
@@ -263,9 +334,28 @@ void app_metering_step(void)
 
 void app_metering_task_loop(void)
 {
+    /* 1. Luncurkan seluruh 4 Task Preemptive FreeRTOS E3 (Tamper, Profile, DLMS, OLED) */
+    bool tasks_ok = rtos_start_all_tasks();
+    printf("[BRIDGE] FreeRTOS Preemptive Multi-Tasking: %s\n",
+           tasks_ok ? "4 Tasks Successfully Launched!" : "WARNING: Task Creation Failed!");
+
+    /* 2. defaultTask bertindak sebagai Supervisor & Pengawas Watchdog (WDT Pin PD12) serta Handler CLI */
     for (;;)
     {
-        app_metering_step();
+        /* Proses antrean byte karakter Interactive Serial CLI dari USART1 (VCP) & USART2 (Modem) */
+        uint8_t cli_byte = 0U;
+        while (vcp_fifo_pop(&cli_byte))
+        {
+            console_cli_process_rx_byte(cli_byte);
+        }
+        while (e2_dlms_service_pop_cli_rx_byte(&cli_byte))
+        {
+            console_cli_process_rx_byte(cli_byte);
+        }
+
+        /* Evaluasi kepatuhan batas waktu WCET seluruh tugas dan segarkan pulsa Watchdog hardware (PD12) */
+        wcet_watchdog_supervise_and_feed();
+
         osDelay(100U);
     }
 }

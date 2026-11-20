@@ -18,6 +18,10 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#if defined(EMBEDDED_HARDWARE_TARGET)
+#include "secure_nsc.h"
+#include "e2_dlms_service.h"
+#endif
 static QueueHandle_t xTamperQueue = NULL;
 static SemaphoreHandle_t xMeasMutex = NULL;
 #else
@@ -245,19 +249,35 @@ void rtos_meter_data_unlock(void) {
 
 void task_tamper_emergency_entry(void *pvParameters) {
     (void)pvParameters;
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    portALLOCATE_SECURE_CONTEXT(configMINIMAL_SECURE_STACK_SIZE);
+#endif
     printf("[TAMPER] Task started. Menunggu event sabotase...\r\n");
     bool last_alarm_state = false;
     for (;;) {
         wcet_record_start(WCET_TASK_TAMPER);
         bool current_alarm = display_task_is_alarm_active();
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+        uint32_t sec_tamp_mask = SECURE_GetTamperStatusMask();
+        bool tamp_case = ((sec_tamp_mask & (1U << 0)) != 0U);
+        bool tamp_term = ((sec_tamp_mask & (1U << 1)) != 0U);
+        bool tamp_mag  = ((sec_tamp_mask & (1U << 2)) != 0U);
+        if (tamp_case || tamp_term || tamp_mag) {
+            current_alarm = true;
+        }
+#endif
+
         if (current_alarm != last_alarm_state) {
             last_alarm_state = current_alarm;
             uint32_t now_sec = (uint32_t)(xTaskGetTickCount() / configTICK_RATE_HZ);
             if (current_alarm) {
-                printf("[TAMPER] *** DARURAT! SABOTASE TERDETEKSI (CASE OPEN) ***\r\n");
+                printf("[TAMPER] *** DARURAT! SABOTASE TERDETEKSI (CASE/TERM/MAG) ***\r\n");
                 power_relay_disconnect(&g_power_relay_ctx, RELAY_REASON_MANUAL, now_sec);
+                display_task_trigger_instant_refresh(true);
             } else {
                 printf("[TAMPER] Sabotase dipulihkan. Sistem kembali normal.\r\n");
+                display_task_trigger_instant_refresh(false);
             }
             tamper_event_msg_t msg = {
                 .timestamp = now_sec,
@@ -265,21 +285,26 @@ void task_tamper_emergency_entry(void *pvParameters) {
                 .is_active = current_alarm
             };
             rtos_queue_send_tamper_event(&msg);
+            nvram_save_tamper_log_snapshot(&g_tamper_ctx);
         }
 
         wcet_record_stop(WCET_TASK_TAMPER);
         bsp_watchdog_kick_task(WATCHDOG_TASK_TAMPER_BIT);
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 
 void task_metrology_profiling_entry(void *pvParameters) {
     (void)pvParameters;
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    portALLOCATE_SECURE_CONTEXT(configMINIMAL_SECURE_STACK_SIZE);
+#endif
     printf("[METROLOGY] Task started. Sampling: 1000 ms. Profiling: 15 menit.\r\n");
 
     meter_measurements_t meas;
     memset(&meas, 0, sizeof(meas));
     uint32_t profile_interval_sec = 0;
+    static uint32_t s_checkpoint_timer_sec = 0;
 
     for (;;) {
         wcet_record_start(WCET_TASK_METROLOGY);
@@ -307,7 +332,7 @@ void task_metrology_profiling_entry(void *pvParameters) {
             profile_interval_sec = 0;
             load_profile_entry_t entry;
             memset(&entry, 0, sizeof(entry));
-            entry.timestamp = (uint32_t)(meas.frequency_mhz);
+            entry.timestamp = now_sec;
             entry.voltage_r_dvolts = (uint16_t)meas.voltage_r_dvolts;
             entry.voltage_s_dvolts = (uint16_t)meas.voltage_s_dvolts;
             entry.voltage_t_dvolts = (uint16_t)meas.voltage_t_dvolts;
@@ -320,7 +345,22 @@ void task_metrology_profiling_entry(void *pvParameters) {
             entry.power_factor_permille = meas.power_factor_ppm;
             entry.active_energy_import_wh = meas.active_energy_wh;
             load_profile_add_entry(&g_load_profile_buf, &entry);
-            printf("[PROFILE] Snapshot profil beban 15-menit berhasil dibekukan.\r\n");
+            nvram_write_load_profile_entry(g_load_profile_buf.count, &entry);
+            printf("[PROFILE] Snapshot profil beban 15-menit berhasil dibekukan ke NVRAM.\r\n");
+        }
+
+        /* Simpan checkpoint stand energi secara periodik ke NVRAM Flash (Ping-Pong Safe) */
+        s_checkpoint_timer_sec++;
+        if (s_checkpoint_timer_sec >= 60) {
+            s_checkpoint_timer_sec = 0;
+            nvram_energy_checkpoint_t cp = {
+                .magic = NVRAM_ENERGY_CHECKPOINT_MAGIC,
+                .timestamp = now_sec,
+                .active_energy_import_wh = meas.active_energy_wh,
+                .active_energy_export_wh = meas.active_energy_import_wh,
+                .reactive_energy_varh = meas.reactive_energy_varh
+            };
+            nvram_save_energy_checkpoint(&cp);
         }
 
         wcet_record_stop(WCET_TASK_METROLOGY);
@@ -393,10 +433,19 @@ void task_dlms_entry(void *pvParameters) {
         if (rtos_queue_receive_tamper_event(&event_msg, 0)) {
             rtos_dlms_process_tamper_event(&event_msg);
         }
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+        /* Sinkronisasi snapshot data pengukuran terbaru ke DLMS OBIS dictionary */
+        meter_measurements_t meas_snap;
+        if (rtos_meter_data_get_snapshot(&meas_snap)) {
+            e2_dlms_service_sync_snapshot(e2_dlms_service_get_snapshot(), &meas_snap);
+        }
+#endif
+
         wcet_record_stop(WCET_TASK_DLMS);
 
         bsp_watchdog_kick_task(WATCHDOG_TASK_DLMS_BIT);
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 

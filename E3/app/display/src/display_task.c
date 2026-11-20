@@ -6,6 +6,7 @@
 #include "display_task.h"
 #include "display.h"
 #include "rtos_tasks.h"
+#include "wcet_profiler.h"
 #if defined(EMBEDDED_HARDWARE_TARGET) || defined(USE_FREERTOS)
 #include "FreeRTOS.h"
 #include "task.h"
@@ -104,6 +105,7 @@ void task_oled128x32_carousel(void *pvParameters)
         }
 
         if (need_render) {
+            wcet_record_start(WCET_TASK_UI);
             /* 1. Ambil snapshot data pengukuran terbaru secara thread-safe dari Mutex */
             rtos_meter_data_get_snapshot(&meas);
             display_update_measurements(&disp_ctx, &meas);
@@ -121,6 +123,7 @@ void task_oled128x32_carousel(void *pvParameters)
             if (s_display_driver != NULL && s_display_driver->render_frame != NULL) {
                 s_display_driver->render_frame(&spln_frame);
             }
+            wcet_record_stop(WCET_TASK_UI);
 
             printf("[OLED DISP] Page %d [%s] -> %s %s | Status: %s\r\n",
                    disp_ctx.current_page,
