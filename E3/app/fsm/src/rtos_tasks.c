@@ -8,6 +8,7 @@
 #include "display.h"
 #include "nvram_storage.h"
 #include "display_task.h"
+#include "wcet_profiler.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -53,6 +54,7 @@ static meter_sample_fn_t    s_meter_sample_cb = NULL;
 
 void bsp_watchdog_kick_task(uint32_t task_bit) {
     s_watchdog_kicked_mask |= task_bit;
+    wcet_watchdog_kick(task_bit);
 }
 
 dlms_result_t dlms_tamper_log_init(dlms_tamper_log_t *log) {
@@ -246,6 +248,7 @@ void task_tamper_emergency_entry(void *pvParameters) {
     printf("[TAMPER] Task started. Menunggu event sabotase...\r\n");
     bool last_alarm_state = false;
     for (;;) {
+        wcet_record_start(WCET_TASK_TAMPER);
         bool current_alarm = display_task_is_alarm_active();
         if (current_alarm != last_alarm_state) {
             last_alarm_state = current_alarm;
@@ -264,6 +267,7 @@ void task_tamper_emergency_entry(void *pvParameters) {
             rtos_queue_send_tamper_event(&msg);
         }
 
+        wcet_record_stop(WCET_TASK_TAMPER);
         bsp_watchdog_kick_task(WATCHDOG_TASK_TAMPER_BIT);
         vTaskDelay(pdMS_TO_TICKS(200));
     }
@@ -278,6 +282,7 @@ void task_metrology_profiling_entry(void *pvParameters) {
     uint32_t profile_interval_sec = 0;
 
     for (;;) {
+        wcet_record_start(WCET_TASK_METROLOGY);
         if (s_meter_sample_cb != NULL) {
             s_meter_sample_cb(&meas);
             rtos_meter_data_publish(&meas);
@@ -318,6 +323,7 @@ void task_metrology_profiling_entry(void *pvParameters) {
             printf("[PROFILE] Snapshot profil beban 15-menit berhasil dibekukan.\r\n");
         }
 
+        wcet_record_stop(WCET_TASK_METROLOGY);
         bsp_watchdog_kick_task(WATCHDOG_TASK_METROLOGY_BIT);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
@@ -383,9 +389,11 @@ void task_dlms_entry(void *pvParameters) {
     tamper_event_msg_t event_msg;
 
     for (;;) {
+        wcet_record_start(WCET_TASK_DLMS);
         if (rtos_queue_receive_tamper_event(&event_msg, 0)) {
             rtos_dlms_process_tamper_event(&event_msg);
         }
+        wcet_record_stop(WCET_TASK_DLMS);
 
         bsp_watchdog_kick_task(WATCHDOG_TASK_DLMS_BIT);
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -395,6 +403,10 @@ void task_dlms_entry(void *pvParameters) {
 void task_ui_display_entry(void *pvParameters) {
     (void)pvParameters;
     for (;;) {
+        wcet_record_start(WCET_TASK_UI);
+        /* Siklus pembaruan HMI display periodik */
+        wcet_record_stop(WCET_TASK_UI);
+
         bsp_watchdog_kick_task(WATCHDOG_TASK_UI_BIT);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }

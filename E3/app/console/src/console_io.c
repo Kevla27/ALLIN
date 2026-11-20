@@ -6,6 +6,7 @@
 
 #include "console_io.h"
 #include "bsp_power_mode.h"
+#include "wcet_profiler.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -44,6 +45,8 @@ static int cmd_set_time(int argc, char *argv[]);
 static int cmd_acfail(int argc, char *argv[]);
 static int cmd_button(int argc, char *argv[]);
 static int cmd_power(int argc, char *argv[]);
+static int cmd_wcet(int argc, char *argv[]);
+static int cmd_wdt(int argc, char *argv[]);
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
 static int cmd_load(int argc, char *argv[]);
 static int cmd_volt(int argc, char *argv[]);
@@ -58,6 +61,9 @@ static const console_cmd_entry_t s_cmd_table[] = {
     {"status",   "Status umum meter, relai, alarm & tamper",cmd_status},
     {"power",    "Status manajemen daya Stop 2 & baterai", cmd_power},
     {"pwr",      "Alias untuk status manajemen daya",      cmd_power},
+    {"wcet",     "Pengukuran durasi terburuk WCET & profil CPU (Tabel 3.3.2)", cmd_wcet},
+    {"profile",  "Alias untuk pengukuran WCET & utilisasi prosesor", cmd_wcet},
+    {"wdt",      "Status & pengujian pengawas hardware Watchdog Supervisor", cmd_wdt},
     {"meas",     "Pengukuran listrik 3-fasa instan",       cmd_meas},
     {"energy",   "Akumulasi energi Wh/varh & ToU",         cmd_energy},
     {"relay",        "Kontrol/inspeksi status relai kontaktor", cmd_relay},
@@ -178,6 +184,8 @@ static int cmd_help(int argc, char *argv[]) {
     printf("  curr <Ir_mA> [Is] [It]: Set arus 3-fasa tiruan (misal: curr 10000)\n");
     printf("  synth <on|off|status> : Kontrol sakelar generator beban tiruan\n");
 #endif
+    printf("  wcet [reset]          : Pengukuran WCET & pemanfaatan CPU (Tabel 3.3.2)\n");
+    printf("  wdt [kick|test|clear] : Status & simulasi pengawas hardware Watchdog (PD12)\n");
     printf("  mute <1|0>            : 1=Senyap (proteksi DLMS), 0=Aktif\n");
     printf("===================================================================\n\n");
     return 0;
@@ -837,6 +845,72 @@ static int cmd_power(int argc, char *argv[]) {
     }
     printf("  Profil Perangkat : Stop 2 %s, Wakeup Clock MSI 4MHz\n\n",
            board_cfg_is_stop2_mode_enabled() ? "ENABLED (Aktif)" : "DISABLED (Mati)");
+    return 0;
+}
+
+static int cmd_wcet(int argc, char *argv[]) {
+    if (argc > 1 && str_equals_ignore_case(argv[1], "reset")) {
+        wcet_profiler_reset();
+        printf("[CLI] Seluruh statistik siklus, min/max WCET & violations berhasil di-reset ke nol.\n");
+        return 0;
+    }
+    wcet_print_summary();
+    return 0;
+}
+
+static int cmd_wdt(int argc, char *argv[]) {
+    if (argc > 1) {
+        if (str_equals_ignore_case(argv[1], "kick")) {
+            bool ok = wcet_watchdog_supervise_and_feed();
+            printf("[CLI] Manual Watchdog Supervise & Feed: %s (Total Feed: %lu | Ditahan: %lu)\n",
+                   ok ? "BERHASIL (PIN EXT_WDI_PULSE TOGGLED)" : "DITAHAN (FAULT TERDETEKSI)",
+                   (unsigned long)wcet_watchdog_get_feed_count(),
+                   (unsigned long)wcet_watchdog_get_suppressed_count());
+            return 0;
+        } else if (str_equals_ignore_case(argv[1], "test")) {
+            wcet_task_id_t tid = WCET_TASK_TAMPER;
+            if (argc > 2) {
+                int id = atoi(argv[2]);
+                if (id >= 0 && id < (int)WCET_TASK_COUNT) {
+                    tid = (wcet_task_id_t)id;
+                }
+            }
+            wcet_watchdog_inject_fault(tid);
+            printf("[CLI] Injeksi kegagalan batas waktu (WCET fault) disimulasikan pada task %d (%s)!\n",
+                   (int)tid, wcet_get_task_stats(tid) ? wcet_get_task_stats(tid)->name : "Unknown");
+            printf("      Penyegaran Watchdog pin PD12 sekarang DITAHAN untuk memicu reset sistem.\n");
+            return 0;
+        } else if (str_equals_ignore_case(argv[1], "clear")) {
+            wcet_watchdog_clear_fault();
+            printf("[CLI] Latched fault pengawas Watchdog dibersihkan. Status normal dipulihkan.\n");
+            return 0;
+        }
+    }
+
+    /* Tampilan status default Watchdog Supervisor */
+    const wcet_profiler_ctx_t *ctx = wcet_get_context();
+    printf("\n===================================================================\n");
+    printf("         EXTERNAL WATCHDOG SUPERVISOR (WDT) DIAGNOSTICS            \n");
+    printf("===================================================================\n");
+    printf(" Status Kesehatan Sistem   : %s\n",
+           wcet_watchdog_is_healthy() ? "SEHAT (SELURUH TUGAS MEMENUHI WCET)" : "*** ANOMALI / VIOLATION LATCHED! ***");
+    printf(" Hardware Watchdog Pin     : EXT_WDI_PULSE (GPIOD Pin 12)\n");
+    printf(" Hardware Timeout          : 1.6 Detik (1600 ms)\n");
+    printf(" Total Penyegaran Berhasil : %lu pulsa\n", (unsigned long)wcet_watchdog_get_feed_count());
+    printf(" Total Penyegaran Ditahan  : %lu pulsa\n", (unsigned long)wcet_watchdog_get_suppressed_count());
+    printf(" Task Required Mask        : 0x%02lX\n", (unsigned long)(ctx ? ctx->watchdog_required_mask : 0));
+    printf(" Task Kicked Mask          : 0x%02lX\n", (unsigned long)(ctx ? ctx->watchdog_kicked_mask : 0));
+    if (ctx && ctx->fault_latched) {
+        printf(" Pemicu Kegagalan Terakhir : Task ID %d (%s)\n",
+               (int)ctx->fault_task_id,
+               wcet_get_task_stats(ctx->fault_task_id) ? wcet_get_task_stats(ctx->fault_task_id)->name : "Unknown");
+    }
+    printf("-------------------------------------------------------------------\n");
+    printf("Sintaks perintah pengawas:\n");
+    printf("  wdt kick        : Evaluasi seluruh tugas dan toggle pin WDT manual\n");
+    printf("  wdt test [0..4] : Simulasi pelanggaran deadline WCET untuk uji reset\n");
+    printf("  wdt clear       : Pulihkan status normal dari latched fault\n");
+    printf("===================================================================\n\n");
     return 0;
 }
 

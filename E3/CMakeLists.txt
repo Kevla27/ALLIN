@@ -22,6 +22,7 @@ add_library(e3_core STATIC
     app/profiling/src/load_profile.c
     app/profiling/src/load_profile_dlms_adapter.c
     app/profiling/src/nvram_storage.c
+    app/profiling/src/wcet_profiler.c
     app/console/src/console_io.c
     drivers/power/src/bsp_power_mode.c
     tests/e3_mock_stubs.c
@@ -112,3 +113,9 @@ add_test(NAME Unit_E3_NVRAM_Storage COMMAND test_nvram_storage)
 add_executable(test_rtos_tasks tests/test_rtos_tasks.c)
 target_link_libraries(test_rtos_tasks PRIVATE e3_core)
 add_test(NAME Unit_E3_RTOS_Tasks COMMAND test_rtos_tasks)
+
+# 13. Unit Test: WCET Profiler & Watchdog Supervisor (DWT / WDT)
+add_executable(test_wcet_profiler tests/test_wcet_profiler.c)
+target_link_libraries(test_wcet_profiler PRIVATE e3_core)
+add_test(NAME Unit_E3_WCET_Profiler COMMAND test_wcet_profiler)
+

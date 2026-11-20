@@ -18,9 +18,9 @@ Pembahasan pada subbab ini disajikan ke dalam empat bagian utama sebagai berikut
 
 Sistem operasi waktu nyata FreeRTOS digunakan sebagai pengelola alokasi sumber daya pemroses pada mikrokontroler utama. Seluruh proses perangkat lunak dibagi ke dalam empat tugas (*tasks*) mandiri yang berjalan bersamaan dan dikoordinasikan menggunakan skema penjadwalan preemtif berbasis prioritas statis (*Fixed-Priority Preemptive Scheduling*). Pembagian tugas ini bertujuan untuk memastikan setiap fungsi sistem memperoleh alokasi waktu eksekusi yang sesuai dengan tingkat kekritisan operasinya.
 
-Alokasi tugas, tingkatan prioritas, periode kedatangan proses ($T_i$), kapasitas memori *stack*, serta deskripsi fungsi dari masing-masing tugas ditunjukkan pada Tabel 3.3.1.
+Alokasi tugas, tingkatan prioritas, periode kedatangan proses ($T_i$), kapasitas memori *stack*, serta deskripsi fungsi dari masing-masing tugas ditunjukkan pada Tabel 3.3.1.1.
 
-**Tabel 3.3.1 Matriks Alokasi Tugas FreeRTOS Smart Meter 3-Fasa**
+**Tabel 3.3.1.1 Matriks Alokasi Tugas FreeRTOS Smart Meter 3-Fasa**
 
 | Nama Tugas | Prioritas | Periode ($T_i$) | Alokasi Stack | Fungsi Utama |
 | :--- | :---: | :---: | :---: | :--- |
@@ -39,9 +39,9 @@ Di mana $U$ merupakan faktor pemanfaatan prosesor total (*Processor Utilization 
 
 $$U_{\text{bound}} = 4 \cdot \left( 2^{1/4} - 1 \right) \approx 4 \cdot (1{,}1892 - 1) = 0{,}7568 \quad (75{,}68\%)$$
 
-Pengukuran nilai WCET dilakukan pada mikrokontroler Host yang beroperasi pada frekuensi *clock* sistem $160\text{ MHz}$ dengan akselerator instruksi dan data *cache* (ICACHE dan DCACHE) aktif. Hasil pengukuran dan analisis pemanfaatan komputasi untuk masing-masing tugas disajikan pada Tabel 3.3.2.
+Pengukuran nilai WCET dilakukan pada mikrokontroler Host yang beroperasi pada frekuensi *clock* sistem $160\text{ MHz}$ dengan akselerator instruksi dan data *cache* (ICACHE dan DCACHE) aktif. Hasil pengukuran dan analisis pemanfaatan komputasi untuk masing-masing tugas disajikan pada Tabel 3.3.1.2.
 
-**Tabel 3.3.2 Analisis Pemanfaatan Prosesor (WCET) pada Frekuensi 160 MHz**
+**Tabel 3.3.1.2 Analisis Pemanfaatan Prosesor (WCET) pada Frekuensi 160 MHz**
 
 | No | Nama Tugas | Periode ($T_i$) | WCET ($C_i$) | Rasio Utilisasi ($U_i = C_i / T_i$) | Evaluasi Beban Komputasi |
 | :---: | :--- | :---: | :---: | :---: | :--- |
@@ -108,9 +108,9 @@ Antarmuka port optik inframerah depan disediakan untuk kebutuhan konfigurasi par
 
 Subsistem pengamanan mengintegrasikan fungsi pengawasan terhadap upaya sabotase eksternal, pemantauan integritas internal perangkat keras, serta kendali relai pemutus beban utama guna memenuhi persyaratan **SPLN D3.006: 2021 Butir 10.3 dan Butir 12.3**.
 
-Sistem memantau 9 vektor kondisi sabotase eksternal dan 8 alarm kegagalan internal secara paralel. Setiap indikasi kejadian memicu respons terstandardisasi berupa: pembukaan kontak relai utama (*trip*), pengaktifan lampu indikator LED Kuning Sabotase, pencatatan data kejadian ke dalam memori non-volatile FIFO dengan kapasitas minimal 30 rekaman, serta penayangan kode peringatan pada layar antarmuka. Matriks klasifikasi kondisi sabotase dan tindakan sistem dirinci pada Tabel 3.3.4.
+Sistem memantau 9 vektor kondisi sabotase eksternal dan 8 alarm kegagalan internal secara paralel. Setiap indikasi kejadian memicu respons terstandardisasi berupa: pembukaan kontak relai utama (*trip*), pengaktifan lampu indikator LED Kuning Sabotase, pencatatan data kejadian ke dalam memori non-volatile FIFO dengan kapasitas minimal 30 rekaman, serta penayangan kode peringatan pada layar antarmuka. Matriks klasifikasi kondisi sabotase dan tindakan sistem dirinci pada Tabel 3.3.3.1.
 
-**Tabel 3.3.4 Matriks Klasifikasi Sabotase dan Tindakan Sistem (SPLN D3.006: 2021 Tabel 6)**
+**Tabel 3.3.3.1 Matriks Klasifikasi Sabotase dan Tindakan Sistem (SPLN D3.006: 2021 Tabel 6)**
 
 | No | Vektor Sabotase Eksternal | Kondisi Logika Pemicu | Status Relai | Indikasi Layar | Indikator LED Kuning | Ambang Waktu Evaluasi |
 | :---: | :--- | :--- | :---: | :---: | :---: | :---: |
@@ -173,9 +173,9 @@ Sistem antarmuka pengguna lokal (*Human-Machine Interface* / HMI) mengadopsi for
 2. Zona Nilai Utama (*Primary Value Area*): Menampilkan nilai numerik parameter yang sedang dipilih menggunakan font matriks proporsional berukuran $11 \times 18$ piksel agar dapat diobservasi dengan jelas dari jarak pandang sekurang-kurangnya 2 meter, disertai penunjuk simbol satuan pengukuran standar (`V`, `A`, `W`, `var`, `VA`, `kWh`, `kvarh`, `Hz`, atau `-` untuk faktor daya).
 3. Zona Keterangan Bawah (*Bottom Description Footer*): Menampilkan nomor urut halaman parameter (indeks 01 s.d. 39) diikuti deskripsi teks parameter bersangkutan dalam bahasa Indonesia baku mengacu pada Lampiran E SPLN.
 
-Sistem mengelola total **39 halaman tampilan parameter operasional standar** (sesuai SPLN D3.006: 2021 Lampiran E Tabel E.1 dan Tabel E.2) serta **2 halaman notifikasi sistem khusus**, sebagaimana dirinci pada Tabel 3.3.5. Seluruh 39 halaman parameter operasional dapat diakses secara berurutan pada mode penelusuran manual menggunakan tombol navigasi, di mana **15 halaman parameter utama di antaranya diputar secara periodik pada siklus otomatis (*auto-scroll carousel*)** setiap 5 detik saat meter tidak menerima interaksi tombol.
+Sistem mengelola total **39 halaman tampilan parameter operasional standar** (sesuai SPLN D3.006: 2021 Lampiran E Tabel E.1 dan Tabel E.2) serta **2 halaman notifikasi sistem khusus**, sebagaimana dirinci pada Tabel 3.3.4.1. Seluruh 39 halaman parameter operasional dapat diakses secara berurutan pada mode penelusuran manual menggunakan tombol navigasi, di mana **15 halaman parameter utama di antaranya diputar secara periodik pada siklus otomatis (*auto-scroll carousel*)** setiap 5 detik saat meter tidak menerima interaksi tombol.
 
-**Tabel 3.3.5 Matriks Halaman Layar HMI Smart Meter 3-Fasa (SPLN D3.006: 2021 Lampiran E)**
+**Tabel 3.3.4.1 Matriks Halaman Layar HMI Smart Meter 3-Fasa (SPLN D3.006: 2021 Lampiran E)**
 
 | No Hal | Parameter Besaran yang Ditampilkan | Register SPLN | Satuan Teknis | Mode Penayangan HMI |
 | :---: | :--- | :---: | :---: | :--- |

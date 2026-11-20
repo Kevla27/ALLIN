@@ -8,6 +8,7 @@
 #include "nvram_storage.h"
 #include "e2_dlms_service.h"
 #include "console_io.h"
+#include "wcet_profiler.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -405,9 +406,6 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
 
     uint32_t current_tick_ms = HAL_GetTick();
 
-    /* 0. Heartbeat External Watchdog (PD12) */
-    HAL_GPIO_TogglePin(EXT_WDI_PULSE_GPIO_Port, EXT_WDI_PULSE_Pin);
-
     /* 0b. Manajemen Timer Wake-Up Layar 10 Detik saat Listrik PLN Padam (Desain Sistem Hal. 37) */
     if (s_is_ac_failed && s_lcd_wakeup_timer_ms > 0U)
     {
@@ -534,6 +532,9 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         }
     }
 
+    /* Mulai profiling WCET Task 1: Tamper Emergency */
+    wcet_record_start(WCET_TASK_TAMPER);
+
     /* 2. Periksa Input Tamper Hardware (PC13, PE6, PE4) & Latch TrustZone Secure TAMP */
 #if defined(EMBEDDED_HARDWARE_TARGET)
     /* Pada hardware target STM32U5, pin PC13, PE6, PE4 dikonfigurasi sebagai Secure GPIO (TrustZone).
@@ -578,9 +579,9 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
     if (!s_is_ac_failed)
     {
         uint8_t low_v_phases = 0U;
-        if (meas->voltage_r_dvolts < BOARD_CFG_RELAY_UNDERVOLT_DV) low_v_phases++;
-        if (meas->voltage_s_dvolts < BOARD_CFG_RELAY_UNDERVOLT_DV) low_v_phases++;
-        if (meas->voltage_t_dvolts < BOARD_CFG_RELAY_UNDERVOLT_DV) low_v_phases++;
+        if (meas->voltage_r_dvolts < 1100U) low_v_phases++;
+        if (meas->voltage_s_dvolts < 1100U) low_v_phases++;
+        if (meas->voltage_t_dvolts < 1100U) low_v_phases++;
         if (low_v_phases == 1U || low_v_phases == 2U)
         {
             tamper_process_signal(&s_tamper_ctx, TAMPER_VECTOR_PHASE_LOSS, true, s_now_epoch_sec);
@@ -629,6 +630,7 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
     }
 
     display_set_tamper_status(&s_disp_ctx, tamper_get_active_mask(&s_tamper_ctx));
+    wcet_record_stop(WCET_TASK_TAMPER);
 
     /* Update status komunikasi modem seluler (Gagang Telepon Lingkaran pada OLED) */
     if (s_modem_active_timer_ms > 0U)
@@ -832,9 +834,27 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         disp_meas.billing_last_month_wh = 0;
     }
 
+    /* Mulai profiling WCET Task 4: UI Display (HMI Frame Rendering & OLED transfer) */
+    wcet_record_start(WCET_TASK_UI);
+
     display_update_measurements(&s_disp_ctx, &disp_meas);
     display_process_tick(&s_disp_ctx, delta_ms);
 
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    display_spln_frame_t spln_frame;
+    display_render_spln_frame(&s_disp_ctx, &spln_frame);
+    spln_frame.is_relay_closed = (!is_trip_commanded && !is_ready_on);
+    const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
+    if (oled_drv != NULL && oled_drv->render_frame != NULL)
+    {
+        oled_drv->render_frame(&spln_frame);
+    }
+#endif
+    wcet_record_stop(WCET_TASK_UI);
+
+    /* Cetak diagnostik serial konsol di luar jendela pengukuran WCET (khusus simulasi host PC)
+     * agar latensi transmisi UART lambat (19200 bps) tidak mendistorsi pengukuran komputasi CPU */
+#if !defined(EMBEDDED_HARDWARE_TARGET)
     if (current_tick_ms - s_last_disp_print_ms >= 3000U)
     {
         s_last_disp_print_ms = current_tick_ms;
@@ -842,18 +862,8 @@ void e3_meter_app_step(const meter_measurements_t *meas, uint32_t delta_ms)
         display_render_frame(&s_disp_ctx, line1, line2, line3, sizeof(line1));
         printf("[RTOS Task - HMI Page %d]\n  L1: [%s]\n  L2: [%s]\n  L3: [%s]\n",
                s_disp_ctx.current_page, line1, line2, line3);
-
-#if defined(EMBEDDED_HARDWARE_TARGET)
-        display_spln_frame_t spln_frame;
-        display_render_spln_frame(&s_disp_ctx, &spln_frame);
-        spln_frame.is_relay_closed = (!is_trip_commanded && !is_ready_on);
-        const display_driver_interface_t *oled_drv = bsp_display_oled_get_driver();
-        if (oled_drv != NULL && oled_drv->render_frame != NULL)
-        {
-            oled_drv->render_frame(&spln_frame);
-        }
-#endif
     }
+#endif
 
     /* 7. Rekam 15-Minute Load Profile ke NVRAM (SPI2 External Flash + RAM Mirror) */
     if (s_now_epoch_sec - s_last_lp_record_sec >= LOAD_PROFILE_INTERVAL_SEC)

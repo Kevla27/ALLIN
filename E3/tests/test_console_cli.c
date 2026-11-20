@@ -440,6 +440,25 @@ void test_cli_core_commands(void) {
     assert(s_mock_synth_cfg.active_power_w == 9900);
 #endif
 
+    /* 13b. Uji Perintah WCET Profiler & Watchdog Supervisor */
+    strcpy(cmd_buf, "wcet");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
+    strcpy(cmd_buf, "wcet reset");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
+    strcpy(cmd_buf, "wdt");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
+    strcpy(cmd_buf, "wdt kick");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
+    strcpy(cmd_buf, "wdt test 0");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
+    strcpy(cmd_buf, "wdt clear");
+    assert(console_cli_execute_command(cmd_buf) == 0);
+
     /* 14. Uji Perintah Invalid dan Baris Kosong */
     strcpy(cmd_buf, "perintah_ngawur_xyz");
     assert(console_cli_execute_command(cmd_buf) == -1);

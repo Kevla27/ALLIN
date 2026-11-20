@@ -19,6 +19,7 @@
 #include "e3_meter_app.h"
 #include "console_io.h"
 #include "nvram_storage.h"
+#include "wcet_profiler.h"
 
 /* -------------------------------------------------------------------------- */
 /* Variabel Statis Internal                                                  */
@@ -66,11 +67,11 @@ static void bridge_console_uart_tx(const uint8_t *data, size_t len)
         /* 1. Transmit ke ST-LINK Virtual COM Port (USART1 @ 115200 bps) jika terpasang */
         if (huart1.Instance == USART1)
         {
-            HAL_UART_Transmit(&huart1, (uint8_t *)data, (uint16_t)len, 200U);
+            HAL_UART_Transmit(&huart1, (uint8_t *)data, (uint16_t)len, 100U);
         }
-        /* 2. Transmit juga ke Modem UART (USART2 @ 19200 bps) */
-        if ((s_console_uart != NULL) && (s_console_uart->Instance != NULL))
+        else if ((s_console_uart != NULL) && (s_console_uart->Instance != NULL))
         {
+            /* Fallback jika USART1 tidak aktif */
             HAL_UART_Transmit(s_console_uart, (uint8_t *)data, (uint16_t)len, 100U);
         }
     }
@@ -88,6 +89,9 @@ void meter_system_bringup(UART_HandleTypeDef *huart_opt, UART_HandleTypeDef *hua
     /* 1. Inisialisasi Console I/O & printf retargeting ke ST-LINK VCP (USART1) & USART2 */
     console_io_init(bridge_console_uart_tx);
     console_io_print_boot_banner("SMART METER 3-PHASE STM32U575 (NUCLEO)", "USART1 @ 115200 bps / USART2 @ 19200 bps", 160U);
+
+    /* Inisialisasi WCET Profiler & Watchdog Supervisor (DWT @ 160 MHz & Pin PD12) */
+    wcet_profiler_init(160000000U);
 
     /* Aktifkan interrupt penerimaan karakter serial CLI pada ST-LINK Virtual COM Port (USART1) */
     if (huart1.Instance == USART1)
@@ -150,7 +154,9 @@ void app_metering_step(void)
         delta_ms = 1U;
     }
 
-    /* 0. Proses antrean byte karakter Interactive Serial CLI dari USART1 (VCP) & USART2 (Modem) */
+    /* 0. Proses antrean byte karakter Interactive Serial CLI dari USART1 (VCP) & USART2 (Modem)
+     * Dilakukan sebelum pencatatan WCET superloop agar transmisi respons teks CLI tidak mendistorsi
+     * waktu komputasi riil siklus pengukuran meter. */
     uint8_t cli_byte = 0U;
     while (vcp_fifo_pop(&cli_byte))
     {
@@ -161,7 +167,11 @@ void app_metering_step(void)
         console_cli_process_rx_byte(cli_byte);
     }
 
+    /* Mulai pengukuran WCET siklus utama superloop pemrosesan meter (Pilar E1, E2, E3) */
+    wcet_record_start(WCET_TASK_APP_STEP);
+
     /* 1. Pilar E1: Akuisisi Data ADC/SPI ADE9000, Konversi Fisik & Akumulasi Energi Wh */
+    wcet_record_start(WCET_TASK_METROLOGY);
     e1_metrology_service_step(&s_meas, delta_ms);
 
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
@@ -212,12 +222,21 @@ void app_metering_step(void)
         }
     }
 #endif
+    wcet_record_stop(WCET_TASK_METROLOGY);
 
     /* 2. Pilar E2: Sinkronisasi Register Data Model OBIS DLMS/COSEM */
+    wcet_record_start(WCET_TASK_DLMS);
     e2_dlms_service_sync_snapshot(e2_dlms_service_get_snapshot(), &s_meas);
+    wcet_record_stop(WCET_TASK_DLMS);
 
     /* 3. Pilar E3: Evaluasi Tamper, Relai Shunt Trip, Telemetri Baterai, Carousel Display & Profiling */
     e3_meter_app_step(&s_meas, delta_ms);
+
+    /* Selesai pencatatan siklus superloop */
+    wcet_record_stop(WCET_TASK_APP_STEP);
+
+    /* 4. Pengawasan Terpadu Kepatuhan WCET Seluruh Tugas & Penyegaran WDT (PD12) */
+    wcet_watchdog_supervise_and_feed();
 }
 
 void app_metering_task_loop(void)
