@@ -38,12 +38,20 @@ extern "C" {
 #endif
 
 /* ========================================================================= */
-/*  Konfigurasi & Alokasi Sektor Memori SPI Flash Eksternal (W25Qxx)         */
+/*  Konfigurasi & Alokasi Sektor Memori SPI Flash Eksternal (Winbond W25Q64) */
 /* ========================================================================= */
 #define SPI_FLASH_SECTOR_SIZE_BYTES        4096U  /**< Ukuran 1 Sektor Standar NOR Flash (4 KB) */
 #define SPI_FLASH_PAGE_SIZE_BYTES          256U   /**< Ukuran 1 Halaman Pemrograman (256 Byte) */
 
-/* Perintah SPI Flash (Opcodes W25Qxx / Winbond / Macronix) */
+/* Spesifikasi Winbond W25Q64 (64 Mbit / 8 MByte) */
+#define W25Q64_TOTAL_SIZE_BYTES            (8U * 1024U * 1024U) /**< 8 MByte (64 Mbit) */
+#define W25Q64_TOTAL_SECTORS               2048U                /**< 2.048 Sektor @ 4 KB */
+#define W25Q64_TOTAL_BLOCKS_64K            128U                 /**< 128 Blok @ 64 KB */
+#define W25Q64_JEDEC_MANUFACTURER_ID       0xEFU                /**< Winbond Manufacturer ID */
+#define W25Q64_JEDEC_MEMORY_TYPE           0x40U                /**< SPI / Dual / Quad SPI */
+#define W25Q64_JEDEC_CAPACITY_ID           0x17U                /**< 64 Mbit (2^23 = 8 MByte) */
+
+/* Perintah SPI Flash (Opcodes W25Qxx / Winbond W25Q64) */
 #define SPI_FLASH_CMD_WREN                 0x06U  /**< Write Enable */
 #define SPI_FLASH_CMD_WRDI                 0x04U  /**< Write Disable */
 #define SPI_FLASH_CMD_PP                   0x02U  /**< Page Program (256 Byte) */
@@ -53,6 +61,7 @@ extern "C" {
 #define SPI_FLASH_CMD_CE                   0xC7U  /**< Chip Erase */
 #define SPI_FLASH_CMD_READ                 0x03U  /**< Read Data */
 #define SPI_FLASH_CMD_RDSR1                0x05U  /**< Read Status Register 1 */
+#define SPI_FLASH_CMD_JEDEC_ID             0x9FU  /**< Read JEDEC ID (1 byte Mfg + 2 bytes Dev ID) */
 
 /* Peta Alokasi Sektor Fisik SPI2 Flash Eksternal (4 KB per Sektor) */
 #define SPI_FLASH_SECTOR_CALIBRATION       0x000000U /**< Sektor 0 (0..4KB): Parameter Kalibrasi ADE9000 */
@@ -158,6 +167,21 @@ bool nvram_save_calibration(const nvram_calibration_data_t *cal);
  * @brief Memuat konfigurasi parameter kalibrasi ADE9000 dari Flash non-volatile
  */
 bool nvram_load_calibration(nvram_calibration_data_t *out_cal);
+
+/**
+ * @brief Membaca JEDEC ID chip SPI Flash (Opcode 0x9F)
+ * @param out_mfg Pointer penampung Manufacturer ID (Winbond = 0xEF)
+ * @param out_type Pointer penampung Memory Type (0x40)
+ * @param out_cap Pointer penampung Capacity ID (W25Q64 = 0x17)
+ * @return true jika transaksi SPI berhasil
+ */
+bool nvram_w25q64_read_jedec_id(uint8_t *out_mfg, uint8_t *out_type, uint8_t *out_cap);
+
+/**
+ * @brief Memverifikasi apakah chip Flash fisik yang terpasang adalah Winbond W25Q64
+ * @return true jika JEDEC ID cocok dengan 0xEF 0x40 0x17
+ */
+bool nvram_w25q64_verify(void);
 
 #ifdef __cplusplus
 }

@@ -110,6 +110,14 @@ void meter_system_bringup(UART_HandleTypeDef *huart_opt, UART_HandleTypeDef *hua
     e2_dlms_service_set_modem_uart(huart_modem);
     e3_meter_app_init(METER_CONFIG_CUSTOMER_ID, hadc_telemetry);
 
+    /* Verifikasi Chip SPI2 Flash Eksternal: Winbond W25Q64 (64 Mbit / 8 MB) */
+    uint8_t flash_mfg = 0, flash_type = 0, flash_cap = 0;
+    if (nvram_w25q64_read_jedec_id(&flash_mfg, &flash_type, &flash_cap))
+    {
+        printf("[NVRAM] SPI2 Flash Target: Winbond W25Q64 (JEDEC: 0x%02X 0x%02X 0x%02X, Cap: 8 MB / 2048 Sectors)\n",
+               flash_mfg, flash_type, flash_cap);
+    }
+
     /* 3. Pulihkan Stand Akumulasi Energi dari NVRAM Checkpoint ke Context Pengukuran Sistem */
     nvram_energy_checkpoint_t cp = {0};
     if (nvram_load_energy_checkpoint(&cp))

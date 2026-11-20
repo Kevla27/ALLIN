@@ -380,3 +380,52 @@ bool nvram_load_calibration(nvram_calibration_data_t *out_cal)
     *out_cal = simulated_calibration_flash;
     return (out_cal->magic == NVRAM_CALIBRATION_MAGIC);
 }
+
+bool nvram_w25q64_read_jedec_id(uint8_t *out_mfg, uint8_t *out_type, uint8_t *out_cap)
+{
+    if (out_mfg == NULL || out_type == NULL || out_cap == NULL) return false;
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    spi2_flash_wait_busy(50U);
+
+    uint8_t cmd = SPI_FLASH_CMD_JEDEC_ID;
+    uint8_t rx_buf[3] = {0};
+
+    HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
+    HAL_StatusTypeDef tx_st = HAL_SPI_Transmit(&hspi2, &cmd, 1U, 10U);
+    HAL_StatusTypeDef rx_st = HAL_SPI_Receive(&hspi2, rx_buf, 3U, 10U);
+    HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
+
+    if (tx_st != HAL_OK || rx_st != HAL_OK)
+    {
+        return false;
+    }
+
+    *out_mfg  = rx_buf[0];
+    *out_type = rx_buf[1];
+    *out_cap  = rx_buf[2];
+    return true;
+#else
+    /* Simulasi host / CTest */
+    *out_mfg  = W25Q64_JEDEC_MANUFACTURER_ID;
+    *out_type = W25Q64_JEDEC_MEMORY_TYPE;
+    *out_cap  = W25Q64_JEDEC_CAPACITY_ID;
+    return true;
+#endif
+}
+
+bool nvram_w25q64_verify(void)
+{
+    uint8_t mfg = 0;
+    uint8_t type = 0;
+    uint8_t cap = 0;
+
+    if (!nvram_w25q64_read_jedec_id(&mfg, &type, &cap))
+    {
+        return false;
+    }
+
+    return (mfg == W25Q64_JEDEC_MANUFACTURER_ID &&
+            type == W25Q64_JEDEC_MEMORY_TYPE &&
+            cap == W25Q64_JEDEC_CAPACITY_ID);
+}

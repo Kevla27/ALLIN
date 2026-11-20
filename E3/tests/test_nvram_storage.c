@@ -172,12 +172,36 @@ void test_nvram_sector_erase(void) {
     printf("   [PASS] NVRAM Sector Erase Alignment & Execution Verified!\n\n");
 }
 
+void test_nvram_w25q64_spec_and_jedec(void) {
+    printf("[TEST] Testing Winbond W25Q64 (64 Mbit / 8 MB) Specification & JEDEC ID...\n");
+
+    /* Verifikasi spesifikasi kapasitas 8 MByte dan 2048 Sektor */
+    assert(W25Q64_TOTAL_SIZE_BYTES == (8U * 1024U * 1024U));
+    assert(W25Q64_TOTAL_SECTORS == 2048U);
+    assert(W25Q64_TOTAL_BLOCKS_64K == 128U);
+
+    /* Verifikasi pembacaan JEDEC ID (0xEF 0x40 0x17) */
+    uint8_t mfg = 0, type = 0, cap = 0;
+    bool read_ok = nvram_w25q64_read_jedec_id(&mfg, &type, &cap);
+    assert(read_ok == true);
+    assert(mfg == W25Q64_JEDEC_MANUFACTURER_ID); /* 0xEF = Winbond */
+    assert(type == W25Q64_JEDEC_MEMORY_TYPE);     /* 0x40 = SPI/QSPI */
+    assert(cap == W25Q64_JEDEC_CAPACITY_ID);     /* 0x17 = 64 Mbit */
+
+    bool verify_ok = nvram_w25q64_verify();
+    assert(verify_ok == true);
+
+    printf("   [PASS] Winbond W25Q64 JEDEC ID (0x%02X 0x%02X 0x%02X) & 8MB Capacity Verified!\n\n",
+           mfg, type, cap);
+}
+
 /* FUNGSI MAIN UTAMA HARUS ADA DI SINI */
 int main(void) {
     printf("=========================================\n");
     printf("     RUNNING NVRAM STORAGE UNIT TESTS    \n");
     printf("=========================================\n\n");
 
+    test_nvram_w25q64_spec_and_jedec();
     test_nvram_sector_erase();
     test_nvram_calibration_save_load();
     test_nvram_load_profile_write_read();

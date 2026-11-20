@@ -34,8 +34,8 @@ extern "C" {
 /* ====================================================================
  * 1. DEFINISI PILIHAN PROFIL PAPAN (BOARD PROFILE SELECTOR)
  * ==================================================================== */
-#define BOARD_PROFILE_PROTOTYPE_OLED     1  /**< Papan purwarupa/dev board: Layar OLED 128x32 SSD1306, SPI Flash W25Qxx */
-#define BOARD_PROFILE_PRODUCTION_SEGLCD  2  /**< Papan produksi massal: Kaca Segment LCD khusus (HT1621), I2C EEPROM/FRAM */
+#define BOARD_PROFILE_PROTOTYPE_OLED     1  /**< Papan purwarupa/dev board: Layar OLED 128x32 SSD1306, SPI Flash Winbond W25Q64 (8 MB) */
+#define BOARD_PROFILE_PRODUCTION_SEGLCD  2  /**< Papan produksi massal: Kaca Segment LCD khusus (HT1621), SPI Flash Winbond W25Q64 (8 MB) */
 #define BOARD_PROFILE_HEADLESS_BENCH     3  /**< Mode pengujian pabrik/test bench tanpa layar fisik (Serial CLI only) */
 
 /* Tentukan profil papan aktif di sini (atau lewat build flag compiler -DACTIVE_BOARD_PROFILE=...) */
@@ -80,8 +80,8 @@ extern "C" {
 #define BOARD_CFG_TAMPER_MAG_PERSIST_MS 3000U      /**< Waktu verifikasi medan magnet stabil sebelum alarm aktif (3 detik) */
 #define BOARD_CFG_TAMPER_MAG_CLEAR_MS   10000U     /**< Waktu pemulihan medan magnet hilang sebelum alarm pulih (10 detik) */
 
-/* --- D. Non-Volatile Storage (NVRAM) --- */
-#define BOARD_CFG_NVRAM_STORAGE_SPI_FLASH 1        /**< Menggunakan W25Qxx SPI2 Flash eksternal */
+/* --- D. Non-Volatile Storage (NVRAM - Winbond W25Q64 8 MByte) --- */
+#define BOARD_CFG_NVRAM_STORAGE_SPI_FLASH 1        /**< Menggunakan Winbond W25Q64 (64 Mbit / 8 MB) SPI2 Flash eksternal */
 #define BOARD_CFG_NVRAM_STORAGE_EEPROM    0
 #define BOARD_CFG_LOAD_PROFILE_CAPACITY   100U     /**< Kapasitas ring buffer profil beban 15-menit */
 #define BOARD_CFG_FIFO_LOG_CAPACITY       30U      /**< Kapasitas masing-masing FIFO (Alarm, Event, Tamper min 30 entri) */
@@ -147,9 +147,9 @@ extern "C" {
 #define BOARD_CFG_TAMPER_MAG_PERSIST_MS 3000U
 #define BOARD_CFG_TAMPER_MAG_CLEAR_MS   10000U
 
-/* --- D. Non-Volatile Storage (I2C EEPROM AT24C512 / FRAM) --- */
-#define BOARD_CFG_NVRAM_STORAGE_SPI_FLASH 0
-#define BOARD_CFG_NVRAM_STORAGE_EEPROM    1
+/* --- D. Non-Volatile Storage (SPI Flash Winbond W25Q64 - 8 MByte) --- */
+#define BOARD_CFG_NVRAM_STORAGE_SPI_FLASH 1        /**< Menggunakan Winbond W25Q64 (64 Mbit / 8 MB) SPI2 Flash eksternal */
+#define BOARD_CFG_NVRAM_STORAGE_EEPROM    0
 #define BOARD_CFG_LOAD_PROFILE_CAPACITY   100U
 #define BOARD_CFG_FIFO_LOG_CAPACITY       30U
 #define BOARD_CFG_BILLING_SNAPSHOT_MAX    12U
