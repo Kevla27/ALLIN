@@ -1,0 +1,673 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" pages="4">
+  <diagram id="yw9tmQzo6U9MK8Rc_Ne7" name="State Diagram: FSM Sistem &amp; Relai">
+    <mxGraphModel grid="0" page="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=12;align=center;fontFamily=Helvetica;" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;UML STATE MACHINE DIAGRAM: FIRMWARE HOST MCU &amp;amp; DISCONNECT CONTROL&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Pemetaan State Operasi Host STM32U585 (fsm_statechart.c) &amp;amp; FSM Relai Pemutus Beban (SPLN D3.006:2021 / DLMS Class 70)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="42" width="1060" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-2" parent="1" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;startSize=26;horizontal=1;" value="&lt;b&gt;1. FINITE STATE MACHINE (FSM) UTAMA SISTEM FIRMWARE (Host STM32U585)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="559" width="1060" x="40" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-3" parent="VD6f6mH8CNq0tm7HyN_w-2" style="ellipse;fillColor=#000000;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="24" width="24" x="40" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-4" parent="VD6f6mH8CNq0tm7HyN_w-2" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;" value="&lt;b&gt;STATE 0: BOOT_INIT&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;text-align:left;font-size:9.5px;padding-left:4px;&quot;&gt;&lt;b&gt;entry /&lt;/b&gt; POR Catu Daya 3.3V&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Init RCC 160MHz, SAU TrustZone&lt;br/&gt;&lt;b&gt;exit /&lt;/b&gt; Konfigurasi Pinout HAL Selesai&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="220" x="84" y="39" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-5" parent="VD6f6mH8CNq0tm7HyN_w-2" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;" value="&lt;b&gt;STATE 1: SELF_TEST&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;text-align:left;font-size:9.5px;padding-left:4px;&quot;&gt;&lt;b&gt;entry /&lt;/b&gt; Mulai Diagnostik Hardware&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Checksum ROM/RAM, Ping SPI1 ADE9000, Uji Flash &amp;amp; Modem&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="260" x="433" y="39" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-6" parent="VD6f6mH8CNq0tm7HyN_w-2" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=11;fontFamily=Helvetica;" value="&lt;b&gt;STATE 2: NORMAL_METERING (Superstate Operasional Utama)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;text-align:left;font-size:9.5px;padding-left:4px;&quot;&gt;&lt;b&gt;do /&lt;/b&gt; Akuisisi DSP 1s, Siklus Utama FreeRTOS 100 ms, Integrasi Maximum Demand (15m)&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Evaluasi Tarif ToU, Carousel Display OLED, Respons Komunikasi DLMS/COSEM&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Monitor Ambang Batas Daya &amp;amp; Tegangan (Over/Under Voltage Cut-off)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="74" width="530" x="298" y="216" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-7" parent="VD6f6mH8CNq0tm7HyN_w-2" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;" value="&lt;b&gt;STATE 3: TAMPER_EVENT&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;text-align:left;font-size:9.5px;padding-left:4px;&quot;&gt;&lt;b&gt;entry /&lt;/b&gt; Catat Logbook Tamper FIFO&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Nyalakan LED Kuning Alarm PB7&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Kirim Trap Notifikasi DLMS ke HES&lt;/div&gt;" vertex="1">
+          <mxGeometry height="66" width="230" x="205" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-8" parent="VD6f6mH8CNq0tm7HyN_w-2" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;" value="&lt;b&gt;STATE 5: ACTUATION&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;text-align:left;font-size:9.5px;padding-left:4px;&quot;&gt;&lt;b&gt;entry /&lt;/b&gt; Siapkan Pulsa Koil Relai&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Trigger PC8 (Trip) / PC9 (Close) 50ms&lt;br/&gt;&lt;b&gt;exit /&lt;/b&gt; Verifikasi Kontak Umpan Balik PC7&lt;/div&gt;" vertex="1">
+          <mxGeometry height="66" width="240" x="453" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-9" parent="VD6f6mH8CNq0tm7HyN_w-2" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;" value="&lt;b&gt;STATE 4: LAST_GASP_MODE&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;text-align:left;font-size:9.5px;padding-left:4px;&quot;&gt;&lt;b&gt;entry /&lt;/b&gt; Freeze Kalkulasi Metrologi ADE9000&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Simpan Checkpoint Energi ke Flash SPI2&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Transmisi Event Padam via DLMS&lt;br/&gt;&lt;b&gt;exit /&lt;/b&gt; Masuk Mode Ultra-Low-Power STOP 2&lt;/div&gt;" vertex="1">
+          <mxGeometry height="76" width="270" x="750" y="331" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-10" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-2" source="VD6f6mH8CNq0tm7HyN_w-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" target="VD6f6mH8CNq0tm7HyN_w-4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-11" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-2" source="VD6f6mH8CNq0tm7HyN_w-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;" target="VD6f6mH8CNq0tm7HyN_w-5" value="POR_COMPLETE">
+          <mxGeometry relative="1" x="-0.0859" y="8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-12" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-2" source="VD6f6mH8CNq0tm7HyN_w-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;horizontal=0;" target="VD6f6mH8CNq0tm7HyN_w-6" value="SELF_TEST_PASS">
+          <mxGeometry relative="1" x="-0.0544" y="-10" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-13" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-2" source="VD6f6mH8CNq0tm7HyN_w-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.042;exitY=1.015;exitDx=0;exitDy=0;exitPerimeter=0;horizontal=0;" target="VD6f6mH8CNq0tm7HyN_w-7" value="IRQ0_TAMPER_TRIGGER">
+          <mxGeometry relative="1" x="-0.0946" y="-9" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="320" y="294.7" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-14" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-2" source="VD6f6mH8CNq0tm7HyN_w-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=0.8;exitY=0;exitDx=0;exitDy=0;entryX=0.171;entryY=1.022;entryDx=0;entryDy=0;entryPerimeter=0;horizontal=0;" target="VD6f6mH8CNq0tm7HyN_w-6" value="TAMPER_CLEAR">
+          <mxGeometry relative="1" x="-0.1272" y="8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-15" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-2" source="VD6f6mH8CNq0tm7HyN_w-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=0.45;exitY=1;exitDx=0;exitDy=0;entryX=0.348;entryY=0.029;entryDx=0;entryDy=0;entryPerimeter=0;horizontal=0;" target="VD6f6mH8CNq0tm7HyN_w-8" value="CMD_RELAY_ACTUATE">
+          <mxGeometry relative="1" x="0.0365" y="-8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-16" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-2" source="VD6f6mH8CNq0tm7HyN_w-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=0.793;exitY=-0.037;exitDx=0;exitDy=0;entryX=0.65;entryY=1;entryDx=0;entryDy=0;exitPerimeter=0;horizontal=0;" target="VD6f6mH8CNq0tm7HyN_w-6" value="RELAY_COMPLETE">
+          <mxGeometry relative="1" x="-0.1187" y="8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-17" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-2" source="VD6f6mH8CNq0tm7HyN_w-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="VD6f6mH8CNq0tm7HyN_w-9" value="PWR_GOOD_LOW (AC_FAIL)">
+          <mxGeometry relative="1" x="-0.1429" y="19" as="geometry">
+            <mxPoint x="-8" y="-15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-18" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-2" source="VD6f6mH8CNq0tm7HyN_w-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="VD6f6mH8CNq0tm7HyN_w-4" value="PWR_RESTORED (Reboot Sistem)">
+          <mxGeometry relative="1" x="-0.029" y="-9" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="885" y="532.8" />
+              <mxPoint x="175.8" y="532.8" />
+              <mxPoint x="175.8" y="99" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-19" parent="1" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;startSize=26;" value="&lt;b&gt;2. SUB-STATE MACHINE: PENGELOLA RELAI PEMUTUS BEBAN (SPLN D3.006 Tabel 5 &amp;amp; DLMS Disconnect Control Class 70)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="310" width="1128" x="40" y="678" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-20" parent="VD6f6mH8CNq0tm7HyN_w-19" style="ellipse;fillColor=#000000;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="22" width="22" x="40" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-21" parent="VD6f6mH8CNq0tm7HyN_w-19" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;" value="&lt;b&gt;CONNECTED (Relai Tersambung)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;text-align:left;font-size:9.5px;padding-left:4px;&quot;&gt;&lt;b&gt;entry /&lt;/b&gt; Kontak Relai Tertutup (PC9 HIGH 50ms)&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Saluran Listrik Pelanggan Aktif Normal&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Evaluasi Beban Lebih &amp;amp; Cut-Off Tegangan&lt;/div&gt;" vertex="1">
+          <mxGeometry height="62" width="280" x="110" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-22" parent="VD6f6mH8CNq0tm7HyN_w-19" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;" value="&lt;b&gt;DISCONNECTED (Relai Terputus)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;text-align:left;font-size:9.5px;padding-left:4px;&quot;&gt;&lt;b&gt;entry /&lt;/b&gt; Kontak Relai Terbuka (PC8 HIGH 50ms)&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Saluran Beban Pelanggan Padam&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Tampilkan Ikon Relai Terputus di OLED SPLN&lt;/div&gt;" vertex="1">
+          <mxGeometry height="62" width="290" x="795" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-23" parent="VD6f6mH8CNq0tm7HyN_w-19" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;" value="&lt;b&gt;READY_FOR_RECONNECTION (Siap Sambung)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;text-align:left;font-size:9.5px;padding-left:4px;&quot;&gt;&lt;b&gt;entry /&lt;/b&gt; Perintah Reconnect Diterima dari HES/DLMS&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Kedipkan Ikon Saklar di Layar OLED SPLN&lt;br/&gt;&lt;b&gt;do /&lt;/b&gt; Menunggu Aksi Fisik Pelanggan (SPLN Tabel 5 No 12)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="64" width="340" x="370" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-24" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-19" source="VD6f6mH8CNq0tm7HyN_w-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;" target="VD6f6mH8CNq0tm7HyN_w-21" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-25" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-19" source="VD6f6mH8CNq0tm7HyN_w-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=1;exitY=0.35;exitDx=0;exitDy=0;entryX=0;entryY=0.35;entryDx=0;entryDy=0;" target="VD6f6mH8CNq0tm7HyN_w-22" value="[Beban Lebih &gt;6600W (5s)] ATAU [Tegangan &lt;110V / &gt;280V] ATAU [Remote DLMS Action 1]">
+          <mxGeometry relative="1" x="0.0058" y="7" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-26" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-19" source="VD6f6mH8CNq0tm7HyN_w-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" target="VD6f6mH8CNq0tm7HyN_w-21" value="[Tegangan Normal Pulih: 115V s/d 276V]">
+          <mxGeometry relative="1" x="0.0057" y="7" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-27" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-19" source="VD6f6mH8CNq0tm7HyN_w-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" target="VD6f6mH8CNq0tm7HyN_w-23" value="Remote DLMS Reconnect (Action 2)">
+          <mxGeometry relative="1" x="0.2433" y="-8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-28" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-19" source="VD6f6mH8CNq0tm7HyN_w-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="VD6f6mH8CNq0tm7HyN_w-21" value="Tekan Simultan Tombol (▲ + ▼) 1 Detik">
+          <mxGeometry relative="1" x="-0.2031" y="12" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VD6f6mH8CNq0tm7HyN_w-29" edge="1" parent="VD6f6mH8CNq0tm7HyN_w-19" source="VD6f6mH8CNq0tm7HyN_w-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9;fontFamily=Helvetica;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0.3;entryY=1;entryDx=0;entryDy=0;" target="VD6f6mH8CNq0tm7HyN_w-22" value="Batal / Remote Disconnect">
+          <mxGeometry relative="1" x="-0.3932" y="8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="szEuBI4cd5eCvx0-cwrX" name="DFD-LVL0">
+    <mxGraphModel dx="1474" dy="1288" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="hdr0" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=12;align=center;fontFamily=Helvetica;" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;DATA FLOW DIAGRAM (DFD) LEVEL 0: DIAGRAM KONTEKS SISTEM SMART METER 3-FASA&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Diagram Konteks Kotak Hitam (Black Box): Aliran Data Masukan &amp;amp; Keluaran Global antara Sistem Smart Meter (STM32U585 &amp;amp; ADE9000) dan Entitas Eksternal (Acuan: Desain Sistem, PIN.docx &amp;amp; SPLN D3.006:2021)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46" width="1520" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p0" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;" value="&lt;b style=&quot;font-size:14px;&quot;&gt;0.0&lt;/b&gt;&lt;hr style=&quot;margin:4px 0;&quot;/&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;SISTEM SMART METER 3-FASA TERTANAM&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;(Host MCU STM32U585 Cortex-M33 &amp;amp; AFE ADE9000)&lt;br/&gt;Standar SPLN D3.006:2021 Kelas 1.0&lt;/font&gt;" vertex="1">
+          <mxGeometry height="280" width="320" x="560" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_grid" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;JARINGAN LISTRIK &amp;amp; CATU DAYA PLN&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Trafo Tegangan (Va, Vb, Vc) &amp;amp; Arus (Ia, Ib, Ic, In)&lt;br/&gt;- Sinyal Deteksi Padam AC_FAIL_DET (PC3)&lt;br/&gt;- Sinyal Zero-Crossing ADE_CF3_ZX (PE8)&lt;br/&gt;- Monitor Baterai VBAT (PD11) &amp;amp; VCAP (PC2)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="300" x="40" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_tamper" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;VEKTOR SABOTASE &amp;amp; ANOMALI FISIK&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Saklar Buka Tutup Meter (PC13 / TAMP_IN1)&lt;br/&gt;- Saklar Buka Tutup Terminal (PE6 / TAMP_IN3 - ERR20)&lt;br/&gt;- Sensor Magnetik Hall Effect (PE4 / EXTI4 - ERR25)&lt;br/&gt;- Anomali Listrik AFE (PB5 IRQ0 &amp;amp; PB1 IRQ1: ERR21..27)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="300" x="40" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_user" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;PELANGGAN LISTRIK&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Tombol Navigasi Layar (PA0 UP / PB6 DOWN)&lt;br/&gt;- Konfirmasi Rekoneksi Simultan (▲+▼ &amp;gt;= 1s)&lt;br/&gt;- Display OLED 0.96&quot; SSD1306 (Power PD2 / BL PD3)&lt;br/&gt;- Indikator LED Alarm (PB7) &amp;amp; Buzzer (PB8)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="125" width="320" x="560" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_load" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;INSTALASI BEBAN &amp;amp; KONTROL BANTU&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Pasokan Daya Listrik Terhubung / Terputus&lt;br/&gt;- Koil Latching Relai Trip (PC8) / Close (PC9)&lt;br/&gt;- Kontak Umpan Balik Relai AUX (PC6 / PC7)&lt;br/&gt;- Sinyal Kontrol Bantu AUX_IN (PD10/14) &amp;amp; AUX_OUT (PD8)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="320" x="560" y="860" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_tech" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;PETUGAS PLN (HHU) &amp;amp; BANGKU UJI TERA&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Port Optik Depan IEC 62056-21 (USART3 PB10/PB11)&lt;br/&gt;- Audit Billing Bulanan, Profil Beban &amp;amp; 3 Logbook FIFO&lt;br/&gt;- Konfigurasi Lokal IDPEL, Meter ID &amp;amp; Tarif ToU&lt;br/&gt;- Pulsa Tera Optik CF1/CF2 (PE12/PE13) &amp;amp; Konsol CLI&lt;/div&gt;" vertex="1">
+          <mxGeometry height="135" width="340" x="1210" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_hes" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;SISTEM PUSAT PLN (HES / AMI SYSTEM)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Modem Seluler 4G/NB-IoT (USART2/LPUART1 PA2/PA3, PD5)&lt;br/&gt;- Port Serial RS-485/RS-232 (USART1 PA9/PA10, DE PA12, PD4)&lt;br/&gt;- Perintah Disconnect/Reconnect (Cls 70), Set ToU &amp;amp; RTC&lt;br/&gt;- Penerima APDU DLMS AES-GCM-128, Trap &amp;amp; Last-Gasp&lt;/div&gt;" vertex="1">
+          <mxGeometry height="135" width="340" x="1210" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="df_grid_sys" edge="1" parent="1" source="ent_grid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5;exitY=1;entryX=0;entryY=0.25;" target="p0" value="Sinyal V/I 3-Fasa, Zero-Cross (PE8),&lt;br/&gt;AC_FAIL (PC3) &amp;amp; VBAT/VCAP">
+          <mxGeometry relative="1" x="0.25" y="14" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="190" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_tamper_sys" edge="1" parent="1" source="ent_tamper" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5;exitY=0;entryX=0;entryY=0.75;" target="p0" value="Interupsi Sabotase Tutup (PC13/PE6),&lt;br/&gt;Magnet (PE4) &amp;amp; IRQ AFE (PB5/PB1)">
+          <mxGeometry relative="1" x="0.25" y="-14" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="190" y="590" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_user_sys" edge="1" parent="1" source="ent_user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.25;exitY=1;entryX=0.25;entryY=0.05;" target="p0" value="Input Tombol (PA0/PB6)&lt;br/&gt;&amp;amp; Rekoneksi (▲+▼)">
+          <mxGeometry relative="1" x="-0.2" y="-55" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_sys_user" edge="1" parent="1" source="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.75;exitY=0.05;entryX=0.75;entryY=1;" target="ent_user" value="Tayangan OLED SPLN,&lt;br/&gt;LED (PB7) &amp;amp; Buzzer (PB8)">
+          <mxGeometry relative="1" x="-0.2" y="55" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_sys_load" edge="1" parent="1" source="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.25;exitY=0.95;entryX=0.25;entryY=0;" target="ent_load" value="Pulsa Koil Relai (PC8/PC9)&lt;br/&gt;&amp;amp; AUX_OUT (PD8)">
+          <mxGeometry relative="1" x="-0.2" y="58" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_load_sys" edge="1" parent="1" source="ent_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.75;exitY=0;entryX=0.75;entryY=0.95;" target="p0" value="Status Kontak Aux (PC6/PC7)&lt;br/&gt;&amp;amp; AUX_IN (PD10/14)">
+          <mxGeometry relative="1" x="-0.2" y="-60" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_sys_tech" edge="1" parent="1" source="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.95;exitY=0.22;entryX=0;entryY=0.35;" target="ent_tech" value="Respons Frame HDLC, Pulsa CF1/CF2&lt;br/&gt;(PE12/13) &amp;amp; Status Log CLI">
+          <mxGeometry relative="1" x="0.55" y="-16" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="960" y="441.6" />
+              <mxPoint x="960" y="257.25" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_tech_sys" edge="1" parent="1" source="ent_tech" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0;exitY=0.75;entryX=1;entryY=0.42;" target="p0" value="Perintah Audit OBIS, Set IDPEL&lt;br/&gt;(Optik USART3) &amp;amp; Uji CLI">
+          <mxGeometry relative="1" x="-0.55" y="16" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1010" y="311.25" />
+              <mxPoint x="1010" y="497.6" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_hes_sys" edge="1" parent="1" source="ent_hes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0;exitY=0.3;entryX=1;entryY=0.62;" target="p0" value="Perintah Disconnect Cls 70,&lt;br/&gt;Set ToU/Kontrak &amp;amp; Sync RTC">
+          <mxGeometry relative="1" x="-0.55" y="-16" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1010" y="680.5" />
+              <mxPoint x="1010" y="553.6" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_sys_hes" edge="1" parent="1" source="p0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.95;exitY=0.8;entryX=0;entryY=0.75;" target="ent_hes" value="APDU DLMS (AES-128), Profil Beban&lt;br/&gt;90-Hari, Trap &amp;amp; Last-Gasp">
+          <mxGeometry relative="1" x="0.55" y="16" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="960" y="604" />
+              <mxPoint x="960" y="741.25" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="DFD Level 1: Dekomposisi Tiga Pilar" id="xU7PgnIh9UoIrReMHjtp">
+    <mxGraphModel dx="1407" dy="1230" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1880" pageHeight="1080" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="hdr1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=12;align=center;fontFamily=Helvetica;" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;DATA FLOW DIAGRAM (DFD) LEVEL 1: DEKOMPOSISI TIGA PILAR SISTEM SMART METER&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size: 10.5px;&quot;&gt;Dekomposisi Fungsional Tingkat Sub-Sistem: Pilar E1 (Metrologi ADE9000) → Pilar E3 (Logika Aplikasi SPLN D3.006) ↔ Pilar E2 (Protokol DLMS/COSEM)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46" width="1800" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_0" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;1.0&lt;/b&gt;&lt;hr style=&quot;margin:3px 0;&quot;/&gt;&lt;b&gt;SUB-SISTEM METROLOGI &amp;amp; DSP&lt;br/&gt;(PILAR E1 - IC AFE ADE9000)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;- Sampling ADC SPI1 8kSPS (PA4..PA7)&lt;br/&gt;- Kalkulasi RMS V, I, P, Q, S, PF &amp;amp; Frekuensi&lt;br/&gt;- Deteksi Anomali Listrik (PB5 IRQ0 / PB1 IRQ1)&lt;br/&gt;- Output Pulsa Tera Optik CF1/CF2 (PE12/PE13)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="165" width="290" x="450" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_0" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=3;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.0&lt;/b&gt;&lt;hr style=&quot;margin:4px 0;&quot;/&gt;&lt;b&gt;SUB-SISTEM LOGIKA APLIKASI &amp;amp; SISTEM&lt;br/&gt;(PILAR E3 - JANTUNG METER)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;- Engine Billing Bulanan &amp;amp; Tarif ToU 8-Zona&lt;br/&gt;- Profil Beban 15-Menit (23-Kanal, 90 Hari) &amp;amp; Peak MD&lt;br/&gt;- Pengelola Relai Kontaktor &amp;amp; Proteksi (SPLN D3.006)&lt;br/&gt;- Evaluasi 9 Vektor Tamper, 8 Alarm HW &amp;amp; 12 Event&lt;br/&gt;- Antarmuka HMI OLED (PD2/PD3), Tombol &amp;amp; LED (PB7)&lt;br/&gt;- Manajemen Daya Last-Gasp (&amp;lt;15ms, PC3) &amp;amp; Konsol CLI&lt;/font&gt;" vertex="1">
+          <mxGeometry height="250" width="370" x="680" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="p2_0" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;2.0&lt;/b&gt;&lt;hr style=&quot;margin:3px 0;&quot;/&gt;&lt;b&gt;SUB-SISTEM PROTOKOL DLMS/COSEM&lt;br/&gt;(PILAR E2)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:9.5px;&quot;&gt;- Framing HDLC Modem (USART2/LPUART1) &amp;amp; Optik (USART3)&lt;br/&gt;- Keamanan Kriptografi HLS-5 AES-GCM-128&lt;br/&gt;- Katalog Objek OBIS (Class 1, 3, 4, 7, 8, 70)&lt;br/&gt;- Parser Layanan APDU GET / SET / ACTION &amp;amp; Push&lt;/font&gt;" vertex="1">
+          <mxGeometry height="165" width="290" x="1080" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_grid" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;JARINGAN LISTRIK &amp;amp; CATU DAYA PLN&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Trafo Tegangan (Va..Vc) &amp;amp; Arus (Ia..In)&lt;br/&gt;- Sinyal Deteksi Padam AC_FAIL_DET (PC3)&lt;br/&gt;- Sinyal Zero-Crossing ADE_CF3_ZX (PE8)&lt;br/&gt;- Sinyal VBAT (PD11) &amp;amp; VCAP (PC2)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="125" width="270" x="40" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_tamper" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;SENSOR SABOTASE FISIK&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Saklar Buka Tutup Meter (PC13 / TAMP_IN1)&lt;br/&gt;- Saklar Buka Terminal (PE6 / TAMP_IN3 - ERR20)&lt;br/&gt;- Sensor Magnetik Hall Effect (PE4 / EXTI4 - ERR25)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="115" width="270" x="40" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_user" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;PELANGGAN LISTRIK&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Tombol Navigasi Layar (PA0 UP / PB6 DN)&lt;br/&gt;- Konfirmasi Rekoneksi Simultan (▲+▼ &amp;gt;= 1s)&lt;br/&gt;- Display OLED SSD1306 (PD2/PD3)&lt;br/&gt;- Indikator LED Alarm (PB7) &amp;amp; Buzzer (PB8)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="280" x="220" y="855" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_load" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;INSTALASI BEBAN &amp;amp; KONTROL BANTU&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Pasokan Daya Terhubung / Terputus&lt;br/&gt;- Koil Breaker Trip (PC8) / Close (PC9)&lt;br/&gt;- Kontak Umpan Balik Relai AUX (PC6 / PC7)&lt;br/&gt;- Kontrol Bantu AUX_IN (PD10/14) &amp;amp; AUX_OUT (PD8)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="290" x="1200" y="855" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_hes" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;SISTEM PUSAT PLN (HES / AMI)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Modem 4G/NB-IoT (USART2/LPUART1 PA2/PA3, PD5)&lt;br/&gt;- Port RS-485/RS-232 (USART1 PA9/PA10, PD4)&lt;br/&gt;- Perintah Disconnect Cls 70, Set ToU &amp;amp; Sync RTC&lt;br/&gt;- Penerima APDU DLMS, Trap &amp;amp; Last-Gasp&lt;/div&gt;" vertex="1">
+          <mxGeometry height="125" width="280" x="1530" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="ent_opt" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;ENTITAS EKSTERNAL:&lt;br/&gt;PETUGAS PLN (HHU) &amp;amp; BANGKU UJI TERA&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:9.5px;text-align:left;padding-left:4px;&quot;&gt;- Port Optik Depan IEC 62056-21 (USART3 PB10/PB11)&lt;br/&gt;- Audit Billing Bulanan &amp;amp; 3 Logbook FIFO&lt;br/&gt;- Pulsa Tera Optik CF1/CF2 (PE12/PE13)&lt;br/&gt;- Konsol Uji Diagnostik Serial CLI (USART2)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="290" x="1520" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="df_grid_e1" edge="1" parent="1" source="ent_grid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.4960;exitPerimeter=0;entryX=0.0000;entryY=0.4970;entryPerimeter=0;" target="p1_0" value="Sinyal V/I Analog&lt;br/&gt;3-Fasa">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_grid_e3" edge="1" parent="1" source="ent_grid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.0510;entryY=0.2800;entryPerimeter=0;" target="p3_0" value="AC_FAIL (PC3), Zero-Cross (PE8)&lt;br/&gt;&amp;amp; VBAT/VCAP (PD11/PC2)">
+          <mxGeometry relative="1" x="0.1" as="geometry">
+            <mxPoint y="-18" as="offset" />
+            <Array as="points">
+              <mxPoint x="175" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_e1_e3" edge="1" parent="1" source="p1_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.3040;entryY=0.0400;entryPerimeter=0;" target="p3_0" value="Vektor Pengukuran (s_meas)&lt;br/&gt;&amp;amp; IRQ AFE (PB5/PB1)">
+          <mxGeometry relative="1" x="-0.0094" y="20" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="595" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_e1_opt_cf" edge="1" parent="1" source="p1_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.5000;exitY=0.0000;exitPerimeter=0;entryX=1.0000;entryY=0.2692;entryPerimeter=0;" target="ent_opt" value="Pulsa Kalibrasi Optik CF1/CF2 (PE12/PE13)">
+          <mxGeometry relative="1" x="-0.25" as="geometry">
+            <mxPoint y="-12" as="offset" />
+            <Array as="points">
+              <mxPoint x="595" y="110" />
+              <mxPoint x="1845" y="110" />
+              <mxPoint x="1845" y="465" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_tamper_e3" edge="1" parent="1" source="ent_tamper" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.4957;exitPerimeter=0;entryX=0.0078;entryY=0.5880;entryPerimeter=0;" target="p3_0" value="Interupsi Sabotase Fisik&lt;br/&gt;(PC13, PE6, PE4)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_user_e3_btn" edge="1" parent="1" source="ent_user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.3500;exitY=0.0000;exitPerimeter=0;entryX=0.1000;entryY=0.8000;entryPerimeter=0;" target="p3_0" value="Input Tombol (PA0/PB6)&lt;br/&gt;&amp;amp; Rekoneksi (▲+▼)">
+          <mxGeometry relative="1" x="0.2699" y="-20" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="370" y="855" />
+              <mxPoint x="370" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_e3_user_disp" edge="1" parent="1" source="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.0400;exitY=0.7400;exitPerimeter=0;entryX=0.7500;entryY=0.0000;entryPerimeter=0;" target="ent_user" value="Tayangan OLED, LED (PB7)&lt;br/&gt;&amp;amp; Buzzer (PB8)">
+          <mxGeometry relative="1" x="-0.15" as="geometry">
+            <mxPoint y="18" as="offset" />
+            <Array as_="points"><mxPoint x="430" y="535" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="df_e3_load_trip" edge="1" parent="1" source="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.9600;exitY=0.7400;exitPerimeter=0;entryX=0.2483;entryY=0.0000;entryPerimeter=0;" target="ent_load" value="Pulsa Koil Relai (PC8/PC9)&lt;br/&gt;&amp;amp; AUX_OUT (PD8)">
+          <mxGeometry relative="1" x="0.15" as="geometry">
+            <mxPoint y="-18" as="offset" />
+            <Array as_="points"><mxPoint x="1272" y="535" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="df_load_e3_aux" edge="1" parent="1" source="ent_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.6483;exitY=0.0000;exitPerimeter=0;entryX=0.8470;entryY=0.8600;entryPerimeter=0;horizontal=0;" target="p3_0" value="Status Kontak Aux (PC6/PC7)&lt;br/&gt;&amp;amp; AUX_IN (PD10/14)">
+          <mxGeometry relative="1" x="-0.4595" y="-22" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1388" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_e3_e2_obis" edge="1" parent="1" source="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.9319;exitY=0.2480;exitPerimeter=0;entryX=0.3448;entryY=0.9753;entryPerimeter=0;" target="p2_0" value="Data OBIS (Billing, Beban,&lt;br/&gt;Relai Cls 70 &amp;amp; Log/Trap)">
+          <mxGeometry relative="1" x="-0.25" as="geometry">
+            <mxPoint y="18" as="offset" />
+            <Array as="points">
+              <mxPoint x="1180" y="412" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_e2_e3_cmd" edge="1" parent="1" source="p2_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.4970;exitPerimeter=0;entryX=0.7514;entryY=0.0678;entryPerimeter=0;" target="p3_0" value="Perintah Cls 70, Set ToU/IDPEL&lt;br/&gt;&amp;amp; Sync RTC">
+          <mxGeometry relative="1" x="-0.35" as="geometry">
+            <mxPoint y="-18" as="offset" />
+            <Array as="points">
+              <mxPoint x="958" y="212" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_p2_hes" edge="1" parent="1" source="p2_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.9774;exitY=0.3515;exitPerimeter=0;entryX=0.0000;entryY=0.3040;entryPerimeter=0;" target="ent_hes" value="APDU DLMS (AES-128),&lt;br/&gt;Trap &amp;amp; Last-Gasp">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_hes_p2" edge="1" parent="1" source="ent_hes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.7520;exitPerimeter=0;entryX=0.9621;entryY=0.6909;entryPerimeter=0;" target="p2_0" value="Perintah HES, Set Tarif&lt;br/&gt;&amp;amp; Sync RTC">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_p2_opt" edge="1" parent="1" source="p2_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.8793;exitY=0.8258;exitPerimeter=0;entryX=0.555;entryY=0.006;entryPerimeter=0;entryDx=0;entryDy=0;" target="ent_opt" value="Data Billing, Profil&lt;br/&gt;&amp;amp; Logbook (Optik)">
+          <mxGeometry relative="1" x="-0.052" as="geometry">
+            <mxPoint y="18" as="offset" />
+            <Array as="points">
+              <mxPoint x="1335" y="300" />
+              <mxPoint x="1681" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_opt_p2" edge="1" parent="1" source="ent_opt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.25;exitY=0;entryX=0.6793;entryY=0.9667;entryPerimeter=0;exitDx=0;exitDy=0;" target="p2_0" value="Perintah Audit OBIS&lt;br/&gt;&amp;amp; Set IDPEL (Optik)">
+          <mxGeometry relative="1" x="0.2391" y="20" as="geometry">
+            <mxPoint x="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="1590" y="430" />
+              <mxPoint x="1590" y="370" />
+              <mxPoint x="1277" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_opt_e3_cli" edge="1" parent="1" source="ent_opt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.3462;exitPerimeter=0;entryX=1.0000;entryY=0.5000;entryPerimeter=0;" target="p3_0" value="Perintah ASCII CLI&lt;br/&gt;Uji &amp;amp; Diagnostik">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df_e3_opt_cli" edge="1" parent="1" source="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;exitX=0.9737;exitY=0.6600;exitPerimeter=0;entryX=0.0000;entryY=0.6538;entryPerimeter=0;" target="ent_opt" value="Respons Eksekusi&lt;br/&gt;&amp;amp; Status Log CLI">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      <mxCell id="ds_d1" parent="1" vertex="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D1 | FLASH CHECKPOINT ENERGI &amp;amp; STATUS RELAI&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Simpan Darurat Last-Gasp (&amp;lt;15ms, PC3) &amp;amp; Restorasi Booting&lt;/font&gt;"><mxGeometry x="540" y="680" width="280" height="65" as="geometry" /></mxCell><mxCell id="ds_d2" parent="1" vertex="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D2 | RING BUFFER LOGBOOK KEJADIAN (FIFO)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;3 Logbook Terpisah: Tamper (9), Alarm (8 HW) &amp;amp; Event (12 Kejadian)&lt;/font&gt;"><mxGeometry x="540" y="810" width="280" height="65" as="geometry" /></mxCell><mxCell id="ds_d4" parent="1" vertex="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D4 | TABEL TARIF ToU &amp;amp; KONFIGURASI KONTRAK&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Skedul WBP/LWBP 8-Zona, Daya Kontrak (VA), IDPEL &amp;amp; Parameter Tera&lt;/font&gt;"><mxGeometry x="905" y="680" width="280" height="65" as="geometry" /></mxCell><mxCell id="ds_d3" parent="1" vertex="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D3 | BUFFER PROFIL BEBAN 15-MENIT &amp;amp; BILLING&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Deret Berkala 15-M (23-Kanal, 90-Hari), Peak MD &amp;amp; Billing 12-Bulan&lt;/font&gt;"><mxGeometry x="905" y="810" width="280" height="65" as="geometry" /></mxCell><mxCell id="df_e3_d1_w" parent="1" edge="1" source="p3_0" target="ds_d1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.2297;exitY=0.9200;exitPerimeter=0;entryX=0.8036;entryY=0.0000;entryPerimeter=0;horizontal=0;" value="Penyimpanan Checkpoint&lt;br/&gt;Last-Gasp (&amp;lt;15ms)"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="df_d1_e3_r" parent="1" edge="1" source="ds_d1" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.6250;exitY=0.0000;exitPerimeter=0;entryX=0.0946;entryY=0.8400;entryPerimeter=0;horizontal=0;" value="Restorasi Energi &amp;amp;&lt;br/&gt;Status Relai Saat Boot"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="df_e3_d4_w" parent="1" edge="1" source="p3_0" target="ds_d4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.7703;exitY=0.9200;exitPerimeter=0;entryX=0.2143;entryY=0.0000;entryPerimeter=0;horizontal=0;" value="Pembaruan Skedul ToU,&lt;br/&gt;IDPEL &amp;amp; Parameter"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="df_d4_e3_r" parent="1" edge="1" source="ds_d4" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3929;exitY=0.0000;exitPerimeter=0;entryX=0.9054;entryY=0.8400;entryPerimeter=0;horizontal=0;" value="Parameter Tarif 8-Zona,&lt;br/&gt;Daya Kontrak &amp;amp; Kalibrasi"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="df_e3_d2_w" parent="1" edge="1" source="p3_0" target="ds_d2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.4324;exitY=0.9920;exitPerimeter=0;entryX=1.0000;entryY=0.3077;entryPerimeter=0;horizontal=0;" value="Pencatatan Event Sabotase,&lt;br/&gt;Alarm HW &amp;amp; Relai Trip"><mxGeometry relative="1" y="-15" as="geometry"><Array as_="points"><mxPoint x="840" y="830" /></Array></mxGeometry></mxCell><mxCell id="df_d2_e3_r" parent="1" edge="1" source="ds_d2" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.6923;exitPerimeter=0;entryX=0.4730;entryY=1.0000;entryPerimeter=0;horizontal=0;" value="Pembacaan Riwayat&lt;br/&gt;Logbook FIFO Kejadian"><mxGeometry relative="1" y="15" as="geometry"><Array as_="points"><mxPoint x="855" y="855" /></Array></mxGeometry></mxCell><mxCell id="df_e3_d3_w" parent="1" edge="1" source="p3_0" target="ds_d3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5270;exitY=1.0000;exitPerimeter=0;entryX=0.0000;entryY=0.3077;entryPerimeter=0;horizontal=0;" value="Perekaman Interval 15-M,&lt;br/&gt;Peak MD &amp;amp; Billing Bulanan"><mxGeometry relative="1" y="-15" as="geometry"><Array as_="points"><mxPoint x="875" y="830" /></Array></mxGeometry></mxCell><mxCell id="df_d3_e3_r" parent="1" edge="1" source="ds_d3" target="p3_0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.6923;exitPerimeter=0;entryX=0.5676;entryY=0.9920;entryPerimeter=0;horizontal=0;" value="Data Riwayat Profil Beban&lt;br/&gt;&amp;amp; Rekaman Billing Bulanan"><mxGeometry relative="1" y="15" as="geometry"><Array as_="points"><mxPoint x="890" y="855" /></Array></mxGeometry></mxCell></root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="DFD Level 2: Dekomposisi Pilar E3" id="aGDXQDoKicnT_4JKb07P">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1720" pageHeight="1060" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="hdr2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=12;align=center;fontFamily=Helvetica;" value="&lt;b style=&quot;font-size: 14.5px;&quot;&gt;DATA FLOW DIAGRAM (DFD) LEVEL 2: DEKOMPOSISI PROSES 3.0 (PILAR E3 - APLIKASI SMART METER)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Dekomposisi Kompak 5 Sub-Proses Inti (3.1–3.5) &amp;amp; 3 Data Store Terlokalisasi (D1–D3) dengan Panah Searah Murni (Sesuai Design For ECE, Desain Sistem, PIN.docx &amp;amp; SPLN D3.006:2021)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="44" width="1650" x="35" y="18" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_e1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;SUBSISTEM METROLOGI&lt;br/&gt;(PILAR E1 - IC AFE ADE9000)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Sampling SPI1 ADE9000 (PA4..PA7)&lt;br/&gt;- Vektor Pengukuran s_meas (V, I, P, Q, S, PF)&lt;br/&gt;- IRQ Anomali Listrik PB5 (IRQ0) &amp;amp; PB1 (IRQ1)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="105" width="230" x="35" y="225" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_tamper" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;SENSOR SABOTASE FISIK&lt;br/&gt;(TAMPER HARDWARE)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Saklar Tutup Meter (PC13 / TAMP_IN1)&lt;br/&gt;- Saklar Tutup Terminal (PE6 / TAMP_IN3 - ERR20)&lt;br/&gt;- Sensor Magnetik Hall (PE4 / EXTI4 - ERR25)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="230" x="35" y="475" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_cli" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;PORT UJI &amp;amp; DIAGNOSTIK&lt;br/&gt;(PETUGAS / TEST BENCH)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Serial CLI Interaktif (USART2 PA2/PA3)&lt;br/&gt;- Injeksi Beban Sintetis &amp;amp; Audit Register&lt;/div&gt;" vertex="1">
+          <mxGeometry height="105" width="230" x="35" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_d1" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D1 | MEMORI TARIF ToU, PROFIL BEBAN (90-HR) &amp;amp; BILLING (12-BLN)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8px;&quot;&gt;Skedul WBP/LWBP 8-Zona, Kontrak VA, IDPEL, Profil 15-M (23-Kanal) &amp;amp; Peak MD (SPI2 4MB)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="52" width="360" x="385" y="76" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.1&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;ENGINE BILLING, TARIF ToU&lt;br/&gt;&amp;amp; PROFIL BEBAN (15-M)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Kalkulasi Energi WBP/LWBP, Billing 12-Bln,&lt;br/&gt;Integrasi 23-Kanal 15-M (90-Hr), Peak MD,&lt;br/&gt;&amp;amp; Konfigurasi Kontrak/RTC&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="250" x="440" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.2&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;DETEKSI SABOTASE (9 TAMPER),&lt;br/&gt;ALARM &amp;amp; LOGBOOK FIFO&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Evaluasi 9 Vektor Tamper, 8 Alarm HW&lt;br/&gt;(ERR00..27), 12 Event, &amp;amp; Pencatatan&lt;br/&gt;3 Antrean Logbook FIFO&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="250" x="440" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.4&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;ANTARMUKA HMI OLED,&lt;br/&gt;TOMBOL &amp;amp; KONSOL CLI&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;25 Layar SPLN (Auto 5s / Manual), Rotasi&lt;br/&gt;ERR 3s, Kedip LED PB7, Buzzer PB8,&lt;br/&gt;&amp;amp; Parser Diagnostik CLI (USART2)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="250" x="440" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_user" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;PELANGGAN LISTRIK&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Tombol Navigasi (PA0 UP / PB6 DN) &amp;amp; (▲+▼ 1s)&lt;br/&gt;- Display OLED SSD1306 (PD2/PD3)&lt;br/&gt;- Indikator LED Alarm (PB7) &amp;amp; Buzzer (PB8)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="95" width="290" x="420" y="930" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_d2" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D2 | 3 REGISTER LOGBOOK FIFO (&amp;gt;= 30 ENTRI/LOG)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8px;&quot;&gt;Antrean FIFO Terpisah: Log Alarm (8), Log Event (12) &amp;amp; Log Tamper (9)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="54" width="300" x="865" y="245" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.3&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;PENGELOLA RELAI &amp;amp;&lt;br/&gt;PROTEKSI (SPLN D3.006)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;FSM Relai (CONNECTED, READY,&lt;br/&gt;LOCKED OUT), Zero-Cross Switch,&lt;br/&gt;Proteksi Beban/Tegangan &amp;amp; AUX&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="250" x="890" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2.5;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;3.5&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;b&gt;MANAJEMEN DAYA &amp;amp;&lt;br/&gt;LAST-GASP (STOP 2)&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8.5px;&quot;&gt;Emergency Save (&amp;lt;15ms) ke D3,&lt;br/&gt;Wakeup Layar 10s saat Padam,&lt;br/&gt;Power Gating &amp;amp; Stop 2 (4.5µA)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="250" x="890" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_d3" parent="1" style="shape=partialRectangle;top=1;bottom=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9;fontFamily=Helvetica;align=center;whiteSpace=wrap;html=1;verticalAlign=middle;left=0;right=0;" value="&lt;b&gt;D3 | FLASH CHECKPOINT ENERGI &amp;amp; STATUS RELAI&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:8px;&quot;&gt;Simpan Darurat Last-Gasp (&amp;lt;15ms) &amp;amp; Restorasi Saat Boot&lt;/font&gt;" vertex="1">
+          <mxGeometry height="56" width="300" x="865" y="935" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_e2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;PROTOKOL DLMS/COSEM&lt;br/&gt;(PILAR E2)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Modem HES USART2/LPUART1 (AES-128)&lt;br/&gt;- Port Optik HHU USART3 (PB10/PB11)&lt;br/&gt;- Layanan GET / SET / ACTION Objek OBIS&lt;br/&gt;- Perintah Disconnect Cls 70 &amp;amp; Sync RTC Cls 8&lt;/div&gt;" vertex="1">
+          <mxGeometry height="125" width="275" x="1410" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_load" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;INSTALASI BEBAN &amp;amp; KONTROL BANTU&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Pasokan Daya Terhubung / Terputus&lt;br/&gt;- Koil Latching Relai Trip (PC8) / Close (PC9)&lt;br/&gt;- Kontak Umpan Balik Relai AUX (PC6 / PC7)&lt;br/&gt;- Kontrol Bantu AUX_IN (PD10/14) &amp;amp; AUX_OUT (PD8)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="275" x="1410" y="465" as="geometry" />
+        </mxCell>
+        <mxCell id="bnd_grid" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=9.5;fontFamily=Helvetica;align=center;" value="&lt;b&gt;DETEKSI DAYA &amp;amp; GRID&lt;br/&gt;(POWER &amp;amp; ZX MONITOR)&lt;/b&gt;&lt;hr style=&quot;margin:2px 0;&quot;/&gt;&lt;div style=&quot;font-size:8.5px;text-align:left;padding-left:4px;&quot;&gt;- Sinyal Padam AC_FAIL_DET (PC3)&lt;br/&gt;- Sinyal Zero-Crossing ADE_CF3_ZX (PE8)&lt;br/&gt;- Monitor VBAT (PD11) &amp;amp; VCAP (PC2)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="105" width="275" x="1410" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="f_e1_31" edge="1" parent="1" source="bnd_e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.4762;exitPerimeter=0;entryX=0.0015;entryY=0.4615;entryPerimeter=0;" target="p3_1" value="Vektor Pengukuran&lt;br/&gt;Listrik (s_meas)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="-16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_e1_32" edge="1" parent="1" source="bnd_e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.2600;entryY=0.0614;entryPerimeter=0;" target="p3_2" value="Anomali Listrik &amp;amp; IRQ AFE&lt;br/&gt;(PB5/PB1: ERR21..27)">
+          <mxGeometry relative="1" x="-0.15" as="geometry">
+            <mxPoint x="-20" y="-16" as="offset" />
+            <Array as="points">
+              <mxPoint x="150" y="418" />
+              <mxPoint x="505" y="418" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_31_d1_w" edge="1" parent="1" source="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3000;exitY=0.0417;exitPerimeter=0;entryX=0.3611;entryY=1.0000;entryPerimeter=0;" target="ds_d1" value="Rekaman Profil 15-M,&lt;br/&gt;Billing &amp;amp; Update ToU">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-78" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_d1_31_r" edge="1" parent="1" source="ds_d1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5278;exitY=1.0000;exitPerimeter=0;entryX=0.5400;entryY=0.0016;entryPerimeter=0;" target="p3_1" value="Parameter Tarif ToU,&lt;br/&gt;Kontrak &amp;amp; Histori">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="62" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_31_33" edge="1" parent="1" source="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.7800;exitY=0.9142;exitPerimeter=0;entryX=0.2200;entryY=0.0858;entryPerimeter=0;jumpStyle=arc;" target="p3_3" value="V_rms, I_rms, S_total&lt;br/&gt;&amp;amp; Batas Kontrak">
+          <mxGeometry relative="1" x="0.25" as="geometry">
+            <mxPoint y="-16" as="offset" />
+            <Array as="points">
+              <mxPoint x="635" y="390" />
+              <mxPoint x="945" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_31_34" edge="1" parent="1" source="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.1059;exitY=0.8077;exitPerimeter=0;entryX=0.0600;entryY=0.2625;entryPerimeter=0;jumpStyle=arc;" target="p3_4" value="Data Energi ToU,&lt;br/&gt;V/I/P/PF &amp;amp; IDPEL">
+          <mxGeometry relative="1" x="0.35" as="geometry">
+            <mxPoint x="-52" as="offset" />
+            <Array as="points">
+              <mxPoint x="375" y="320" />
+              <mxPoint x="375" y="695" />
+              <mxPoint x="455" y="695" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_34_31_cli" edge="1" parent="1" source="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.1600;exitY=0.1334;exitPerimeter=0;entryX=0.1600;entryY=0.8666;entryPerimeter=0;jumpStyle=arc;" target="p3_1" value="Vektor Beban&lt;br/&gt;Sintetis Uji CLI">
+          <mxGeometry relative="1" x="0.78" as="geometry">
+            <mxPoint x="-5" y="16" as="offset" />
+            <Array as="points">
+              <mxPoint x="480" y="665" />
+              <mxPoint x="405" y="665" />
+              <mxPoint x="405" y="360" />
+              <mxPoint x="480" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_tamp_32" edge="1" parent="1" source="bnd_tamper" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;jumpStyle=arc;" target="p3_2" value="Interupsi Sabotase&lt;br/&gt;(PC13, PE6, PE4)">
+          <mxGeometry relative="1" x="-0.38" as="geometry">
+            <mxPoint y="-16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_32_d2_w" edge="1" parent="1" source="p3_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.8608;exitY=0.1538;exitPerimeter=0;entryX=0.0000;entryY=0.2778;entryPerimeter=0;jumpStyle=arc;" target="ds_d2" value="Rekaman FIFO Alarm,&lt;br/&gt;Event &amp;amp; Tamper">
+          <mxGeometry relative="1" x="0.68" as="geometry">
+            <mxPoint x="-10" y="-16" as="offset" />
+            <Array as="points">
+              <mxPoint x="735" y="480" />
+              <mxPoint x="735" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_d2_32_r" edge="1" parent="1" source="ds_d2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.7407;exitPerimeter=0;entryX=0.9677;entryY=0.3231;entryPerimeter=0;jumpStyle=arc;" target="p3_2" value="Data Riwayat&lt;br/&gt;3 Logbook FIFO">
+          <mxGeometry relative="1" x="-0.68" as="geometry">
+            <mxPoint y="16" as="offset" />
+            <Array as="points">
+              <mxPoint x="760" y="285" />
+              <mxPoint x="760" y="502" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_32_33" edge="1" parent="1" source="p3_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;" target="p3_3" value="Status &amp;amp; Vektor Sabotase&lt;br/&gt;Aktif (9 Tamper)">
+          <mxGeometry relative="1" x="-0.22" as="geometry">
+            <mxPoint y="16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_32_34" edge="1" parent="1" source="p3_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.5000;entryY=0.0000;entryPerimeter=0;" target="p3_4" value="Kode ERR00..27 &amp;amp;&lt;br/&gt;Kedip LED (PB7)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-44" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_34_33" edge="1" parent="1" source="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.7800;exitY=0.0858;exitPerimeter=0;entryX=0.2200;entryY=0.9142;entryPerimeter=0;" target="p3_3" value="Konfirmasi Simultan&lt;br/&gt;(▲+▼ &amp;gt;= 1s)">
+          <mxGeometry relative="1" x="-0.02" as="geometry">
+            <mxPoint y="-15" as="offset" />
+            <Array as="points">
+              <mxPoint x="635" y="618" />
+              <mxPoint x="945" y="618" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_33_34" edge="1" parent="1" source="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.1120;exitY=0.8154;exitPerimeter=0;entryX=0.6720;entryY=0.0305;entryPerimeter=0;jumpLayers=1;noJump=0;jumpStyle=arc;" target="p3_4" value="Status FSM Relai&lt;br/&gt;(Ikon Layar)">
+          <mxGeometry relative="1" x="0.22" as="geometry">
+            <mxPoint y="15" as="offset" />
+            <Array as="points">
+              <mxPoint x="918" y="652" />
+              <mxPoint x="608" y="652" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_33_load" edge="1" parent="1" source="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.9615;exitY=0.3077;exitPerimeter=0;entryX=0.0000;entryY=0.2917;entryPerimeter=0;" target="bnd_load" value="Pulsa Koil Relai (PC8/PC9)&lt;br/&gt;&amp;amp; AUX_OUT (PD8)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="-16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_load_33" edge="1" parent="1" source="bnd_load" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.7083;exitPerimeter=0;entryX=0.9615;entryY=0.6923;entryPerimeter=0;" target="p3_3" value="Status Kontak Aux (PC6/PC7)&lt;br/&gt;&amp;amp; AUX_IN (PD10/14)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_33_35" edge="1" parent="1" source="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.5000;entryY=0.0000;entryPerimeter=0;" target="p3_5" value="State Akhir&lt;br/&gt;FSM Relai">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="48" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_31_35_snap" edge="1" parent="1" source="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.6800;exitY=0.9665;exitPerimeter=0;entryX=0.0692;entryY=0.2462;entryPerimeter=0;jumpStyle=arc;" target="p3_5" value="Snapshot Akumulator&lt;br/&gt;Energi &amp;amp; Billing">
+          <mxGeometry relative="1" x="0.78" as="geometry">
+            <mxPoint x="-55" as="offset" />
+            <Array as="points">
+              <mxPoint x="610" y="430" />
+              <mxPoint x="855" y="430" />
+              <mxPoint x="855" y="742" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_grid_33" edge="1" parent="1" source="bnd_grid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.4909;exitY=0.0000;exitPerimeter=0;entryX=0.8454;entryY=0.8615;entryPerimeter=0;" target="p3_3" value="Sinyal Zero-Crossing&lt;br/&gt;(ADE_CF3_ZX PE8)">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint y="-16" as="offset" />
+            <Array as="points">
+              <mxPoint x="1545" y="625" />
+              <mxPoint x="1165" y="625" />
+              <mxPoint x="1165" y="572" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_grid_35" edge="1" parent="1" source="bnd_grid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.4762;exitPerimeter=0;entryX=1.0000;entryY=0.5000;entryPerimeter=0;" target="p3_5" value="Sinyal AC_FAIL (PC3) &amp;amp;&lt;br/&gt;VBAT/VCAP (PD11/PC2)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_35_34" edge="1" parent="1" source="p3_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0000;exitY=0.5000;exitPerimeter=0;entryX=1.0000;entryY=0.5000;entryPerimeter=0;" target="p3_4" value="Mode Daya, Timer 10s&lt;br/&gt;&amp;amp; Power LCD (PD2/3)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_35_d3_w" edge="1" parent="1" source="p3_5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3400;exitY=0.9737;exitPerimeter=0;entryX=0.3667;entryY=0.0000;entryPerimeter=0;" target="ds_d3" value="Checkpoint Darurat&lt;br/&gt;Last-Gasp (&amp;lt;15ms)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-75" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_d3_35_r" edge="1" parent="1" source="ds_d3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.6333;exitY=0.0000;exitPerimeter=0;entryX=0.6600;entryY=0.9737;entryPerimeter=0;" target="p3_5" value="Restorasi Energi &amp;amp;&lt;br/&gt;State Relai Saat Boot">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="82" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_user_34" edge="1" parent="1" source="bnd_user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.3621;exitY=0.0000;exitPerimeter=0;entryX=0.3400;entryY=0.9737;entryPerimeter=0;" target="p3_4" value="Input Tombol&lt;br/&gt;Navigasi (PA0/PB6)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-75" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_34_user" edge="1" parent="1" source="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.6600;exitY=0.9737;exitPerimeter=0;entryX=0.6379;entryY=0.0000;entryPerimeter=0;" target="bnd_user" value="Tayangan OLED,&lt;br/&gt;LED (PB7) &amp;amp; Buzzer">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_cli_34" edge="1" parent="1" source="bnd_cli" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=1.0000;exitY=0.2857;exitPerimeter=0;entryX=0.0243;entryY=0.3462;entryPerimeter=0;" target="p3_4" value="Perintah ASCII CLI&lt;br/&gt;Uji &amp;amp; Kalibrasi (USART2)">
+          <mxGeometry relative="1" x="-0.15" as="geometry">
+            <mxPoint y="-16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_34_cli" edge="1" parent="1" source="p3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.0323;exitY=0.6769;exitPerimeter=0;entryX=1.0000;entryY=0.6952;entryPerimeter=0;" target="bnd_cli" value="Respons Eksekusi&lt;br/&gt;&amp;amp; Status Log CLI">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_e2_31" edge="1" parent="1" source="bnd_e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.4909;exitY=0.0000;exitPerimeter=0;entryX=0.7665;entryY=0.0769;entryPerimeter=0;" target="p3_1" value="Set Tarif ToU, Kontrak, IDPEL &amp;amp; Sync RTC (Cls 8)">
+          <mxGeometry relative="1" x="-0.05" as="geometry">
+            <mxPoint y="-12" as="offset" />
+            <Array as="points">
+              <mxPoint x="1545" y="150" />
+              <mxPoint x="700" y="150" />
+              <mxPoint x="700" y="225" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_31_e2" edge="1" parent="1" source="p3_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.9213;exitY=0.2308;exitPerimeter=0;entryX=0.0000;entryY=0.1360;entryPerimeter=0;" target="bnd_e2" value="OBIS Billing, Tarif ToU &amp;amp;&lt;br/&gt;Profil Beban (Cls 4 &amp;amp; 7)">
+          <mxGeometry relative="1" x="0.15" as="geometry">
+            <mxPoint y="-16" as="offset" />
+            <Array as="points">
+              <mxPoint x="718" y="245" />
+              <mxPoint x="718" y="202" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_32_e2" edge="1" parent="1" source="p3_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.8600;exitY=0.1530;exitPerimeter=0;entryX=0.0000;entryY=0.7200;entryPerimeter=0;jumpStyle=arc;" target="bnd_e2" value="Trap Alarm Sabotase&lt;br/&gt;&amp;amp; Logbook OBIS">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="-16" as="offset" />
+            <Array as="points">
+              <mxPoint x="655" y="345" />
+              <mxPoint x="1215" y="345" />
+              <mxPoint x="1215" y="275" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_e2_33" edge="1" parent="1" source="bnd_e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.2727;exitY=1.0000;exitPerimeter=0;entryX=0.6200;entryY=0.0146;entryPerimeter=0;" target="p3_3" value="Perintah Disconnect/&lt;br/&gt;Reconnect (Class 70)">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint y="-16" as="offset" />
+            <Array as="points">
+              <mxPoint x="1485" y="380" />
+              <mxPoint x="1045" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f_33_e2" edge="1" parent="1" source="p3_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=8.5;fontFamily=Helvetica;exitX=0.8000;exitY=0.1000;exitPerimeter=0;entryX=0.6727;entryY=1.0000;entryPerimeter=0;" target="bnd_e2" value="Status Relai &amp;amp;&lt;br/&gt;State Class 70">
+          <mxGeometry relative="1" x="0.05" as="geometry">
+            <mxPoint y="16" as="offset" />
+            <Array as="points">
+              <mxPoint x="1090" y="418" />
+              <mxPoint x="1595" y="418" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
