@@ -129,12 +129,57 @@ void test_nvram_device_config(void) {
     printf("   [PASS] NVRAM Device Config Magic Stamp 0x43464944 & Persistence Verified!\n\n");
 }
 
+void test_nvram_calibration_save_load(void) {
+    printf("[TEST] Testing NVRAM Calibration Data Save/Load (ADE9000 Parameters)...\n");
+
+    nvram_calibration_data_t cal_in = {
+        .vgain = {1000, 1005, 998},
+        .igain = {2000, 2002, 1995, 2001},
+        .pgain = {500, 502, 498},
+        .phase_cal = {12, 11, 13}
+    };
+
+    bool save_ok = nvram_save_calibration(&cal_in);
+    assert(save_ok == true);
+
+    nvram_calibration_data_t cal_out = {0};
+    bool load_ok = nvram_load_calibration(&cal_out);
+    assert(load_ok == true);
+    assert(cal_out.magic == NVRAM_CALIBRATION_MAGIC);
+    assert(cal_out.vgain[0] == 1000);
+    assert(cal_out.vgain[1] == 1005);
+    assert(cal_out.vgain[2] == 998);
+    assert(cal_out.igain[0] == 2000);
+    assert(cal_out.igain[3] == 2001);
+    assert(cal_out.pgain[0] == 500);
+    assert(cal_out.phase_cal[2] == 13);
+
+    assert(nvram_save_calibration(NULL) == false);
+    assert(nvram_load_calibration(NULL) == false);
+
+    printf("   [PASS] NVRAM Calibration Data Magic Stamp 0x43414C42 & Integrity Verified!\n\n");
+}
+
+void test_nvram_sector_erase(void) {
+    printf("[TEST] Testing NVRAM Sector Erase (4 KB Sector Opcode 0x20)...\n");
+
+    bool erase_ok = nvram_erase_sector(SPI_FLASH_SECTOR_CHECKPOINT_SLOT_A);
+    assert(erase_ok == true);
+
+    bool erase_slot_b = nvram_erase_sector(SPI_FLASH_SECTOR_CHECKPOINT_SLOT_B);
+    assert(erase_slot_b == true);
+
+    printf("   [PASS] NVRAM Sector Erase Alignment & Execution Verified!\n\n");
+}
+
 /* FUNGSI MAIN UTAMA HARUS ADA DI SINI */
 int main(void) {
     printf("=========================================\n");
     printf("     RUNNING NVRAM STORAGE UNIT TESTS    \n");
     printf("=========================================\n\n");
 
+    test_nvram_sector_erase();
+    test_nvram_calibration_save_load();
     test_nvram_load_profile_write_read();
     test_nvram_tamper_log_snapshot();
     test_nvram_energy_checkpoint_magic_stamp();

@@ -15,6 +15,8 @@
 
 /* Header Layanan Modular Tiga Pilar (E1, E2, E3) */
 #include "e1_metrology_service.h"
+#include "RegisterMap.h"
+#include "SPI.h"
 #include "e2_dlms_service.h"
 #include "e3_meter_app.h"
 #include "console_io.h"
@@ -112,6 +114,26 @@ void meter_system_bringup(UART_HandleTypeDef *huart_opt, UART_HandleTypeDef *hua
         s_meas.active_energy_wh        = cp.active_energy_import_wh;
         s_meas.active_energy_import_wh = cp.active_energy_export_wh;
         s_meas.reactive_energy_varh    = cp.reactive_energy_varh;
+    }
+
+    /* 4. Pulihkan Parameter Kalibrasi ADE9000 dari NVRAM Flash (jika ada) */
+    nvram_calibration_data_t cal = {0};
+    if (nvram_load_calibration(&cal))
+    {
+        printf("[BRIDGE] Restored ADE9000 Calibration from NVRAM Flash (VGain: 0x%08lX, IGain: 0x%08lX)\n",
+               (unsigned long)cal.vgain[0], (unsigned long)cal.igain[0]);
+        ADE9000_SPI_TransactionWrite(ADE9000_WR_LOCK, ADE9000_SPI_DATA_16BIT, ADE9000_WR_UNLOCK_KEY);
+        ADE9000_SPI_TransactionWrite(ADE9000_AVGAIN, ADE9000_SPI_DATA_32BIT, cal.vgain[0]);
+        ADE9000_SPI_TransactionWrite(ADE9000_BVGAIN, ADE9000_SPI_DATA_32BIT, cal.vgain[1]);
+        ADE9000_SPI_TransactionWrite(ADE9000_CVGAIN, ADE9000_SPI_DATA_32BIT, cal.vgain[2]);
+        ADE9000_SPI_TransactionWrite(ADE9000_AIGAIN, ADE9000_SPI_DATA_32BIT, cal.igain[0]);
+        ADE9000_SPI_TransactionWrite(ADE9000_BIGAIN, ADE9000_SPI_DATA_32BIT, cal.igain[1]);
+        ADE9000_SPI_TransactionWrite(ADE9000_CIGAIN, ADE9000_SPI_DATA_32BIT, cal.igain[2]);
+        ADE9000_SPI_TransactionWrite(ADE9000_NIGAIN, ADE9000_SPI_DATA_32BIT, cal.igain[3]);
+        ADE9000_SPI_TransactionWrite(ADE9000_APGAIN, ADE9000_SPI_DATA_32BIT, cal.pgain[0]);
+        ADE9000_SPI_TransactionWrite(ADE9000_BPGAIN, ADE9000_SPI_DATA_32BIT, cal.pgain[1]);
+        ADE9000_SPI_TransactionWrite(ADE9000_CPGAIN, ADE9000_SPI_DATA_32BIT, cal.pgain[2]);
+        ADE9000_SPI_TransactionWrite(ADE9000_WR_LOCK, ADE9000_SPI_DATA_16BIT, ADE9000_WR_LOCK_KEY);
     }
 
     printf("[BRIDGE] All Pillars (E1 Metrology, E2 DLMS, E3 App, FreeRTOS LowPower) initialized.\n");

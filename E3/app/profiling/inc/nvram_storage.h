@@ -37,8 +37,46 @@ extern "C" {
 #define FLASH_PAGE_SIZE_BYTES              8192U  /* Default: 8 KB per Page */
 #endif
 
-#define NVRAM_ENERGY_CHECKPOINT_MAGIC      0x454E4759U /* "ENGY" */
-#define NVRAM_DEVICE_CONFIG_MAGIC          0x43464944U /* "CFID" (Config ID) */
+/* ========================================================================= */
+/*  Konfigurasi & Alokasi Sektor Memori SPI Flash Eksternal (W25Qxx)         */
+/* ========================================================================= */
+#define SPI_FLASH_SECTOR_SIZE_BYTES        4096U  /**< Ukuran 1 Sektor Standar NOR Flash (4 KB) */
+#define SPI_FLASH_PAGE_SIZE_BYTES          256U   /**< Ukuran 1 Halaman Pemrograman (256 Byte) */
+
+/* Perintah SPI Flash (Opcodes W25Qxx / Winbond / Macronix) */
+#define SPI_FLASH_CMD_WREN                 0x06U  /**< Write Enable */
+#define SPI_FLASH_CMD_WRDI                 0x04U  /**< Write Disable */
+#define SPI_FLASH_CMD_PP                   0x02U  /**< Page Program (256 Byte) */
+#define SPI_FLASH_CMD_SE                   0x20U  /**< Sector Erase (4 KB) */
+#define SPI_FLASH_CMD_BE32                 0x52U  /**< Block Erase (32 KB) */
+#define SPI_FLASH_CMD_BE64                 0xD8U  /**< Block Erase (64 KB) */
+#define SPI_FLASH_CMD_CE                   0xC7U  /**< Chip Erase */
+#define SPI_FLASH_CMD_READ                 0x03U  /**< Read Data */
+#define SPI_FLASH_CMD_RDSR1                0x05U  /**< Read Status Register 1 */
+
+/* Peta Alokasi Sektor Fisik SPI2 Flash Eksternal (4 KB per Sektor) */
+#define SPI_FLASH_SECTOR_CALIBRATION       0x000000U /**< Sektor 0 (0..4KB): Parameter Kalibrasi ADE9000 */
+#define SPI_FLASH_SECTOR_CHECKPOINT_SLOT_A 0x001000U /**< Sektor 1 (4..8KB): Energy Checkpoint Slot A */
+#define SPI_FLASH_SECTOR_TAMPER_LOG        0x002000U /**< Sektor 2 (8..12KB): Snapshot Tamper Context FIFO */
+#define SPI_FLASH_SECTOR_CHECKPOINT_SLOT_B 0x003000U /**< Sektor 3 (12..16KB): Energy Checkpoint Slot B (Ping-Pong) */
+#define SPI_FLASH_SECTOR_DEVICE_CONFIG     0x004000U /**< Sektor 4 (16..20KB): Device Config (IDPEL & Meter ID) */
+#define SPI_FLASH_SECTOR_LOAD_PROFILE      0x005000U /**< Sektor 5..N (20KB+): Load Profile Ring Buffer */
+
+#define NVRAM_ENERGY_CHECKPOINT_MAGIC      0x454E4759U /**< "ENGY" */
+#define NVRAM_DEVICE_CONFIG_MAGIC          0x43464944U /**< "CFID" (Config ID) */
+#define NVRAM_CALIBRATION_MAGIC            0x43414C42U /**< "CALB" (Calibration) */
+
+/**
+ * @brief Struktur Data Parameter Kalibrasi ADE9000 Non-Volatile
+ */
+typedef struct {
+    uint32_t magic;                    /**< 0x43414C42 ("CALB") */
+    int32_t  vgain[3];                 /**< Register AVGAIN, BVGAIN, CVGAIN */
+    int32_t  igain[4];                 /**< Register AIGAIN, BIGAIN, CIGAIN, NIRMS/gain */
+    int32_t  pgain[3];                 /**< Register APGAIN, BPGAIN, CPGAIN */
+    int32_t  phase_cal[3];             /**< Register APHCAL, BPHCAL, CPHCAL */
+    uint32_t checksum;                 /**< Checksum Validasi Integritas */
+} nvram_calibration_data_t;
 
 /**
  * @brief Struktur Data Konfigurasi Identitas Meter Non-Volatile
@@ -103,6 +141,23 @@ bool nvram_save_device_config(const nvram_device_config_t *config);
  * @brief Memuat konfigurasi ID Pelanggan & Meter ID dari memori non-volatile
  */
 bool nvram_load_device_config(nvram_device_config_t *out_config);
+
+/**
+ * @brief Menghapus 1 sektor 4 KB pada memori Flash eksternal SPI (W25Qxx)
+ * @param sector_addr Alamat awal sektor (akan disejajarkan ke batas 4 KB)
+ * @return true jika perintah penghapusan berhasil dikirim dan selesai
+ */
+bool nvram_erase_sector(uint32_t sector_addr);
+
+/**
+ * @brief Menyimpan konfigurasi parameter kalibrasi ADE9000 ke Flash non-volatile
+ */
+bool nvram_save_calibration(const nvram_calibration_data_t *cal);
+
+/**
+ * @brief Memuat konfigurasi parameter kalibrasi ADE9000 dari Flash non-volatile
+ */
+bool nvram_load_calibration(nvram_calibration_data_t *out_cal);
 
 #ifdef __cplusplus
 }
