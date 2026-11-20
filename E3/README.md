@@ -3,9 +3,9 @@
 Folder ini berisi seluruh kode sumber, pengujian unit, driver pendukung, dan dokumentasi arsitektur untuk **Pilar E3 (Engineer 3 / Application & System Integration Lead)** pada proyek Smart Meter 3-Fasa berbasis mikrokontroler STM32U585/STM32U575 dan standar **SPLN D3.006: 2021**.
 
 > [!IMPORTANT]
-> **Dokumentasi Fundamental & Detail Fungsi Tiap File:**
-> Untuk penjelasan mendalam mengenai prinsip arsitektur, diagram aliran data, dan fungsi dari **setiap berkas** di dalam Pilar E3, silakan baca dokumen master:
-> 📖 [**PANDUAN_ARSITEKTUR_DAN_FILE_E3.md**](file:///g:/PPPP/ALLIN/E3/PANDUAN_ARSITEKTUR_DAN_FILE_E3.md)
+> **Dokumentasi Fundamental & Panduan Anggota Baru:**
+> - 📘 [**ONBOARDING_GUIDE.md**](ONBOARDING_GUIDE.md) &ndash; *Panduan orientasi ringkas untuk anggota baru Pilar E3.*
+> - 📖 [**PANDUAN_ARSITEKTUR_DAN_FILE_E3.md**](PANDUAN_ARSITEKTUR_DAN_FILE_E3.md) &ndash; *Dokumentasi mendalam mengenai arsitektur, diagram aliran data, dan fungsi tiap berkas.*
 
 ---
 
