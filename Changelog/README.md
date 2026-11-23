@@ -86,6 +86,7 @@ Dokumen ini adalah indeks utama pencatatan seluruh perubahan, penyesuaian, dan p
 | [**LOG-083**](083_refaktorisasi_nvram_flash_sector_erase_ping_pong_dan_kalibrasi.md) | 20-11-2026 | Refaktorisasi NVRAM SPI Flash W25Q32JV: 4 KB Sector Erase (`0x20`), Dual-Slot Ping-Pong Buffering (`0x001000` & `0x003000`), dan Persistensi Kalibrasi ADE9000 (`0x002000`) | `E3/app/profiling/*`, `NonSecure/Core/Src/meter_system_bridge.c`, `E3/tests/test_nvram_storage.c` | Selesai |
 | [**LOG-084**](084_arsitektur_preemptive_freertos_multi_tasking_dan_supervisor_wcet.md) | 20-11-2026 | Implementasi 4 Task Preemptive FreeRTOS Terpisah, IPC Mutex/Queue, Alokasi TrustZone Cortex-M33, dan Pengawasan Supervisor Watchdog Pin PD12 (`EXT_WDI_PULSE`) | `E3/app/fsm/*`, `E3/app/display/*`, `NonSecure/Core/Src/*`, `NonSecure/CMakeLists.txt`, `E3/tests/*` | Selesai |
 | [**LOG-085**](085_standarisasi_memori_spi_flash_winbond_w25q64.md) | 20-11-2026 | Standarisasi Memori SPI Flash Winbond W25Q64 (64 Mbit / 8 MB), Eliminasi Referensi EEPROM, dan Verifikasi JEDEC ID (`0xEF 0x40 0x17`) | `E3/app/board_profile_config.h`, `E3/app/profiling/*`, `NonSecure/Core/Src/meter_system_bridge.c`, `E3/tests/*` | Selesai |
+| [**LOG-086**](086_audit_aturan_dfd_dan_resolusi_grey_hole_e2.md) | 23-11-2026 | Audit Kepatuhan Kaidah Baku DFD dan Resolusi Anomali Grey Hole pada DFD Level 2 Pilar E2 (`Data Objek Terambil`) | `docs/system_dfd_diagram.drawio.xml`, `Acuan/State_DF_D.xml`, `Changelog/*` | Selesai |
 
 ---
 
