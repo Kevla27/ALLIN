@@ -7,6 +7,7 @@
 #include "console_io.h"
 #include "bsp_power_mode.h"
 #include "wcet_profiler.h"
+#include "rtos_tasks.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -876,40 +877,64 @@ static int cmd_wdt(int argc, char *argv[]) {
                 }
             }
             wcet_watchdog_inject_fault(tid);
-            printf("[CLI] Injeksi kegagalan batas waktu (WCET fault) disimulasikan pada task %d (%s)!\n",
-                   (int)tid, wcet_get_task_stats(tid) ? wcet_get_task_stats(tid)->name : "Unknown");
-            printf("      Penyegaran Watchdog pin PD12 sekarang DITAHAN untuk memicu reset sistem.\n");
+            if (((1U << (uint32_t)tid) & WATCHDOG_NONCRITICAL_TASKS_MASK) != 0U) {
+                printf("[CLI] Injeksi gangguan task NON-KRITIS pada task %d (%s)!\n",
+                       (int)tid, wcet_get_task_stats(tid) ? wcet_get_task_stats(tid)->name : "Unknown");
+                printf("      Mode Degradasi Ringan aktif: PD12 TETAP berjalan, TIDAK ERR04 & TIDAK trip relai.\n");
+            } else {
+                printf("[CLI] Injeksi kegagalan task KRITIS pada task %d (%s)!\n",
+                       (int)tid, wcet_get_task_stats(tid) ? wcet_get_task_stats(tid)->name : "Unknown");
+                printf("      Penyegaran Watchdog pin PD12 sekarang DITAHAN untuk reset MCU & latch ERR04.\n");
+            }
             return 0;
         } else if (str_equals_ignore_case(argv[1], "clear")) {
             wcet_watchdog_clear_fault();
-            printf("[CLI] Latched fault pengawas Watchdog dibersihkan. Status normal dipulihkan.\n");
+            rtos_watchdog_clear_err04();
+            if (s_hooks_registered && s_hooks.clear_internal_alarm != NULL) {
+                s_hooks.clear_internal_alarm(SPLN_ALARM_MCU_ERROR);
+            }
+            printf("[CLI] Latched fault & status ERR04 pengawas Watchdog dibersihkan. Status normal dipulihkan.\n");
             return 0;
         }
     }
 
     /* Tampilan status default Watchdog Supervisor */
     const wcet_profiler_ctx_t *ctx = wcet_get_context();
+    wdt_supervisor_status_t wstat;
+    rtos_watchdog_get_status(&wstat);
     printf("\n===================================================================\n");
     printf("         EXTERNAL WATCHDOG SUPERVISOR (WDT) DIAGNOSTICS            \n");
     printf("===================================================================\n");
-    printf(" Status Kesehatan Sistem   : %s\n",
-           wcet_watchdog_is_healthy() ? "SEHAT (SELURUH TUGAS MEMENUHI WCET)" : "*** ANOMALI / VIOLATION LATCHED! ***");
+    printf(" Status Klasifikasi WDT    : %s\n", rtos_watchdog_severity_to_string(wstat.severity));
     printf(" Hardware Watchdog Pin     : EXT_WDI_PULSE (GPIOD Pin 12)\n");
     printf(" Hardware Timeout          : 1.6 Detik (1600 ms)\n");
     printf(" Total Penyegaran Berhasil : %lu pulsa\n", (unsigned long)wcet_watchdog_get_feed_count());
     printf(" Total Penyegaran Ditahan  : %lu pulsa\n", (unsigned long)wcet_watchdog_get_suppressed_count());
-    printf(" Task Required Mask        : 0x%02lX\n", (unsigned long)(ctx ? ctx->watchdog_required_mask : 0));
-    printf(" Task Kicked Mask          : 0x%02lX\n", (unsigned long)(ctx ? ctx->watchdog_kicked_mask : 0));
+    printf(" Masker Kritis / Non-Kritis: 0x%02lX / 0x%02lX\n",
+           (unsigned long)WATCHDOG_CRITICAL_TASKS_MASK,
+           (unsigned long)WATCHDOG_NONCRITICAL_TASKS_MASK);
+    printf(" Task Kicked Mask          : 0x%02lX\n", (unsigned long)rtos_watchdog_get_kicked_mask());
+    printf(" Reset Glitch Streak       : %lu / %u (Stabil: %lu ms)\n",
+           (unsigned long)wstat.reset_streak,
+           (unsigned int)WDT_FATAL_RESET_THRESHOLD,
+           (unsigned long)wstat.stable_uptime_ms);
+    printf(" Status ERR04 (Trip Relai) : %s (Sumber: %s | Task: 0x%02lX)\n",
+           wstat.err04_latched ? "AKTIF TER-LATCH" : "TIDAK AKTIF",
+           rtos_watchdog_source_to_string(wstat.last_fault_source),
+           (unsigned long)wstat.offending_task_mask);
+    printf(" Gangguan Ringan Non-Trip  : Mask 0x%02lX (Total: %lu)\n",
+           (unsigned long)wstat.minor_degraded_mask,
+           (unsigned long)wstat.minor_fault_count);
     if (ctx && ctx->fault_latched) {
-        printf(" Pemicu Kegagalan Terakhir : Task ID %d (%s)\n",
+        printf(" Pemicu Uji WCET Terakhir  : Task ID %d (%s)\n",
                (int)ctx->fault_task_id,
                wcet_get_task_stats(ctx->fault_task_id) ? wcet_get_task_stats(ctx->fault_task_id)->name : "Unknown");
     }
     printf("-------------------------------------------------------------------\n");
     printf("Sintaks perintah pengawas:\n");
     printf("  wdt kick        : Evaluasi seluruh tugas dan toggle pin WDT manual\n");
-    printf("  wdt test [0..4] : Simulasi pelanggaran deadline WCET untuk uji reset\n");
-    printf("  wdt clear       : Pulihkan status normal dari latched fault\n");
+    printf("  wdt test [0..4] : Simulasi kegagalan kritis untuk uji reset ERR04\n");
+    printf("  wdt clear       : Pulihkan status normal & bersihkan latch ERR04\n");
     printf("===================================================================\n\n");
     return 0;
 }

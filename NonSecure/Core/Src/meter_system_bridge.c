@@ -86,6 +86,159 @@ static void bridge_console_uart_tx(const uint8_t *data, size_t len)
 /* Implementasi API Bridge                                                    */
 /* -------------------------------------------------------------------------- */
 
+typedef enum {
+    MODEM_AT_IDLE = 0,
+    MODEM_AT_WAIT_PING,
+    MODEM_AT_WAIT_SIM,
+    MODEM_AT_WAIT_REG,
+    MODEM_AT_WAIT_ATTACH,
+    MODEM_AT_ONLINE
+} modem_at_substep_t;
+
+static bool bridge_modem_step_callback(modem_fsm_state_t *state, const modem_push_msg_t *optional_push)
+{
+    static modem_at_substep_t s_at_step = MODEM_AT_IDLE;
+    static uint32_t s_wait_ticks = 0U;
+    static uint8_t  s_retries = 0U;
+    static bool     s_cmd_sent = false;
+    static bool     s_sim_seen = false;
+    static bool     s_bench_fallback_logged = false;
+    static char     s_at_line[64];
+    static size_t   s_at_line_len = 0U;
+
+    bool saw_ok = false;
+    bool saw_err = false;
+    bool saw_net_reg = false;
+    uint8_t rx_b = 0U;
+
+    /* 1. Kuras balasan AT non-blocking dari ring USART2 */
+    while (e2_dlms_service_pop_modem_rx_byte(&rx_b))
+    {
+        if (rx_b == (uint8_t)'\r' || rx_b == (uint8_t)'\n')
+        {
+            if (s_at_line_len > 0U)
+            {
+                s_at_line[s_at_line_len] = '\0';
+                if (strstr(s_at_line, "OK") != NULL) { saw_ok = true; }
+                if (strstr(s_at_line, "ERROR") != NULL) { saw_err = true; }
+                if (strstr(s_at_line, "+CPIN: READY") != NULL) { s_sim_seen = true; }
+                if ((strstr(s_at_line, "+CREG: 0,1") != NULL) ||
+                    (strstr(s_at_line, "+CREG: 0,5") != NULL) ||
+                    (strstr(s_at_line, "+CREG: 1,1") != NULL) ||
+                    (strstr(s_at_line, "+CREG: 1,5") != NULL))
+                {
+                    saw_net_reg = true;
+                }
+                s_at_line_len = 0U;
+            }
+        }
+        else if (s_at_line_len < (sizeof(s_at_line) - 1U))
+        {
+            s_at_line[s_at_line_len++] = (char)rx_b;
+        }
+    }
+
+    if (state != NULL)
+    {
+        if (*state == MODEM_STATE_INIT)
+        {
+            s_at_step = MODEM_AT_WAIT_PING;
+            s_wait_ticks = 0U;
+            s_retries = 0U;
+            s_cmd_sent = false;
+            s_sim_seen = false;
+            s_at_line_len = 0U;
+            *state = MODEM_STATE_CONNECTING;
+        }
+        else if (*state == MODEM_STATE_CONNECTING)
+        {
+            if (!s_cmd_sent)
+            {
+                const char *cmd = "AT\r\n";
+                if (s_at_step == MODEM_AT_WAIT_SIM)         cmd = "AT+CPIN?\r\n";
+                else if (s_at_step == MODEM_AT_WAIT_REG)    cmd = "AT+CREG?\r\n";
+                else if (s_at_step == MODEM_AT_WAIT_ATTACH) cmd = "AT+CGATT=1\r\n";
+                (void)e2_dlms_service_send_modem_at(cmd);
+                s_cmd_sent = true;
+                s_wait_ticks = 0U;
+            }
+
+            if (s_at_step == MODEM_AT_WAIT_PING && saw_ok)
+            {
+                s_at_step = MODEM_AT_WAIT_SIM;
+                s_cmd_sent = false;
+                s_retries = 0U;
+            }
+            else if (s_at_step == MODEM_AT_WAIT_SIM && s_sim_seen && saw_ok)
+            {
+                s_at_step = MODEM_AT_WAIT_REG;
+                s_cmd_sent = false;
+                s_retries = 0U;
+            }
+            else if (s_at_step == MODEM_AT_WAIT_REG && saw_net_reg)
+            {
+                s_at_step = MODEM_AT_WAIT_ATTACH;
+                s_cmd_sent = false;
+                s_retries = 0U;
+            }
+            else if (s_at_step == MODEM_AT_WAIT_ATTACH && saw_ok)
+            {
+                s_at_step = MODEM_AT_ONLINE;
+                e2_dlms_service_set_modem_at_active(false);
+                *state = MODEM_STATE_READY;
+                printf("[MODEM] Jaringan 4G terdaftar & GPRS/PDP aktif.\r\n");
+            }
+            else if (saw_err || (++s_wait_ticks >= 4U))
+            {
+                s_cmd_sent = false;
+                s_wait_ticks = 0U;
+                s_sim_seen = false;
+                s_retries++;
+                if (s_retries >= 3U)
+                {
+                    e2_dlms_service_set_modem_at_active(false);
+                    if (board_cfg_is_synthetic_load_enabled())
+                    {
+                        if (!s_bench_fallback_logged)
+                        {
+                            s_bench_fallback_logged = true;
+                            printf("[MODEM] Tidak ada modul 4G fisik di USART2; mode fallback bench aktif (READY).\r\n");
+                        }
+                        s_at_step = MODEM_AT_ONLINE;
+                        *state = MODEM_STATE_READY;
+                    }
+                    else
+                    {
+                        s_at_step = MODEM_AT_IDLE;
+                        s_wait_ticks = 0U;
+                        *state = MODEM_STATE_ERROR;
+                    }
+                }
+            }
+        }
+        else if (*state == MODEM_STATE_ERROR)
+        {
+            if (++s_wait_ticks >= 20U)
+            {
+                *state = MODEM_STATE_INIT;
+            }
+        }
+    }
+
+    if (optional_push != NULL)
+    {
+        e3_meter_app_notify_modem_activity();
+        return e2_dlms_send_last_gasp_push(optional_push->timestamp, optional_push->active_energy_wh);
+    }
+    return true;
+}
+
+static void bridge_optical_poll_callback(void)
+{
+    /* Layanan jabat tangan IEC 62056-21 Mode E & pemrosesan ring DLMS RX/TX oleh DLMSTask tiap 50 ms */
+    e2_dlms_service_poll();
+}
+
 void meter_system_bringup(UART_HandleTypeDef *huart_opt, UART_HandleTypeDef *huart_modem, ADC_HandleTypeDef *hadc_telemetry)
 {
     s_console_uart = huart_modem;
@@ -147,16 +300,31 @@ void meter_system_bringup(UART_HandleTypeDef *huart_opt, UART_HandleTypeDef *hua
         ADE9000_SPI_TransactionWrite(ADE9000_WR_LOCK, ADE9000_SPI_DATA_16BIT, ADE9000_WR_LOCK_KEY);
     }
 
-    /* 5. Inisialisasi FreeRTOS Subsystem IPC (Queue & Mutex) dan Daftarkan Driver Display */
+    /* 5. Inisialisasi FreeRTOS Subsystem IPC (3 Queues, 3 Mutex, EventGroup) dan Integrasikan 8 Task */
+    rtos_set_device_ids(e3_meter_app_get_customer_id(), e3_meter_app_get_meter_id());
     rtos_system_init();
     display_task_set_driver(bsp_display_oled_get_driver());
     extern void bridge_metrology_sample_callback(meter_measurements_t *out_meas);
     rtos_metrology_set_sample_cb(bridge_metrology_sample_callback);
+    rtos_profile_set_1s_cb(e3_meter_app_service_profile_1s);
+    rtos_checkpoint_set_build_cb(e3_meter_app_build_checkpoint);
+    rtos_health_set_check_cb(e3_meter_app_run_health_check);
+    rtos_relay_set_actuate_cb(e3_meter_app_actuate_hardware);
+    rtos_modem_set_step_cb(bridge_modem_step_callback);
+    rtos_dlms_set_optical_poll_cb(bridge_optical_poll_callback);
+    rtos_power_set_stop2_cb(e3_meter_app_service_stop2_cycle);
 
     /* Muat stand energi awal ke dalam published measurement snapshot secara thread-safe */
     rtos_meter_data_publish(&s_meas);
 
-    printf("[BRIDGE] All Pillars (E1 Metrology, E2 DLMS, E3 App, FreeRTOS Preemptive) initialized.\n");
+    /* Jika boot berasal dari kegagalan fatal CPU / Watchdog Loop (ERR04), kunci relai & LED kuning SPLN */
+    if (rtos_watchdog_is_err04_latched())
+    {
+        e3_meter_app_set_internal_alarm(SPLN_ALARM_MCU_ERROR);
+        e3_meter_app_actuate_hardware(100U);
+    }
+
+    printf("[BRIDGE] All Pillars (E1 Metrology, E2 DLMS, E3 8-Task Preemptive) initialized.\n");
 }
 
 const meter_measurements_t *meter_system_get_measurements(void)
@@ -263,16 +431,13 @@ void app_metering_step(void)
     {
         console_cli_process_rx_byte(cli_byte);
     }
+    e2_dlms_service_poll();
     while (e2_dlms_service_pop_cli_rx_byte(&cli_byte))
     {
         console_cli_process_rx_byte(cli_byte);
     }
 
-    /* Mulai pengukuran WCET siklus utama superloop pemrosesan meter (Pilar E1, E2, E3) */
-    wcet_record_start(WCET_TASK_APP_STEP);
-
     /* 1. Pilar E1: Akuisisi Data ADC/SPI ADE9000, Konversi Fisik & Akumulasi Energi Wh */
-    wcet_record_start(WCET_TASK_METROLOGY);
     e1_metrology_service_step(&s_meas, delta_ms);
 
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
@@ -323,31 +488,25 @@ void app_metering_step(void)
         }
     }
 #endif
-    wcet_record_stop(WCET_TASK_METROLOGY);
 
     /* 2. Pilar E2: Sinkronisasi Register Data Model OBIS DLMS/COSEM */
-    wcet_record_start(WCET_TASK_DLMS);
     e2_dlms_service_sync_snapshot(e2_dlms_service_get_snapshot(), &s_meas);
-    wcet_record_stop(WCET_TASK_DLMS);
 
     /* 3. Pilar E3: Evaluasi Tamper, Relai Shunt Trip, Telemetri Baterai, Carousel Display & Profiling */
     e3_meter_app_step(&s_meas, delta_ms);
 
-    /* Selesai pencatatan siklus superloop */
-    wcet_record_stop(WCET_TASK_APP_STEP);
-
-    /* 4. Pengawasan Terpadu Kepatuhan WCET Seluruh Tugas & Penyegaran WDT (PD12) */
-    wcet_watchdog_supervise_and_feed();
+    /* 4. Pengawasan Kepatuhan Heartbeat Task & Penyegaran WDT (PD12) */
+    (void)rtos_watchdog_supervise_and_feed();
 }
 
 void app_metering_task_loop(void)
 {
-    /* 1. Luncurkan seluruh 4 Task Preemptive FreeRTOS E3 (Tamper, Profile, DLMS, OLED) */
+    /* 1. Luncurkan seluruh 7 Worker Task Preemptive FreeRTOS E3 (+ 1 defaultTask Supervisor = 8 Tasks) */
     bool tasks_ok = rtos_start_all_tasks();
-    printf("[BRIDGE] FreeRTOS Preemptive Multi-Tasking: %s\n",
-           tasks_ok ? "4 Tasks Successfully Launched!" : "WARNING: Task Creation Failed!");
+    printf("[BRIDGE] FreeRTOS 8-Task Preemptive Multi-Tasking: %s\n",
+           tasks_ok ? "7 Worker Tasks Successfully Launched!" : "WARNING: Task Creation Failed!");
 
-    /* 2. defaultTask bertindak sebagai Supervisor & Pengawas Watchdog (WDT Pin PD12) serta Handler CLI */
+    /* 2. defaultTask bertindak sebagai Supervisor, CLI Handler, Transisi Stop 2 & Pengawas Watchdog PD12 */
     for (;;)
     {
         /* Proses antrean byte karakter Interactive Serial CLI dari USART1 (VCP) & USART2 (Modem) */
@@ -361,8 +520,11 @@ void app_metering_task_loop(void)
             console_cli_process_rx_byte(cli_byte);
         }
 
-        /* Evaluasi kepatuhan batas waktu WCET seluruh tugas dan segarkan pulsa Watchdog hardware (PD12) */
-        wcet_watchdog_supervise_and_feed();
+        /* Evaluasi manajemen mode hemat daya Stop 2 saat pasokan AC PLN padam */
+        e3_meter_app_service_stop2_cycle(100U);
+
+        /* Evaluasi keaktifan 7 worker task (Mask 0xEF) dan segarkan pulsa Watchdog hardware (PD12) */
+        (void)rtos_watchdog_supervise_and_feed();
 
         osDelay(100U);
     }
@@ -402,7 +564,10 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
         __HAL_UART_CLEAR_FEFLAG(huart);
         huart->ErrorCode = HAL_UART_ERROR_NONE;
         HAL_UART_Receive_IT(&huart1, &s_vcp_rx_byte, 1U);
+        return;
     }
+
+    e2_dlms_service_uart_error_callback(huart);
 }
 
 /**

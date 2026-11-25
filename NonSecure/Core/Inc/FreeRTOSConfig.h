@@ -72,8 +72,8 @@ void xPortSysTickHandler(void);
 #define configTICK_RATE_HZ                       ((TickType_t)1000)
 #define configMAX_PRIORITIES                     ( 56 )
 #define configMINIMAL_STACK_SIZE                 ((uint16_t)128)
-#define configMINIMAL_SECURE_STACK_SIZE          ((uint16_t)512)
-#define configTOTAL_HEAP_SIZE                    ((size_t)8192)
+#define configMINIMAL_SECURE_STACK_SIZE          ((uint16_t)256)
+#define configTOTAL_HEAP_SIZE                    ((size_t)49152)
 #define configSTACK_ALLOCATION_FROM_SEPARATE_HEAP 0
 #define configMAX_TASK_NAME_LEN                  ( 16 )
 #define configUSE_TRACE_FACILITY                 1
@@ -186,7 +186,7 @@ header file. */
 #define configUSE_TICKLESS_IDLE                  0
 
 #undef configTOTAL_HEAP_SIZE
-#define configTOTAL_HEAP_SIZE                    ((size_t)32768)
+#define configTOTAL_HEAP_SIZE                    ((size_t)49152)
 
 #define configCHECK_FOR_STACK_OVERFLOW           2
 /* USER CODE END Defines */

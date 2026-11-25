@@ -148,6 +148,11 @@ typedef struct {
     /* Parameter Konfigurasi & Diagnostik Sistem (SPLN Tabel E.2) */
     uint32_t power_limit_w;
     uint32_t firmware_checksum;
+
+    /* Kualitas Daya: Total Harmonic Distortion per Fasa (x0.1%, misal 15 = 1.5%) */
+    bool     thd_measured;
+    uint16_t thd_v_pct_x10[3];
+    uint16_t thd_i_pct_x10[3];
 } meter_measurements_t;
 
 typedef struct {

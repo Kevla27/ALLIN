@@ -25,7 +25,6 @@ add_library(e3_core STATIC
     app/profiling/src/wcet_profiler.c
     app/console/src/console_io.c
     drivers/power/src/bsp_power_mode.c
-    tests/e3_mock_stubs.c
 )
 
 target_include_directories(e3_core PUBLIC

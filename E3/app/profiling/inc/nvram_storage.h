@@ -43,15 +43,26 @@ extern "C" {
 #define SPI_FLASH_SECTOR_SIZE_BYTES        4096U  /**< Ukuran 1 Sektor Standar NOR Flash (4 KB) */
 #define SPI_FLASH_PAGE_SIZE_BYTES          256U   /**< Ukuran 1 Halaman Pemrograman (256 Byte) */
 
-/* Spesifikasi Winbond W25Q64 (64 Mbit / 8 MByte) */
-#define W25Q64_TOTAL_SIZE_BYTES            (8U * 1024U * 1024U) /**< 8 MByte (64 Mbit) */
-#define W25Q64_TOTAL_SECTORS               2048U                /**< 2.048 Sektor @ 4 KB */
-#define W25Q64_TOTAL_BLOCKS_64K            128U                 /**< 128 Blok @ 64 KB */
-#define W25Q64_JEDEC_MANUFACTURER_ID       0xEFU                /**< Winbond Manufacturer ID */
-#define W25Q64_JEDEC_MEMORY_TYPE           0x40U                /**< SPI / Dual / Quad SPI */
-#define W25Q64_JEDEC_CAPACITY_ID           0x17U                /**< 64 Mbit (2^23 = 8 MByte) */
+/* Spesifikasi Winbond W25Q64 (8 MB) & W25Q128JVS (16 MB - Desain Sistem Subsistem 2 U3) */
+#define W25Q64_TOTAL_SIZE_BYTES            (8U * 1024U * 1024U)  /**< 8 MByte (64 Mbit) */
+#define W25Q64_TOTAL_SECTORS               2048U                 /**< 2.048 Sektor @ 4 KB */
+#define W25Q64_TOTAL_BLOCKS_64K            128U                  /**< 128 Blok @ 64 KB */
+#define W25Q64_JEDEC_MANUFACTURER_ID       0xEFU                 /**< Winbond Manufacturer ID */
+#define W25Q64_JEDEC_MEMORY_TYPE           0x40U                 /**< SPI / Dual / Quad SPI */
+#define W25Q64_JEDEC_CAPACITY_ID           0x17U                 /**< 64 Mbit (2^23 = 8 MByte) */
 
-/* Perintah SPI Flash (Opcodes W25Qxx / Winbond W25Q64) */
+#define W25Q128_TOTAL_SIZE_BYTES           (16U * 1024U * 1024U) /**< 16 MByte (128 Mbit) */
+#define W25Q128_TOTAL_SECTORS              4096U                 /**< 4.096 Sektor @ 4 KB */
+#define W25Q128_TOTAL_BLOCKS_64K           256U                  /**< 256 Blok @ 64 KB */
+#define W25Q128_JEDEC_CAPACITY_ID          0x18U                 /**< 128 Mbit (2^24 = 16 MByte) */
+
+/* Kapasitas Retensi Load Profile 92 Hari di SPI2 NOR Flash (SPLN 3 Bulan = 92 * 96 = 8.832 Record) */
+#define NVRAM_LOAD_PROFILE_FLASH_SLOTS     8832U                 /**< 92 hari x 96 snapshot/hari */
+#define NVRAM_LOAD_PROFILE_SLOT_STRIDE     128U                  /**< Aligned 128 B/entri (32 entri / sektor 4 KB) */
+#define NVRAM_CHECKPOINT_RING_SECTORS      8U                    /**< 8 Sektor wear-leveling (32 KB) */
+#define NVRAM_CHECKPOINT_PAGES_PER_SECTOR  16U                   /**< 16 halaman 256B append-only / sektor (128 slot) */
+
+/* Perintah SPI Flash (Opcodes W25Qxx / Winbond W25Q64 / W25Q128JVS) */
 #define SPI_FLASH_CMD_WREN                 0x06U  /**< Write Enable */
 #define SPI_FLASH_CMD_WRDI                 0x04U  /**< Write Disable */
 #define SPI_FLASH_CMD_PP                   0x02U  /**< Page Program (256 Byte) */
@@ -63,17 +74,22 @@ extern "C" {
 #define SPI_FLASH_CMD_RDSR1                0x05U  /**< Read Status Register 1 */
 #define SPI_FLASH_CMD_JEDEC_ID             0x9FU  /**< Read JEDEC ID (1 byte Mfg + 2 bytes Dev ID) */
 
-/* Peta Alokasi Sektor Fisik SPI2 Flash Eksternal (4 KB per Sektor) */
-#define SPI_FLASH_SECTOR_CALIBRATION       0x000000U /**< Sektor 0 (0..4KB): Parameter Kalibrasi ADE9000 */
-#define SPI_FLASH_SECTOR_CHECKPOINT_SLOT_A 0x001000U /**< Sektor 1 (4..8KB): Energy Checkpoint Slot A */
-#define SPI_FLASH_SECTOR_TAMPER_LOG        0x002000U /**< Sektor 2 (8..12KB): Snapshot Tamper Context FIFO */
-#define SPI_FLASH_SECTOR_CHECKPOINT_SLOT_B 0x003000U /**< Sektor 3 (12..16KB): Energy Checkpoint Slot B (Ping-Pong) */
-#define SPI_FLASH_SECTOR_DEVICE_CONFIG     0x004000U /**< Sektor 4 (16..20KB): Device Config (IDPEL & Meter ID) */
-#define SPI_FLASH_SECTOR_LOAD_PROFILE      0x005000U /**< Sektor 5..N (20KB+): Load Profile Ring Buffer */
+/* Peta Alokasi Sektor Fisik SPI2 Flash Eksternal (4 KB per Sektor, Atomic Dual-Bank + Ring) */
+#define SPI_FLASH_SECTOR_CALIBRATION       0x000000U /**< Sektor 0  (0..4KB): Kalibrasi ADE9000 Slot A */
+#define SPI_FLASH_SECTOR_CHECKPOINT_SLOT_A 0x001000U /**< Sektor 1  (4..8KB): Alias Legacy Slot A */
+#define SPI_FLASH_SECTOR_TAMPER_LOG        0x002000U /**< Sektor 2  (8..12KB): Tamper Snapshot Slot A */
+#define SPI_FLASH_SECTOR_CHECKPOINT_SLOT_B 0x003000U /**< Sektor 3  (12..16KB): Alias Legacy Slot B */
+#define SPI_FLASH_SECTOR_DEVICE_CONFIG     0x004000U /**< Sektor 4  (16..20KB): Device Config Slot A */
+#define SPI_FLASH_SECTOR_CHECKPOINT_RING   0x008000U /**< Sektor 8..15 (32..64KB): Ring Checkpoint 128 Slot (>120 thn) */
+#define SPI_FLASH_SECTOR_TAMPER_LOG_B      0x010000U /**< Sektor 16 (64..68KB): Tamper Snapshot Slot B (Atomic) */
+#define SPI_FLASH_SECTOR_DEVICE_CONFIG_B   0x011000U /**< Sektor 17 (68..72KB): Device Config Slot B (Atomic) */
+#define SPI_FLASH_SECTOR_CALIBRATION_B     0x012000U /**< Sektor 18 (72..76KB): Kalibrasi ADE9000 Slot B (Atomic) */
+#define SPI_FLASH_SECTOR_LOAD_PROFILE      0x020000U /**< Sektor 32..307 (128KB..1.23MB): Load Profile 92 Hari (8.832 Slot) */
 
 #define NVRAM_ENERGY_CHECKPOINT_MAGIC      0x454E4759U /**< "ENGY" */
 #define NVRAM_DEVICE_CONFIG_MAGIC          0x43464944U /**< "CFID" (Config ID) */
 #define NVRAM_CALIBRATION_MAGIC            0x43414C42U /**< "CALB" (Calibration) */
+#define NVRAM_TAMPER_SNAP_MAGIC            0x544D5052U /**< "TMPR" (Tamper Snapshot) */
 
 /**
  * @brief Struktur Data Parameter Kalibrasi ADE9000 Non-Volatile
@@ -178,10 +194,27 @@ bool nvram_load_calibration(nvram_calibration_data_t *out_cal);
 bool nvram_w25q64_read_jedec_id(uint8_t *out_mfg, uint8_t *out_type, uint8_t *out_cap);
 
 /**
- * @brief Memverifikasi apakah chip Flash fisik yang terpasang adalah Winbond W25Q64
- * @return true jika JEDEC ID cocok dengan 0xEF 0x40 0x17
+ * @brief Memverifikasi apakah chip Flash fisik yang terpasang adalah Winbond W25Q64 (0x17) atau W25Q128JVS (0x18)
  */
 bool nvram_w25q64_verify(void);
+bool nvram_flash_verify(void);
+
+/**
+ * @brief Menulis / membaca slot Load Profile 92-hari (kapasitas 8.832 record, aligned 128B/record)
+ */
+bool nvram_write_load_profile_flash_slot(uint32_t seq_index, const load_profile_entry_t *entry);
+bool nvram_read_load_profile_flash_slot(uint32_t seq_index, load_profile_entry_t *out_entry);
+
+/**
+ * @brief Status deteksi kegagalan tulis/hapus SPI2 Flash (pemicu alarm ERR00 SPLN)
+ */
+bool nvram_has_hardware_fault(void);
+void nvram_clear_hardware_fault(void);
+
+#if !defined(EMBEDDED_HARDWARE_TARGET)
+void nvram_test_simulate_virgin_flash(void);
+uint32_t nvram_test_get_checkpoint_erase_count(void);
+#endif
 
 #ifdef __cplusplus
 }

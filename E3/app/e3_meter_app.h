@@ -16,6 +16,7 @@ extern "C" {
 #include "tamper_manager.h"
 #include "power_relay_manager.h"
 #include "load_profile.h"
+#include "nvram_storage.h"
 #include "board_profile_config.h"
 #include "main.h"
 
@@ -203,6 +204,38 @@ bool e3_meter_app_remote_reconnect(void);
  */
 void e3_meter_app_notify_stop_measurement(bool is_stopped, uint32_t reason);
 
+/**
+ * @brief Evaluasi layanan periodik 1 detik: ToU 8-Zona, EoB Billing, Voltage Prot 184-276V,
+ *        Power Limiter & Max Demand 15m (Dipanggil dari ProfileTask atau superloop)
+ */
+void e3_meter_app_service_profile_1s(const meter_measurements_t *meas);
+
+/**
+ * @brief Membangun paket checkpoint energi & ToU terbaru untuk ditulis oleh StorageTask / Last-Gasp
+ */
+void e3_meter_app_build_checkpoint(nvram_energy_checkpoint_t *out_cp, const meter_measurements_t *meas);
+
+/**
+ * @brief Menjalankan siklus telemetri ADC4 (VBAT/VCAP), kesehatan clock LSE & self-test hardware
+ *        (Dipanggil oleh HealthTask setiap 5000 ms)
+ */
+void e3_meter_app_run_health_check(void);
+
+/**
+ * @brief Menggerakkan pulsa koil relai (100 ms), LED indikator kuning SPLN & cek feedback ERR07
+ */
+void e3_meter_app_actuate_hardware(uint32_t elapsed_ms);
+
+/**
+ * @brief Mengelola countdown layar 10 detik saat PLN padam & transisi ke STM32U5 Stop 2 Mode (~4.5 uA)
+ */
+void e3_meter_app_service_stop2_cycle(uint32_t elapsed_ms);
+
+/**
+ * @brief Mengevaluasi 7 vektor tamper elektrikal dari snapshot metrologi (ERR21..ERR27)
+ */
+void e3_meter_app_evaluate_electrical_tamper(const meter_measurements_t *meas);
+
 #if (BOARD_CFG_ENABLE_SYNTHETIC_LOAD == 1)
 #include "console_io.h"
 
@@ -221,6 +254,12 @@ void e3_meter_app_get_synthetic_load(synthetic_load_config_t *out_cfg);
  */
 bool e3_meter_app_is_synthetic_load_active(void);
 #endif
+
+/**
+ * @brief Jalankan uji mandiri non-destruktif memori kerja SRAM (checkerboard & March-bit canary)
+ * @return true jika seluruh sel canary SRAM terbaca utuh (ERR01 bebas gangguan)
+ */
+bool e3_meter_app_run_ram_selftest(void);
 
 #ifdef __cplusplus
 }

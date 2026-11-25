@@ -11,7 +11,9 @@
 #include "main.h"
 extern SPI_HandleTypeDef hspi2;
 
-static void spi2_flash_wait_busy(uint32_t timeout_ms)
+static volatile bool s_nvram_hw_fault = false;
+
+static bool spi2_flash_wait_busy(uint32_t timeout_ms)
 {
     uint8_t cmd = SPI_FLASH_CMD_RDSR1;
     uint8_t status = 0x01U;
@@ -19,28 +21,42 @@ static void spi2_flash_wait_busy(uint32_t timeout_ms)
     while ((HAL_GetTick() - start) < timeout_ms)
     {
         HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
-        if (HAL_SPI_Transmit(&hspi2, &cmd, 1U, 5U) == HAL_OK)
-        {
-            (void)HAL_SPI_Receive(&hspi2, &status, 1U, 5U);
-        }
+        HAL_StatusTypeDef tx_st = HAL_SPI_Transmit(&hspi2, &cmd, 1U, 5U);
+        HAL_StatusTypeDef rx_st = (tx_st == HAL_OK) ? HAL_SPI_Receive(&hspi2, &status, 1U, 5U) : HAL_ERROR;
         HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
-        if (status == 0xFFU || (status & 0x01U) == 0U)
+        if (tx_st != HAL_OK || rx_st != HAL_OK)
         {
-            break; /* Idle atau bus open-circuit */
+            s_nvram_hw_fault = true;
+            return false;
+        }
+        if (status == 0xFFU)
+        {
+            return false; /* Bus open-circuit / tidak terpasang */
+        }
+        if ((status & 0x01U) == 0U)
+        {
+            return true; /* Flash siap */
         }
     }
+    s_nvram_hw_fault = true;
+    return false;
 }
 
 static bool spi2_flash_erase_sector(uint32_t sector_addr)
 {
     /* 1. Pastikan flash idle sebelum memulai siklus hapus */
-    spi2_flash_wait_busy(100U);
+    (void)spi2_flash_wait_busy(100U);
 
     /* 2. Kirim Write Enable (0x06) */
     uint8_t wren = SPI_FLASH_CMD_WREN;
     HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
-    (void)HAL_SPI_Transmit(&hspi2, &wren, 1U, 5U);
+    HAL_StatusTypeDef we_st = HAL_SPI_Transmit(&hspi2, &wren, 1U, 5U);
     HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
+    if (we_st != HAL_OK)
+    {
+        s_nvram_hw_fault = true;
+        return false;
+    }
 
     /* 3. Kirim Sector Erase (0x20) + 24-bit Sector Address (Aligned 4KB) */
     uint32_t aligned_addr = sector_addr & ~(SPI_FLASH_SECTOR_SIZE_BYTES - 1U);
@@ -55,16 +71,19 @@ static bool spi2_flash_erase_sector(uint32_t sector_addr)
     bool tx_ok = (HAL_SPI_Transmit(&hspi2, hdr, 4U, 10U) == HAL_OK);
     HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
 
-    if (!tx_ok) return false;
+    if (!tx_ok)
+    {
+        s_nvram_hw_fault = true;
+        return false;
+    }
 
     /* 4. Tunggu proses penghapusan sektor selesai (W25Qxx typical 45ms, timeout 500ms) */
-    spi2_flash_wait_busy(500U);
-    return true;
+    return spi2_flash_wait_busy(500U);
 }
 
-static void spi2_flash_write_bytes(uint32_t flash_offset, const uint8_t *data, uint16_t len)
+static bool spi2_flash_write_bytes(uint32_t flash_offset, const uint8_t *data, uint16_t len)
 {
-    if (data == NULL || len == 0U) return;
+    if (data == NULL || len == 0U) return false;
 
     while (len > 0U)
     {
@@ -77,13 +96,21 @@ static void spi2_flash_write_bytes(uint32_t flash_offset, const uint8_t *data, u
         }
 
         /* Pastikan flash idle sebelum memulai siklus tulis berikutnya */
-        spi2_flash_wait_busy(10U);
+        if (!spi2_flash_wait_busy(20U))
+        {
+            return false;
+        }
 
         /* 1. Kirim Write Enable (0x06) */
         uint8_t wren = SPI_FLASH_CMD_WREN;
         HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
-        (void)HAL_SPI_Transmit(&hspi2, &wren, 1U, 5U);
+        HAL_StatusTypeDef we_st = HAL_SPI_Transmit(&hspi2, &wren, 1U, 5U);
         HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
+        if (we_st != HAL_OK)
+        {
+            s_nvram_hw_fault = true;
+            return false;
+        }
 
         /* 2. Kirim Page Program (0x02) + 24-bit Flash Address */
         uint8_t hdr[4] = {
@@ -94,11 +121,15 @@ static void spi2_flash_write_bytes(uint32_t flash_offset, const uint8_t *data, u
         };
 
         HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
-        if (HAL_SPI_Transmit(&hspi2, hdr, 4U, 5U) == HAL_OK)
-        {
-            (void)HAL_SPI_Transmit(&hspi2, (uint8_t *)data, chunk, 20U);
-        }
+        bool ok = (HAL_SPI_Transmit(&hspi2, hdr, 4U, 5U) == HAL_OK) &&
+                  (HAL_SPI_Transmit(&hspi2, (uint8_t *)data, chunk, 20U) == HAL_OK);
         HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
+
+        if (!ok)
+        {
+            s_nvram_hw_fault = true;
+            return false;
+        }
 
         flash_offset += chunk;
         data         += chunk;
@@ -106,15 +137,15 @@ static void spi2_flash_write_bytes(uint32_t flash_offset, const uint8_t *data, u
     }
 
     /* Pastikan halaman terakhir selesai diprogram */
-    spi2_flash_wait_busy(10U);
+    return spi2_flash_wait_busy(20U);
 }
 
-static void spi2_flash_read_bytes(uint32_t flash_offset, uint8_t *data, uint16_t len)
+static bool spi2_flash_read_bytes(uint32_t flash_offset, uint8_t *data, uint16_t len)
 {
-    if (data == NULL || len == 0U) return;
+    if (data == NULL || len == 0U) return false;
 
     /* Tunggu jika ada siklus tulis yang sedang berlangsung */
-    spi2_flash_wait_busy(50U);
+    (void)spi2_flash_wait_busy(50U);
 
     uint8_t hdr[4] = {
         SPI_FLASH_CMD_READ,
@@ -124,23 +155,81 @@ static void spi2_flash_read_bytes(uint32_t flash_offset, uint8_t *data, uint16_t
     };
 
     HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_RESET);
-    if (HAL_SPI_Transmit(&hspi2, hdr, 4U, 10U) == HAL_OK)
-    {
-        (void)HAL_SPI_Receive(&hspi2, data, len, 50U);
-    }
+    bool ok = (HAL_SPI_Transmit(&hspi2, hdr, 4U, 10U) == HAL_OK) &&
+              (HAL_SPI_Receive(&hspi2, data, len, 50U) == HAL_OK);
     HAL_GPIO_WritePin(FLASH_SPI2_CS_GPIO_Port, FLASH_SPI2_CS_Pin, GPIO_PIN_SET);
+    if (!ok)
+    {
+        s_nvram_hw_fault = true;
+    }
+    return ok;
 }
+#else
+static volatile bool s_nvram_hw_fault = false;
 #endif
 
-/* Buffer NVRAM Backing Store untuk menjamin integritas baca/tulis pada CTest & RAM Mirror */
-static load_profile_entry_t      simulated_load_profile_flash[LOAD_PROFILE_MAX_ENTRIES];
-static tamper_context_t          simulated_tamper_log_flash;
-static nvram_energy_checkpoint_t  simulated_energy_checkpoint_flash = {0};
-static nvram_device_config_t      simulated_device_config_flash = {0};
-static nvram_calibration_data_t   simulated_calibration_flash = {0};
-#if defined(EMBEDDED_HARDWARE_TARGET)
-static uint8_t                   s_checkpoint_active_slot = 0U; /* 0 = Slot A, 1 = Slot B */
+static uint32_t nvram_calc_crc32(const uint8_t *data, size_t len)
+{
+    uint32_t crc = 0xFFFFFFFFU;
+    if (data == NULL) return 0U;
+    for (size_t i = 0U; i < len; i++)
+    {
+        crc ^= data[i];
+        for (int b = 0; b < 8; b++)
+        {
+            crc = (crc & 1U) ? ((crc >> 1) ^ 0xEDB88320U) : (crc >> 1);
+        }
+    }
+    return ~crc;
+}
+
+#define NVRAM_CHECKPOINT_TOTAL_SLOTS (NVRAM_CHECKPOINT_RING_SECTORS * NVRAM_CHECKPOINT_PAGES_PER_SECTOR)
+
+typedef struct {
+    uint32_t                 magic;
+    uint32_t                 seq;
+    nvram_energy_checkpoint_t cp;
+    uint32_t                 crc32;
+} nvram_checkpoint_flash_slot_t;
+
+typedef struct {
+    uint32_t         magic;
+    uint32_t         seq;
+    tamper_context_t ctx;
+    uint32_t         crc32;
+} nvram_tamper_flash_slot_t;
+
+typedef struct {
+    uint32_t              magic;
+    uint32_t              seq;
+    nvram_device_config_t cfg;
+    uint32_t              crc32;
+} nvram_dev_cfg_flash_slot_t;
+
+typedef struct {
+    uint32_t                 magic;
+    uint32_t                 seq;
+    nvram_calibration_data_t cal;
+    uint32_t                 crc32;
+} nvram_cal_flash_slot_t;
+
+#if !defined(EMBEDDED_HARDWARE_TARGET)
+/* Buffer Simulasi NVRAM HANYA untuk Host PC / CTest (tidak masuk binary STM32U5) */
+static load_profile_entry_t          simulated_load_profile_flash[NVRAM_LOAD_PROFILE_FLASH_SLOTS];
+static nvram_tamper_flash_slot_t     simulated_tamper_slots[2];
+static nvram_checkpoint_flash_slot_t simulated_checkpoint_ring[NVRAM_CHECKPOINT_TOTAL_SLOTS];
+static nvram_dev_cfg_flash_slot_t    simulated_dev_cfg_slots[2];
+static nvram_cal_flash_slot_t        simulated_cal_slots[2];
+static uint32_t s_cp_erase_count = 0U;
+#else
+static nvram_tamper_flash_slot_t     s_tamper_hw_scratch;
 #endif
+
+static uint32_t s_cp_seq            = 0U;
+static uint32_t s_cp_next_slot      = 0U;
+static uint32_t s_tamper_seq        = 0U;
+static uint32_t s_dev_cfg_seq       = 0U;
+static uint32_t s_cal_seq           = 0U;
 
 bool nvram_erase_sector(uint32_t sector_addr)
 {
@@ -152,54 +241,91 @@ bool nvram_erase_sector(uint32_t sector_addr)
 #endif
 }
 
+bool nvram_write_load_profile_flash_slot(uint32_t seq_index, const load_profile_entry_t *entry)
+{
+    if (entry == NULL) return false;
+    uint32_t slot = seq_index % NVRAM_LOAD_PROFILE_FLASH_SLOTS;
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    uint32_t offset = SPI_FLASH_SECTOR_LOAD_PROFILE + (slot * NVRAM_LOAD_PROFILE_SLOT_STRIDE);
+    if ((slot & 31U) == 0U)
+    {
+        if (!spi2_flash_erase_sector(offset))
+        {
+            return false;
+        }
+    }
+    return spi2_flash_write_bytes(offset, (const uint8_t *)entry, (uint16_t)sizeof(load_profile_entry_t));
+#else
+    simulated_load_profile_flash[slot] = *entry;
+    return true;
+#endif
+}
+
+bool nvram_read_load_profile_flash_slot(uint32_t seq_index, load_profile_entry_t *out_entry)
+{
+    if (out_entry == NULL) return false;
+    uint32_t slot = seq_index % NVRAM_LOAD_PROFILE_FLASH_SLOTS;
+
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    uint32_t offset = SPI_FLASH_SECTOR_LOAD_PROFILE + (slot * NVRAM_LOAD_PROFILE_SLOT_STRIDE);
+    load_profile_entry_t flash_entry = {0};
+    if (!spi2_flash_read_bytes(offset, (uint8_t *)&flash_entry, (uint16_t)sizeof(load_profile_entry_t)) ||
+        flash_entry.timestamp == 0xFFFFFFFFU || flash_entry.timestamp == 0U)
+    {
+        memset(out_entry, 0, sizeof(*out_entry));
+        return false;
+    }
+    *out_entry = flash_entry;
+    return true;
+#else
+    *out_entry = simulated_load_profile_flash[slot];
+    return true;
+#endif
+}
+
 bool nvram_write_load_profile_entry(uint32_t entry_index, const load_profile_entry_t *entry)
 {
     if (entry == NULL || entry_index >= LOAD_PROFILE_MAX_ENTRIES) return false;
-
-    simulated_load_profile_flash[entry_index] = *entry;
-
-#if defined(EMBEDDED_HARDWARE_TARGET)
-    uint32_t offset = SPI_FLASH_SECTOR_LOAD_PROFILE + (entry_index * (uint32_t)sizeof(load_profile_entry_t));
-    /* Jika offset berada tepat di awal batas sektor 4 KB, hapus sektor tersebut sebelum entri pertama ditulis */
-    if ((offset & (SPI_FLASH_SECTOR_SIZE_BYTES - 1U)) == 0U)
-    {
-        spi2_flash_erase_sector(offset);
-    }
-    spi2_flash_write_bytes(offset, (const uint8_t *)entry, (uint16_t)sizeof(load_profile_entry_t));
-#endif
-    return true;
+    return nvram_write_load_profile_flash_slot(entry_index, entry);
 }
 
 bool nvram_read_load_profile_entry(uint32_t entry_index, load_profile_entry_t *out_entry)
 {
     if (out_entry == NULL || entry_index >= LOAD_PROFILE_MAX_ENTRIES) return false;
-
-#if defined(EMBEDDED_HARDWARE_TARGET)
-    uint32_t offset = SPI_FLASH_SECTOR_LOAD_PROFILE + (entry_index * (uint32_t)sizeof(load_profile_entry_t));
-    load_profile_entry_t flash_entry = {0};
-    spi2_flash_read_bytes(offset, (uint8_t *)&flash_entry, (uint16_t)sizeof(load_profile_entry_t));
-    if (flash_entry.timestamp != 0xFFFFFFFFU && flash_entry.timestamp != 0U)
-    {
-        simulated_load_profile_flash[entry_index] = flash_entry;
-    }
-#endif
-
-    *out_entry = simulated_load_profile_flash[entry_index];
-    return true;
+    return nvram_read_load_profile_flash_slot(entry_index, out_entry);
 }
 
 bool nvram_save_tamper_log_snapshot(const tamper_context_t *tamper_ctx)
 {
     if (tamper_ctx == NULL) return false;
 
-    simulated_tamper_log_flash = *tamper_ctx;
+    s_tamper_seq++;
+    uint32_t bank = s_tamper_seq & 1U;
 
 #if defined(EMBEDDED_HARDWARE_TARGET)
-    /* Hapus Sektor 2 sebelum menulis snapshot tamper terbaru (4 KB) */
-    spi2_flash_erase_sector(SPI_FLASH_SECTOR_TAMPER_LOG);
-    spi2_flash_write_bytes(SPI_FLASH_SECTOR_TAMPER_LOG, (const uint8_t *)tamper_ctx, (uint16_t)sizeof(tamper_context_t));
-#endif
+    memset(&s_tamper_hw_scratch, 0, sizeof(s_tamper_hw_scratch));
+    s_tamper_hw_scratch.magic = NVRAM_TAMPER_SNAP_MAGIC;
+    s_tamper_hw_scratch.seq   = s_tamper_seq;
+    s_tamper_hw_scratch.ctx   = *tamper_ctx;
+    s_tamper_hw_scratch.crc32 = nvram_calc_crc32((const uint8_t *)&s_tamper_hw_scratch, offsetof(nvram_tamper_flash_slot_t, crc32));
+
+    uint32_t sector = (bank == 0U) ? SPI_FLASH_SECTOR_TAMPER_LOG : SPI_FLASH_SECTOR_TAMPER_LOG_B;
+    if (!spi2_flash_erase_sector(sector))
+    {
+        return false;
+    }
+    return spi2_flash_write_bytes(sector, (const uint8_t *)&s_tamper_hw_scratch, (uint16_t)sizeof(s_tamper_hw_scratch));
+#else
+    nvram_tamper_flash_slot_t rec;
+    memset(&rec, 0, sizeof(rec));
+    rec.magic = NVRAM_TAMPER_SNAP_MAGIC;
+    rec.seq   = s_tamper_seq;
+    rec.ctx   = *tamper_ctx;
+    rec.crc32 = nvram_calc_crc32((const uint8_t *)&rec, offsetof(nvram_tamper_flash_slot_t, crc32));
+    simulated_tamper_slots[bank] = rec;
     return true;
+#endif
 }
 
 bool nvram_load_tamper_log_snapshot(tamper_context_t *tamper_ctx)
@@ -207,39 +333,91 @@ bool nvram_load_tamper_log_snapshot(tamper_context_t *tamper_ctx)
     if (tamper_ctx == NULL) return false;
 
 #if defined(EMBEDDED_HARDWARE_TARGET)
-    tamper_context_t flash_tamper = {0};
-    spi2_flash_read_bytes(SPI_FLASH_SECTOR_TAMPER_LOG, (uint8_t *)&flash_tamper, (uint16_t)sizeof(tamper_context_t));
-    if (flash_tamper.total_event_count > 0 || (flash_tamper.active_tamper_mask != 0xFFFFFFFFU && flash_tamper.active_tamper_mask != 0U))
-    {
-        simulated_tamper_log_flash = flash_tamper;
-    }
-#endif
+    static const uint32_t banks[2] = { SPI_FLASH_SECTOR_TAMPER_LOG, SPI_FLASH_SECTOR_TAMPER_LOG_B };
+    uint32_t best_seq = 0U;
+    bool found = false;
 
-    *tamper_ctx = simulated_tamper_log_flash;
+    for (size_t i = 0U; i < 2U; i++)
+    {
+        memset(&s_tamper_hw_scratch, 0xFF, sizeof(s_tamper_hw_scratch));
+        if (spi2_flash_read_bytes(banks[i], (uint8_t *)&s_tamper_hw_scratch, (uint16_t)sizeof(s_tamper_hw_scratch)) &&
+            s_tamper_hw_scratch.magic == NVRAM_TAMPER_SNAP_MAGIC &&
+            s_tamper_hw_scratch.crc32 == nvram_calc_crc32((const uint8_t *)&s_tamper_hw_scratch, offsetof(nvram_tamper_flash_slot_t, crc32)))
+        {
+            if (!found || s_tamper_hw_scratch.seq >= best_seq)
+            {
+                found       = true;
+                best_seq    = s_tamper_hw_scratch.seq;
+                *tamper_ctx = s_tamper_hw_scratch.ctx;
+            }
+        }
+    }
+    if (!found) return false;
+    s_tamper_seq = best_seq;
     return true;
+#else
+    const nvram_tamper_flash_slot_t *best = NULL;
+    for (size_t i = 0U; i < 2U; i++)
+    {
+        const nvram_tamper_flash_slot_t *s = &simulated_tamper_slots[i];
+        if (s->magic == NVRAM_TAMPER_SNAP_MAGIC &&
+            s->crc32 == nvram_calc_crc32((const uint8_t *)s, offsetof(nvram_tamper_flash_slot_t, crc32)))
+        {
+            if (best == NULL || s->seq >= best->seq)
+            {
+                best = s;
+            }
+        }
+    }
+    if (best == NULL) return false;
+    s_tamper_seq = best->seq;
+    *tamper_ctx  = best->ctx;
+    return true;
+#endif
 }
 
 bool nvram_save_energy_checkpoint(const nvram_energy_checkpoint_t *checkpoint)
 {
     if (checkpoint == NULL) return false;
 
-    simulated_energy_checkpoint_flash = *checkpoint;
-    /* Jamin stempel magic resmi NVRAM_ENERGY_CHECKPOINT_MAGIC ("ENGY" = 0x454E4759) selalu valid terisi */
-    simulated_energy_checkpoint_flash.magic = NVRAM_ENERGY_CHECKPOINT_MAGIC;
+    uint32_t slot = s_cp_next_slot % NVRAM_CHECKPOINT_TOTAL_SLOTS;
+    uint32_t sector_idx = slot / NVRAM_CHECKPOINT_PAGES_PER_SECTOR;
+    uint32_t page_idx   = slot % NVRAM_CHECKPOINT_PAGES_PER_SECTOR;
+
+    s_cp_seq++;
+    nvram_checkpoint_flash_slot_t rec;
+    memset(&rec, 0, sizeof(rec));
+    rec.magic     = NVRAM_ENERGY_CHECKPOINT_MAGIC;
+    rec.seq       = s_cp_seq;
+    rec.cp        = *checkpoint;
+    rec.cp.magic  = NVRAM_ENERGY_CHECKPOINT_MAGIC;
+    rec.crc32     = nvram_calc_crc32((const uint8_t *)&rec, offsetof(nvram_checkpoint_flash_slot_t, crc32));
 
 #if defined(EMBEDDED_HARDWARE_TARGET)
-    /* Ping-Pong Dual-Slot Protection (Power-Fail Safe):
-     * Tulis secara bergantian antara Slot A (0x001000) dan Slot B (0x003000).
-     * Sektor tujuan selalu di-erase (0x20) terlebih dahulu sebelum penulisan. */
-    uint32_t target_sector = (s_checkpoint_active_slot == 0U) 
-                           ? SPI_FLASH_SECTOR_CHECKPOINT_SLOT_B 
-                           : SPI_FLASH_SECTOR_CHECKPOINT_SLOT_A;
-
-    spi2_flash_erase_sector(target_sector);
-    spi2_flash_write_bytes(target_sector, (const uint8_t *)&simulated_energy_checkpoint_flash, (uint16_t)sizeof(nvram_energy_checkpoint_t));
-
-    s_checkpoint_active_slot = (s_checkpoint_active_slot == 0U) ? 1U : 0U;
+    uint32_t sector_addr = SPI_FLASH_SECTOR_CHECKPOINT_RING + (sector_idx * SPI_FLASH_SECTOR_SIZE_BYTES);
+    uint32_t write_addr  = sector_addr + (page_idx * SPI_FLASH_PAGE_SIZE_BYTES);
+    if (page_idx == 0U)
+    {
+        if (!spi2_flash_erase_sector(sector_addr))
+        {
+            return false;
+        }
+    }
+    if (!spi2_flash_write_bytes(write_addr, (const uint8_t *)&rec, (uint16_t)sizeof(rec)))
+    {
+        return false;
+    }
+#else
+    if (page_idx == 0U)
+    {
+        memset(&simulated_checkpoint_ring[sector_idx * NVRAM_CHECKPOINT_PAGES_PER_SECTOR],
+               0xFF,
+               NVRAM_CHECKPOINT_PAGES_PER_SECTOR * sizeof(nvram_checkpoint_flash_slot_t));
+        s_cp_erase_count++;
+    }
+    simulated_checkpoint_ring[slot] = rec;
 #endif
+    s_cp_next_slot = (slot + 1U) % NVRAM_CHECKPOINT_TOTAL_SLOTS;
     return true;
 }
 
@@ -247,59 +425,108 @@ bool nvram_load_energy_checkpoint(nvram_energy_checkpoint_t *out_checkpoint)
 {
     if (out_checkpoint == NULL) return false;
 
+    uint32_t best_seq  = 0U;
+    uint32_t best_slot = 0U;
+    bool     found     = false;
+
 #if defined(EMBEDDED_HARDWARE_TARGET)
-    nvram_energy_checkpoint_t cp_a = {0};
-    nvram_energy_checkpoint_t cp_b = {0};
-
-    spi2_flash_read_bytes(SPI_FLASH_SECTOR_CHECKPOINT_SLOT_A, (uint8_t *)&cp_a, (uint16_t)sizeof(nvram_energy_checkpoint_t));
-    spi2_flash_read_bytes(SPI_FLASH_SECTOR_CHECKPOINT_SLOT_B, (uint8_t *)&cp_b, (uint16_t)sizeof(nvram_energy_checkpoint_t));
-
-    bool valid_a = (cp_a.magic == NVRAM_ENERGY_CHECKPOINT_MAGIC);
-    bool valid_b = (cp_b.magic == NVRAM_ENERGY_CHECKPOINT_MAGIC);
-
-    if (valid_a && valid_b)
+    nvram_energy_checkpoint_t best_cp = {0};
+    for (uint32_t s = 0U; s < NVRAM_CHECKPOINT_TOTAL_SLOTS; s++)
     {
-        /* Pilih checkpoint yang memiliki stempel waktu terbaru */
-        if (cp_b.timestamp >= cp_a.timestamp)
+        uint32_t addr = SPI_FLASH_SECTOR_CHECKPOINT_RING +
+                        ((s / NVRAM_CHECKPOINT_PAGES_PER_SECTOR) * SPI_FLASH_SECTOR_SIZE_BYTES) +
+                        ((s % NVRAM_CHECKPOINT_PAGES_PER_SECTOR) * SPI_FLASH_PAGE_SIZE_BYTES);
+        nvram_checkpoint_flash_slot_t rd = {0};
+        if (spi2_flash_read_bytes(addr, (uint8_t *)&rd, (uint16_t)sizeof(rd)) &&
+            rd.magic == NVRAM_ENERGY_CHECKPOINT_MAGIC &&
+            rd.cp.magic == NVRAM_ENERGY_CHECKPOINT_MAGIC &&
+            rd.crc32 == nvram_calc_crc32((const uint8_t *)&rd, offsetof(nvram_checkpoint_flash_slot_t, crc32)))
         {
-            simulated_energy_checkpoint_flash = cp_b;
-            s_checkpoint_active_slot = 1U;
-        }
-        else
-        {
-            simulated_energy_checkpoint_flash = cp_a;
-            s_checkpoint_active_slot = 0U;
+            if (!found || rd.seq >= best_seq)
+            {
+                found     = true;
+                best_seq  = rd.seq;
+                best_slot = s;
+                best_cp   = rd.cp;
+            }
         }
     }
-    else if (valid_a)
+    if (!found) return false;
+
+    s_cp_seq = best_seq;
+    uint32_t next = (best_slot + 1U) % NVRAM_CHECKPOINT_TOTAL_SLOTS;
+    if ((next % NVRAM_CHECKPOINT_PAGES_PER_SECTOR) != 0U)
     {
-        simulated_energy_checkpoint_flash = cp_a;
-        s_checkpoint_active_slot = 0U;
+        uint32_t next_addr = SPI_FLASH_SECTOR_CHECKPOINT_RING +
+                             ((next / NVRAM_CHECKPOINT_PAGES_PER_SECTOR) * SPI_FLASH_SECTOR_SIZE_BYTES) +
+                             ((next % NVRAM_CHECKPOINT_PAGES_PER_SECTOR) * SPI_FLASH_PAGE_SIZE_BYTES);
+        nvram_checkpoint_flash_slot_t next_rd = {0};
+        if (!spi2_flash_read_bytes(next_addr, (uint8_t *)&next_rd, (uint16_t)sizeof(next_rd)) ||
+            (next_rd.magic != 0xFFFFFFFFU && next_rd.magic != 0U))
+        {
+            next = (((next / NVRAM_CHECKPOINT_PAGES_PER_SECTOR) + 1U) * NVRAM_CHECKPOINT_PAGES_PER_SECTOR) % NVRAM_CHECKPOINT_TOTAL_SLOTS;
+        }
     }
-    else if (valid_b)
+    s_cp_next_slot = next;
+    *out_checkpoint = best_cp;
+    return true;
+#else
+    for (uint32_t s = 0U; s < NVRAM_CHECKPOINT_TOTAL_SLOTS; s++)
     {
-        simulated_energy_checkpoint_flash = cp_b;
-        s_checkpoint_active_slot = 1U;
+        const nvram_checkpoint_flash_slot_t *rec = &simulated_checkpoint_ring[s];
+        if (rec->magic == NVRAM_ENERGY_CHECKPOINT_MAGIC &&
+            rec->cp.magic == NVRAM_ENERGY_CHECKPOINT_MAGIC &&
+            rec->crc32 == nvram_calc_crc32((const uint8_t *)rec, offsetof(nvram_checkpoint_flash_slot_t, crc32)))
+        {
+            if (!found || rec->seq >= best_seq)
+            {
+                found     = true;
+                best_seq  = rec->seq;
+                best_slot = s;
+            }
+        }
     }
+    if (!found) return false;
+
+    s_cp_seq = best_seq;
+    uint32_t next = (best_slot + 1U) % NVRAM_CHECKPOINT_TOTAL_SLOTS;
+    if ((next % NVRAM_CHECKPOINT_PAGES_PER_SECTOR) != 0U &&
+        simulated_checkpoint_ring[next].magic != 0xFFFFFFFFU &&
+        simulated_checkpoint_ring[next].magic != 0U)
+    {
+        next = (((next / NVRAM_CHECKPOINT_PAGES_PER_SECTOR) + 1U) * NVRAM_CHECKPOINT_PAGES_PER_SECTOR) % NVRAM_CHECKPOINT_TOTAL_SLOTS;
+    }
+    s_cp_next_slot = next;
+    *out_checkpoint = simulated_checkpoint_ring[best_slot].cp;
+    return true;
 #endif
-
-    *out_checkpoint = simulated_energy_checkpoint_flash;
-    return (out_checkpoint->magic == NVRAM_ENERGY_CHECKPOINT_MAGIC);
 }
 
 bool nvram_save_device_config(const nvram_device_config_t *config)
 {
     if (config == NULL) return false;
 
-    simulated_device_config_flash = *config;
-    simulated_device_config_flash.magic = NVRAM_DEVICE_CONFIG_MAGIC;
+    s_dev_cfg_seq++;
+    uint32_t bank = s_dev_cfg_seq & 1U;
+    nvram_dev_cfg_flash_slot_t rec;
+    memset(&rec, 0, sizeof(rec));
+    rec.magic     = NVRAM_DEVICE_CONFIG_MAGIC;
+    rec.seq       = s_dev_cfg_seq;
+    rec.cfg       = *config;
+    rec.cfg.magic = NVRAM_DEVICE_CONFIG_MAGIC;
+    rec.crc32     = nvram_calc_crc32((const uint8_t *)&rec, offsetof(nvram_dev_cfg_flash_slot_t, crc32));
 
 #if defined(EMBEDDED_HARDWARE_TARGET)
-    /* Alokasi sektor konfigurasi perangkat pada Sektor 4 (0x004000U) */
-    spi2_flash_erase_sector(SPI_FLASH_SECTOR_DEVICE_CONFIG);
-    spi2_flash_write_bytes(SPI_FLASH_SECTOR_DEVICE_CONFIG, (const uint8_t *)&simulated_device_config_flash, (uint16_t)sizeof(nvram_device_config_t));
-#endif
+    uint32_t sector = (bank == 0U) ? SPI_FLASH_SECTOR_DEVICE_CONFIG : SPI_FLASH_SECTOR_DEVICE_CONFIG_B;
+    if (!spi2_flash_erase_sector(sector))
+    {
+        return false;
+    }
+    return spi2_flash_write_bytes(sector, (const uint8_t *)&rec, (uint16_t)sizeof(rec));
+#else
+    simulated_dev_cfg_slots[bank] = rec;
     return true;
+#endif
 }
 
 bool nvram_load_device_config(nvram_device_config_t *out_config)
@@ -307,16 +534,49 @@ bool nvram_load_device_config(nvram_device_config_t *out_config)
     if (out_config == NULL) return false;
 
 #if defined(EMBEDDED_HARDWARE_TARGET)
-    nvram_device_config_t flash_cfg = {0};
-    spi2_flash_read_bytes(SPI_FLASH_SECTOR_DEVICE_CONFIG, (uint8_t *)&flash_cfg, (uint16_t)sizeof(nvram_device_config_t));
-    if (flash_cfg.magic == NVRAM_DEVICE_CONFIG_MAGIC)
-    {
-        simulated_device_config_flash = flash_cfg;
-    }
-#endif
+    static const uint32_t banks[2] = { SPI_FLASH_SECTOR_DEVICE_CONFIG, SPI_FLASH_SECTOR_DEVICE_CONFIG_B };
+    nvram_dev_cfg_flash_slot_t best = {0};
+    bool found = false;
 
-    *out_config = simulated_device_config_flash;
-    return (out_config->magic == NVRAM_DEVICE_CONFIG_MAGIC);
+    for (size_t i = 0U; i < 2U; i++)
+    {
+        nvram_dev_cfg_flash_slot_t rd = {0};
+        if (spi2_flash_read_bytes(banks[i], (uint8_t *)&rd, (uint16_t)sizeof(rd)) &&
+            rd.magic == NVRAM_DEVICE_CONFIG_MAGIC &&
+            rd.cfg.magic == NVRAM_DEVICE_CONFIG_MAGIC &&
+            rd.crc32 == nvram_calc_crc32((const uint8_t *)&rd, offsetof(nvram_dev_cfg_flash_slot_t, crc32)))
+        {
+            if (!found || rd.seq >= best.seq)
+            {
+                found = true;
+                best  = rd;
+            }
+        }
+    }
+    if (!found) return false;
+    s_dev_cfg_seq = best.seq;
+    *out_config   = best.cfg;
+    return true;
+#else
+    const nvram_dev_cfg_flash_slot_t *best = NULL;
+    for (size_t i = 0U; i < 2U; i++)
+    {
+        const nvram_dev_cfg_flash_slot_t *s = &simulated_dev_cfg_slots[i];
+        if (s->magic == NVRAM_DEVICE_CONFIG_MAGIC &&
+            s->cfg.magic == NVRAM_DEVICE_CONFIG_MAGIC &&
+            s->crc32 == nvram_calc_crc32((const uint8_t *)s, offsetof(nvram_dev_cfg_flash_slot_t, crc32)))
+        {
+            if (best == NULL || s->seq >= best->seq)
+            {
+                best = s;
+            }
+        }
+    }
+    if (best == NULL) return false;
+    s_dev_cfg_seq = best->seq;
+    *out_config = best->cfg;
+    return true;
+#endif
 }
 
 bool nvram_save_calibration(const nvram_calibration_data_t *cal)
@@ -326,7 +586,6 @@ bool nvram_save_calibration(const nvram_calibration_data_t *cal)
     nvram_calibration_data_t cal_copy = *cal;
     cal_copy.magic = NVRAM_CALIBRATION_MAGIC;
 
-    /* Hitung Checksum sederhana untuk verifikasi integritas */
     uint32_t csum = cal_copy.magic;
     for (int i = 0; i < 3; i++)
     {
@@ -340,14 +599,26 @@ bool nvram_save_calibration(const nvram_calibration_data_t *cal)
     }
     cal_copy.checksum = csum;
 
-    simulated_calibration_flash = cal_copy;
+    s_cal_seq++;
+    uint32_t bank = s_cal_seq & 1U;
+    nvram_cal_flash_slot_t rec;
+    memset(&rec, 0, sizeof(rec));
+    rec.magic = NVRAM_CALIBRATION_MAGIC;
+    rec.seq   = s_cal_seq;
+    rec.cal   = cal_copy;
+    rec.crc32 = nvram_calc_crc32((const uint8_t *)&rec, offsetof(nvram_cal_flash_slot_t, crc32));
 
 #if defined(EMBEDDED_HARDWARE_TARGET)
-    /* Hapus Sektor 0 (0x000000U) dan tulis parameter kalibrasi ADE9000 */
-    spi2_flash_erase_sector(SPI_FLASH_SECTOR_CALIBRATION);
-    spi2_flash_write_bytes(SPI_FLASH_SECTOR_CALIBRATION, (const uint8_t *)&cal_copy, (uint16_t)sizeof(nvram_calibration_data_t));
-#endif
+    uint32_t sector = (bank == 0U) ? SPI_FLASH_SECTOR_CALIBRATION : SPI_FLASH_SECTOR_CALIBRATION_B;
+    if (!spi2_flash_erase_sector(sector))
+    {
+        return false;
+    }
+    return spi2_flash_write_bytes(sector, (const uint8_t *)&rec, (uint16_t)sizeof(rec));
+#else
+    simulated_cal_slots[bank] = rec;
     return true;
+#endif
 }
 
 bool nvram_load_calibration(nvram_calibration_data_t *out_cal)
@@ -355,30 +626,49 @@ bool nvram_load_calibration(nvram_calibration_data_t *out_cal)
     if (out_cal == NULL) return false;
 
 #if defined(EMBEDDED_HARDWARE_TARGET)
-    nvram_calibration_data_t flash_cal = {0};
-    spi2_flash_read_bytes(SPI_FLASH_SECTOR_CALIBRATION, (uint8_t *)&flash_cal, (uint16_t)sizeof(nvram_calibration_data_t));
-    if (flash_cal.magic == NVRAM_CALIBRATION_MAGIC)
+    static const uint32_t banks[2] = { SPI_FLASH_SECTOR_CALIBRATION, SPI_FLASH_SECTOR_CALIBRATION_B };
+    nvram_cal_flash_slot_t best = {0};
+    bool found = false;
+
+    for (size_t i = 0U; i < 2U; i++)
     {
-        uint32_t csum = flash_cal.magic;
-        for (int i = 0; i < 3; i++)
+        nvram_cal_flash_slot_t rd = {0};
+        if (spi2_flash_read_bytes(banks[i], (uint8_t *)&rd, (uint16_t)sizeof(rd)) &&
+            rd.magic == NVRAM_CALIBRATION_MAGIC &&
+            rd.cal.magic == NVRAM_CALIBRATION_MAGIC &&
+            rd.crc32 == nvram_calc_crc32((const uint8_t *)&rd, offsetof(nvram_cal_flash_slot_t, crc32)))
         {
-            csum += (uint32_t)flash_cal.vgain[i];
-            csum += (uint32_t)flash_cal.pgain[i];
-            csum += (uint32_t)flash_cal.phase_cal[i];
-        }
-        for (int i = 0; i < 4; i++)
-        {
-            csum += (uint32_t)flash_cal.igain[i];
-        }
-        if (csum == flash_cal.checksum)
-        {
-            simulated_calibration_flash = flash_cal;
+            if (!found || rd.seq >= best.seq)
+            {
+                found = true;
+                best  = rd;
+            }
         }
     }
+    if (!found) return false;
+    s_cal_seq = best.seq;
+    *out_cal  = best.cal;
+    return true;
+#else
+    const nvram_cal_flash_slot_t *best = NULL;
+    for (size_t i = 0U; i < 2U; i++)
+    {
+        const nvram_cal_flash_slot_t *s = &simulated_cal_slots[i];
+        if (s->magic == NVRAM_CALIBRATION_MAGIC &&
+            s->cal.magic == NVRAM_CALIBRATION_MAGIC &&
+            s->crc32 == nvram_calc_crc32((const uint8_t *)s, offsetof(nvram_cal_flash_slot_t, crc32)))
+        {
+            if (best == NULL || s->seq >= best->seq)
+            {
+                best = s;
+            }
+        }
+    }
+    if (best == NULL) return false;
+    s_cal_seq = best->seq;
+    *out_cal = best->cal;
+    return true;
 #endif
-
-    *out_cal = simulated_calibration_flash;
-    return (out_cal->magic == NVRAM_CALIBRATION_MAGIC);
 }
 
 bool nvram_w25q64_read_jedec_id(uint8_t *out_mfg, uint8_t *out_type, uint8_t *out_cap)
@@ -386,7 +676,7 @@ bool nvram_w25q64_read_jedec_id(uint8_t *out_mfg, uint8_t *out_type, uint8_t *ou
     if (out_mfg == NULL || out_type == NULL || out_cap == NULL) return false;
 
 #if defined(EMBEDDED_HARDWARE_TARGET)
-    spi2_flash_wait_busy(50U);
+    (void)spi2_flash_wait_busy(50U);
 
     uint8_t cmd = SPI_FLASH_CMD_JEDEC_ID;
     uint8_t rx_buf[3] = {0};
@@ -406,7 +696,6 @@ bool nvram_w25q64_read_jedec_id(uint8_t *out_mfg, uint8_t *out_type, uint8_t *ou
     *out_cap  = rx_buf[2];
     return true;
 #else
-    /* Simulasi host / CTest */
     *out_mfg  = W25Q64_JEDEC_MANUFACTURER_ID;
     *out_type = W25Q64_JEDEC_MEMORY_TYPE;
     *out_cap  = W25Q64_JEDEC_CAPACITY_ID;
@@ -414,7 +703,7 @@ bool nvram_w25q64_read_jedec_id(uint8_t *out_mfg, uint8_t *out_type, uint8_t *ou
 #endif
 }
 
-bool nvram_w25q64_verify(void)
+bool nvram_flash_verify(void)
 {
     uint8_t mfg = 0;
     uint8_t type = 0;
@@ -427,5 +716,43 @@ bool nvram_w25q64_verify(void)
 
     return (mfg == W25Q64_JEDEC_MANUFACTURER_ID &&
             type == W25Q64_JEDEC_MEMORY_TYPE &&
-            cap == W25Q64_JEDEC_CAPACITY_ID);
+            (cap == W25Q64_JEDEC_CAPACITY_ID || cap == W25Q128_JEDEC_CAPACITY_ID));
 }
+
+bool nvram_w25q64_verify(void)
+{
+    return nvram_flash_verify();
+}
+
+bool nvram_has_hardware_fault(void)
+{
+    return s_nvram_hw_fault;
+}
+
+void nvram_clear_hardware_fault(void)
+{
+    s_nvram_hw_fault = false;
+}
+
+#if !defined(EMBEDDED_HARDWARE_TARGET)
+void nvram_test_simulate_virgin_flash(void)
+{
+    memset(simulated_load_profile_flash, 0xFF, sizeof(simulated_load_profile_flash));
+    memset(simulated_tamper_slots,       0xFF, sizeof(simulated_tamper_slots));
+    memset(simulated_checkpoint_ring,    0xFF, sizeof(simulated_checkpoint_ring));
+    memset(simulated_dev_cfg_slots,      0xFF, sizeof(simulated_dev_cfg_slots));
+    memset(simulated_cal_slots,          0xFF, sizeof(simulated_cal_slots));
+    s_cp_seq = 0U;
+    s_cp_next_slot = 0U;
+    s_cp_erase_count = 0U;
+    s_tamper_seq = 0U;
+    s_dev_cfg_seq = 0U;
+    s_cal_seq = 0U;
+    s_nvram_hw_fault = false;
+}
+
+uint32_t nvram_test_get_checkpoint_erase_count(void)
+{
+    return s_cp_erase_count;
+}
+#endif

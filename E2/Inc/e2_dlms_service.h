@@ -39,10 +39,36 @@ void e2_dlms_service_set_modem_uart(UART_HandleTypeDef *modem_huart);
 void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const meter_measurements_t *meas);
 
 /**
- * @brief Callback penerimaan byte UART port optik maupun modem (Full HDLC -> AARQ -> GET/RLRQ pipeline)
+ * @brief Callback interrupt RX UART: hanya menyalin 1 byte ke ring buffer lock-free ISR-safe & re-arm IRQ
  * @param huart Pointer ke UART handle yang memicu interupsi
  */
 void e2_dlms_service_uart_rx_callback(UART_HandleTypeDef *huart);
+
+/**
+ * @brief Callback pemulihan error UART (ORE/FE/NE) agar penerimaan RX_IT tetap berjalan
+ * @param huart Pointer ke UART handle yang mengalami error
+ */
+void e2_dlms_service_uart_error_callback(UART_HandleTypeDef *huart);
+
+/**
+ * @brief Polling protokol DLMS/HDLC & jabat tangan IEC 62056-21 Mode E dari konteks thread (DLMSTask)
+ */
+void e2_dlms_service_poll(void);
+
+/**
+ * @brief Mengaktifkan/menonaktifkan mode penangkapan balasan AT-Command modem seluler pada USART2
+ */
+void e2_dlms_service_set_modem_at_active(bool active);
+
+/**
+ * @brief Mengirim string AT-Command ke modem seluler (USART2) dan mengaktifkan penangkapan balasan AT
+ */
+bool e2_dlms_service_send_modem_at(const char *at_cmd);
+
+/**
+ * @brief Mengambil 1 byte balasan ASCII AT-Command modem dari FIFO khusus ModemTask
+ */
+bool e2_dlms_service_pop_modem_rx_byte(uint8_t *out_byte);
 
 /**
  * @brief Mengirimkan paket darurat Last-Gasp DLMS Event Notification (0xC2) melalui port modem saat listrik padam

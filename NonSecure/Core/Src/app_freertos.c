@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "secure_nsc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,7 +49,7 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .priority = (osPriority_t) osPriorityLow,
-  .stack_size = 512 * 4
+  .stack_size = 768 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -117,6 +117,7 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
     (void)xTask;
     (void)pcTaskName;
     __disable_irq();
+    SECURE_StampFatalFault(3U); /* WDT_SRC_STACK_OVERFLOW -> Latch ERR04 sebelum reset */
     while (1)
     {
     }

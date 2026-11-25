@@ -47,9 +47,25 @@ void     SECURE_RecordPulseCF1(void);
 void     SECURE_RecordPulseCF2(void);
 uint32_t SECURE_GetTamperStatusMask(void);
 void     SECURE_ClearTamperLatch(uint32_t tamper_bitmask);
+/* Format Register Persistensi Boot/Watchdog/Fault MCU (RTC_BKP_DR10 Domain VSW) */
+#ifndef WDT_BOOT_REG_MAGIC
+#define WDT_BOOT_REG_MAGIC          0xA5500000U
+#define WDT_BOOT_REG_MAGIC_MASK     0xFFF00000U
+#define WDT_BOOT_REG_SRC_SHIFT      16U
+#define WDT_BOOT_REG_SRC_MASK       0x000F0000U
+#define WDT_BOOT_REG_TASK_SHIFT     8U
+#define WDT_BOOT_REG_TASK_MASK      0x0000FF00U
+#define WDT_BOOT_REG_ERR04_BIT      (1U << 7)
+#define WDT_BOOT_REG_PENDING_BIT    (1U << 6)
+#define WDT_BOOT_REG_STREAK_MASK    0x0000000FU
+#endif
+
 uint32_t SECURE_GetRTCDateTime(void);
 void     SECURE_SetRTCDateTime(uint32_t epoch_sec);
 uint8_t  SECURE_IsLseClockHealthy(void);
+uint32_t SECURE_ReadBootFaultReg(void);
+void     SECURE_WriteBootFaultReg(uint32_t val);
+void     SECURE_StampFatalFault(uint8_t fault_src);
 
 #endif /* SECURE_NSC_H */
 /* USER CODE END Non_Secure_CallLib_h */

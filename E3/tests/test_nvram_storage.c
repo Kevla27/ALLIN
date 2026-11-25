@@ -195,6 +195,86 @@ void test_nvram_w25q64_spec_and_jedec(void) {
            mfg, type, cap);
 }
 
+void test_nvram_virgin_flash_0xff_and_crc32(void) {
+    printf("[TEST] Testing Virgin 0xFF Flash Protection & CRC32 Integrity...\n");
+
+    nvram_test_simulate_virgin_flash();
+    assert(nvram_flash_verify() == true);
+    assert(nvram_has_hardware_fault() == false);
+
+    nvram_energy_checkpoint_t cp;
+    nvram_device_config_t cfg;
+    nvram_calibration_data_t cal;
+    tamper_context_t tctx;
+
+    assert(nvram_load_energy_checkpoint(&cp) == false);
+    assert(nvram_load_device_config(&cfg) == false);
+    assert(nvram_load_calibration(&cal) == false);
+    assert(nvram_load_tamper_log_snapshot(&tctx) == false);
+
+    printf("   [PASS] Virgin 0xFF Flash safely rejected across all NVRAM blocks!\n\n");
+}
+
+void test_nvram_checkpoint_ring_wear_leveling(void) {
+    printf("[TEST] Testing 8-Sector x 16-Page (128-Slot) Checkpoint Ring Wear-Leveling...\n");
+
+    nvram_test_simulate_virgin_flash();
+
+    for (uint32_t i = 1U; i <= 140U; i++) {
+        nvram_energy_checkpoint_t cp = {0};
+        cp.magic = NVRAM_ENERGY_CHECKPOINT_MAGIC;
+        cp.timestamp = 1793181600U + (i * 300U);
+        cp.active_energy_import_wh = 1000ULL + i;
+        cp.active_energy_export_wh = 200ULL + i;
+        cp.reactive_energy_varh = 50ULL + i;
+        assert(nvram_save_energy_checkpoint(&cp) == true);
+    }
+
+    uint32_t erases = nvram_test_get_checkpoint_erase_count();
+    assert(erases == 9U);
+
+    nvram_energy_checkpoint_t loaded = {0};
+    assert(nvram_load_energy_checkpoint(&loaded) == true);
+    assert(loaded.active_energy_import_wh == 1140ULL);
+    assert(loaded.timestamp == (1793181600U + (140U * 300U)));
+
+    printf("   [PASS] 140 checkpoints triggered only %lu sector erases (Latest=1140 Wh)!\n\n",
+           (unsigned long)erases);
+}
+
+void test_nvram_92_day_load_profile_slots(void) {
+    printf("[TEST] Testing 92-Day (8832-Slot, 128B-Aligned) Load Profile Flash Ring...\n");
+
+    assert(NVRAM_LOAD_PROFILE_FLASH_SLOTS == 8832U);
+    nvram_test_simulate_virgin_flash();
+
+    const uint32_t test_indices[5] = { 0U, 31U, 32U, 8831U, 8832U };
+    for (size_t i = 0; i < 5U; i++) {
+        load_profile_entry_t e = {0};
+        e.timestamp = 1793181600U + (test_indices[i] * 900U);
+        e.voltage_r_dvolts = (uint16_t)(2200U + i);
+        e.active_power_w = (int32_t)(1000U + test_indices[i]);
+        e.active_energy_import_wh = 5000ULL + test_indices[i];
+        assert(nvram_write_load_profile_flash_slot(test_indices[i], &e) == true);
+    }
+
+    load_profile_entry_t r = {0};
+    assert(nvram_read_load_profile_flash_slot(31U, &r) == true);
+    assert(r.active_energy_import_wh == (5000ULL + 31U));
+
+    assert(nvram_read_load_profile_flash_slot(32U, &r) == true);
+    assert(r.active_energy_import_wh == (5000ULL + 32U));
+
+    assert(nvram_read_load_profile_flash_slot(8831U, &r) == true);
+    assert(r.active_energy_import_wh == (5000ULL + 8831U));
+
+    /* Slot 8832 harus menimpa Slot 0 (wrap circular 92 hari) */
+    assert(nvram_read_load_profile_flash_slot(0U, &r) == true);
+    assert(r.active_energy_import_wh == (5000ULL + 8832U));
+
+    printf("   [PASS] 92-Day Load Profile 8832-Slot Ring Verified!\n\n");
+}
+
 /* FUNGSI MAIN UTAMA HARUS ADA DI SINI */
 int main(void) {
     printf("=========================================\n");
@@ -208,6 +288,9 @@ int main(void) {
     test_nvram_tamper_log_snapshot();
     test_nvram_energy_checkpoint_magic_stamp();
     test_nvram_device_config();
+    test_nvram_virgin_flash_0xff_and_crc32();
+    test_nvram_checkpoint_ring_wear_leveling();
+    test_nvram_92_day_load_profile_slots();
 
     printf(">>> ALL NVRAM UNIT TESTS PASSED 100%%! <<<\n");
     printf("=========================================\n");

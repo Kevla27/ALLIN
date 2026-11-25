@@ -377,6 +377,53 @@ CMSE_NS_ENTRY uint8_t SECURE_IsLseClockHealthy(void)
 }
 
 /**
+  * @brief  Membaca register backup pengawas Watchdog / Fault MCU (RTC_BKP_DR10 di Domain VSW)
+  */
+CMSE_NS_ENTRY uint32_t SECURE_ReadBootFaultReg(void)
+{
+  return HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR10);
+}
+
+/**
+  * @brief  Menulis stempel status Watchdog / Fault MCU ke Backup Register Domain VSW (RTC_BKP_DR10)
+  */
+CMSE_NS_ENTRY void SECURE_WriteBootFaultReg(uint32_t val)
+{
+  HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR10, val);
+}
+
+/**
+  * @brief  Mencatat trap fatal CPU/Clock/StackOverflow secara atomik ke RTC_BKP_DR10
+  *         sebelum MCU di-reset oleh IC External Watchdog PD12, agar ERR04 aktif saat boot.
+  */
+CMSE_NS_ENTRY void SECURE_StampFatalFault(uint8_t fault_src)
+{
+  if (hrtc.Instance == NULL)
+  {
+    return;
+  }
+
+  uint32_t reg = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR10);
+  if ((reg & WDT_BOOT_REG_MAGIC_MASK) != WDT_BOOT_REG_MAGIC)
+  {
+    reg = WDT_BOOT_REG_MAGIC;
+  }
+
+  uint32_t streak = reg & WDT_BOOT_REG_STREAK_MASK;
+  if (streak < 15U)
+  {
+    streak++;
+  }
+
+  reg &= ~(WDT_BOOT_REG_SRC_MASK | WDT_BOOT_REG_STREAK_MASK);
+  reg |= (((uint32_t)(fault_src & 0x0FU)) << WDT_BOOT_REG_SRC_SHIFT) |
+         WDT_BOOT_REG_PENDING_BIT |
+         WDT_BOOT_REG_ERR04_BIT |
+         (streak & WDT_BOOT_REG_STREAK_MASK);
+  HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR10, reg);
+}
+
+/**
   * @}
   */
 

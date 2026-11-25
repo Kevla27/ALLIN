@@ -172,6 +172,15 @@ static bool ADE9000_HW_SPI_Write(uint16_t command, uint8_t data_size, uint32_t d
  * SPI INITIALIZATION
  * ========================================================= */
 
+bool ADE9000_SPI_IsHardwareActive(void)
+{
+#if defined(EMBEDDED_HARDWARE_TARGET)
+    return s_use_hw_spi;
+#else
+    return false;
+#endif
+}
+
 void ADE9000_SPI_Init(void)
 {
 #if defined(EMBEDDED_HARDWARE_TARGET)

@@ -245,6 +245,37 @@ void e1_metrology_service_step(meter_measurements_t *meas, uint32_t delta_ms)
     meas->angle_is_deg = (raw_angl_vb_ib > 0U) ? (uint16_t)(((uint32_t)raw_angl_vb_ib * 360U) / 2048U) : 8U;
     meas->angle_it_deg = (raw_angl_vc_ic > 0U) ? (uint16_t)(((uint32_t)raw_angl_vc_ic * 360U) / 2048U) : 8U;
 
+    /* Kualitas Daya THD Tegangan & Arus per Fasa (register AVTHD..CITHD format Q5.27 -> x0.1%) */
+    if (ADE9000_SPI_IsHardwareActive())
+    {
+        static const uint16_t vthd_regs[3] = { ADE9000_AVTHD, ADE9000_BVTHD, ADE9000_CVTHD };
+        static const uint16_t ithd_regs[3] = { ADE9000_AITHD, ADE9000_BITHD, ADE9000_CITHD };
+        for (uint8_t p = 0U; p < 3U; p++)
+        {
+            uint32_t raw_vt = 0U, raw_it = 0U;
+            ADE9000_SPI_TransactionRead(vthd_regs[p], ADE9000_SPI_DATA_32BIT, &raw_vt, NULL);
+            ADE9000_SPI_TransactionRead(ithd_regs[p], ADE9000_SPI_DATA_32BIT, &raw_it, NULL);
+            float vt_x10 = Metrology_THDFromRaw(raw_vt) * 10.0f;
+            float it_x10 = Metrology_THDFromRaw(raw_it) * 10.0f;
+            if (vt_x10 < 0.0f) vt_x10 = 0.0f;
+            if (vt_x10 > 65535.0f) vt_x10 = 65535.0f;
+            if (it_x10 < 0.0f) it_x10 = 0.0f;
+            if (it_x10 > 65535.0f) it_x10 = 65535.0f;
+            meas->thd_v_pct_x10[p] = (uint16_t)vt_x10;
+            meas->thd_i_pct_x10[p] = (uint16_t)it_x10;
+        }
+        meas->thd_measured = true;
+    }
+    else
+    {
+        meas->thd_measured = false;
+        for (uint8_t p = 0U; p < 3U; p++)
+        {
+            meas->thd_v_pct_x10[p] = 15U;
+            meas->thd_i_pct_x10[p] = 25U;
+        }
+    }
+
     /* D. Akumulasi energi aktif presisi tinggi (3.600.000 W*ms = 1 Wh) dengan anti-creep SPLN D3.006 */
     if (meas->active_power_w >= 3) /* Ambang anti-creep daya kirim (+A) */
     {

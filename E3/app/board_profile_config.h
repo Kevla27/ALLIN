@@ -97,6 +97,7 @@ extern "C" {
 
 /* --- G. Metrology & Analog Telemetry --- */
 #define BOARD_CFG_METROLOGY_AFE_ADE9000 1          /**< Menggunakan chip analog front-end ADE9000 */
+#define BOARD_CFG_LOCAL_TIMEZONE_SEC    0U         /**< Basis RTC domain VBAT menyimpan waktu lokal WIB langsung (0s) sesuai DLMS Clock Class 8 deviation +420m; isi 25200U bila RTC memakai UTC */
 #define BOARD_CFG_NOMINAL_VOLTAGE_DV    2200U      /**< Tegangan nominal 220.0 V (skala 0.1V) */
 #define BOARD_CFG_NOMINAL_FREQ_MHZ      50000U     /**< Frekuensi nominal 50.00 Hz (skala 0.001Hz) */
 #define BOARD_CFG_ANTI_CREEP_WATTS      3U         /**< Ambang batas tanpa beban / anti-creep (3 Watt) */

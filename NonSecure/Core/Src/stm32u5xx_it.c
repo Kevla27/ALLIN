@@ -24,6 +24,7 @@
 #include "task.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "secure_nsc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -72,7 +73,7 @@ extern UART_HandleTypeDef huart3;
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
-
+  SECURE_StampFatalFault(2U); /* WDT_SRC_CPU_FAULT -> Latch ERR04 sebelum reset */
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
   {
@@ -87,7 +88,7 @@ void MemManage_Handler(void)
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
-
+  SECURE_StampFatalFault(2U); /* WDT_SRC_CPU_FAULT -> Latch ERR04 sebelum reset */
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
   {

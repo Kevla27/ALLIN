@@ -12,10 +12,19 @@
 #include "ami_disconnect_control.h"
 #include <string.h>
 
-#define CLI_RX_FIFO_SIZE 64U
+#define CLI_RX_FIFO_SIZE       64U
+#define MODEM_AT_RX_FIFO_SIZE  128U
+#define DLMS_UART_RX_RING_SIZE 256U
+#define DLMS_MODE_E_BUF_SIZE   24U
+
 static volatile uint8_t s_cli_rx_fifo[CLI_RX_FIFO_SIZE];
 static volatile uint8_t s_cli_rx_head = 0U;
 static volatile uint8_t s_cli_rx_tail = 0U;
+
+static volatile uint8_t s_modem_at_fifo[MODEM_AT_RX_FIFO_SIZE];
+static volatile uint8_t s_modem_at_head = 0U;
+static volatile uint8_t s_modem_at_tail = 0U;
+static volatile bool    s_modem_at_active = false;
 
 static AmiDlmsSecuritySuite0Context s_cipher_ctx;
 static AmiDlmsCipherBackend         s_cipher_backend;
@@ -77,6 +86,12 @@ static void epoch_to_cosem_datetime(uint32_t epoch, AmiCosemDateTime *dt)
 typedef struct {
     UART_HandleTypeDef  *huart;
     uint8_t              rx_byte;
+    volatile uint8_t     rx_ring[DLMS_UART_RX_RING_SIZE];
+    volatile uint16_t    rx_head;
+    volatile uint16_t    rx_tail;
+    uint8_t              mode_e_buf[DLMS_MODE_E_BUF_SIZE];
+    uint8_t              mode_e_len;
+    bool                 mode_e_ident_sent;
     HdlcContext          hdlc_ctx;
     HdlcFrame            rx_frame;
     AmiDlmsAssociation   assoc;
@@ -296,14 +311,29 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
     snapshot->power_factor[1] = (int32_t)meas->power_factor_ppm;
     snapshot->power_factor[2] = (int32_t)meas->power_factor_ppm;
     snapshot->power_factor[3] = (int32_t)meas->power_factor_ppm;
-    snapshot->thd_voltage_percent_x10[0] = 15U;
-    snapshot->thd_voltage_percent_x10[1] = 15U;
-    snapshot->thd_voltage_percent_x10[2] = 15U;
-    snapshot->thd_voltage_percent_x10[3] = 15U;
-    snapshot->thd_current_percent_x10[0] = 25U;
-    snapshot->thd_current_percent_x10[1] = 25U;
-    snapshot->thd_current_percent_x10[2] = 25U;
-    snapshot->thd_current_percent_x10[3] = 25U;
+    if (meas->thd_measured)
+    {
+        snapshot->thd_voltage_percent_x10[1] = meas->thd_v_pct_x10[0];
+        snapshot->thd_voltage_percent_x10[2] = meas->thd_v_pct_x10[1];
+        snapshot->thd_voltage_percent_x10[3] = meas->thd_v_pct_x10[2];
+        snapshot->thd_voltage_percent_x10[0] = (uint32_t)((meas->thd_v_pct_x10[0] + meas->thd_v_pct_x10[1] + meas->thd_v_pct_x10[2]) / 3U);
+
+        snapshot->thd_current_percent_x10[1] = meas->thd_i_pct_x10[0];
+        snapshot->thd_current_percent_x10[2] = meas->thd_i_pct_x10[1];
+        snapshot->thd_current_percent_x10[3] = meas->thd_i_pct_x10[2];
+        snapshot->thd_current_percent_x10[0] = (uint32_t)((meas->thd_i_pct_x10[0] + meas->thd_i_pct_x10[1] + meas->thd_i_pct_x10[2]) / 3U);
+    }
+    else
+    {
+        snapshot->thd_voltage_percent_x10[0] = 15U;
+        snapshot->thd_voltage_percent_x10[1] = 15U;
+        snapshot->thd_voltage_percent_x10[2] = 15U;
+        snapshot->thd_voltage_percent_x10[3] = 15U;
+        snapshot->thd_current_percent_x10[0] = 25U;
+        snapshot->thd_current_percent_x10[1] = 25U;
+        snapshot->thd_current_percent_x10[2] = 25U;
+        snapshot->thd_current_percent_x10[3] = 25U;
+    }
     snapshot->active_power_watts = (uint32_t)((meas->active_power_w > 0) ? meas->active_power_w : 0);
     snapshot->reactive_power_vars = (uint32_t)((meas->reactive_power_var > 0) ? meas->reactive_power_var : 0);
 
@@ -329,27 +359,104 @@ void e2_dlms_service_sync_snapshot(AmiCosemRegisterSnapshot *snapshot, const met
                              AMI_COSEM_VALID_DEVICE_INFO);
 }
 
-static void process_channel_rx(DlmsChannelState *ch)
+static uint32_t iec_mode_e_baud_from_char(uint8_t z)
+{
+    switch (z)
+    {
+        case '0': return 300U;
+        case '1': return 600U;
+        case '2': return 1200U;
+        case '3': return 2400U;
+        case '4': return 4800U;
+        case '5': return 9600U;
+        case '6': return 19200U;
+        default:  return 0U;
+    }
+}
+
+static void handle_optical_mode_e_byte(DlmsChannelState *ch, uint8_t rx_byte)
+{
+    if (ch->mode_e_len == 0U && rx_byte != (uint8_t)'/' && rx_byte != 0x06U)
+    {
+        return;
+    }
+    if (ch->mode_e_len < (DLMS_MODE_E_BUF_SIZE - 1U))
+    {
+        ch->mode_e_buf[ch->mode_e_len++] = rx_byte;
+        ch->mode_e_buf[ch->mode_e_len] = '\0';
+    }
+    else
+    {
+        ch->mode_e_len = 0U;
+        return;
+    }
+
+    if (rx_byte == (uint8_t)'\n')
+    {
+        if (ch->mode_e_len >= 4U && ch->mode_e_buf[0] == (uint8_t)'/' && ch->mode_e_buf[1] == (uint8_t)'?')
+        {
+            /* IEC 62056-21 Identification Message: /ALL5ALLINMTR01\r\n (Z='5' => 9600 bps, Mode E capable) */
+            static const uint8_t k_mode_e_ident[] = "/ALL5ALLINMTR01\r\n";
+            HAL_UART_Transmit(ch->huart, (uint8_t *)k_mode_e_ident, (uint16_t)(sizeof(k_mode_e_ident) - 1U), 100U);
+            ch->mode_e_ident_sent = true;
+        }
+        else if (ch->mode_e_len >= 5U && ch->mode_e_buf[0] == 0x06U && ch->mode_e_ident_sent)
+        {
+            /* Option Select Frame: <ACK> V Z Y \r\n (V='0', Z='0'..'6', Y='2' Mode E HDLC) */
+            uint32_t target_baud = iec_mode_e_baud_from_char(ch->mode_e_buf[2]);
+            if (target_baud != 0U && ch->huart != NULL && ch->huart->Init.BaudRate != target_baud)
+            {
+                HAL_UART_AbortReceive_IT(ch->huart);
+                ch->huart->Init.BaudRate = target_baud;
+                (void)HAL_UART_Init(ch->huart);
+                HAL_UART_Receive_IT(ch->huart, &ch->rx_byte, 1U);
+            }
+            ami_dlms_hdlc_init(&ch->hdlc_ctx);
+            ch->mode_e_ident_sent = false;
+        }
+        ch->mode_e_len = 0U;
+    }
+}
+
+static void process_channel_byte(DlmsChannelState *ch, uint8_t rx_byte)
 {
     uint8_t *tx_buf = ch->tx_buf;
     uint8_t *apdu_resp = ch->apdu_resp;
     size_t  tx_len = 0;
     size_t  apdu_resp_len = 0;
 
-    /* Jika kanal USART2 sedang tidak mengoleksi frame HDLC (0x7E) dan menerima karakter ASCII CLI */
-    if (ch == &s_modem_channel && ch->hdlc_ctx.collecting == 0U && ch->rx_byte != AMI_HDLC_FLAG)
+    /* Jika kanal optik menerima jabat tangan ASCII IEC 62056-21 Mode E sebelum frame HDLC (0x7E) */
+    if (ch == &s_optical_channel && ch->hdlc_ctx.collecting == 0U && rx_byte != AMI_HDLC_FLAG)
     {
-        uint8_t next_head = (uint8_t)((s_cli_rx_head + 1U) % CLI_RX_FIFO_SIZE);
-        if (next_head != s_cli_rx_tail)
-        {
-            s_cli_rx_fifo[s_cli_rx_head] = ch->rx_byte;
-            s_cli_rx_head = next_head;
-        }
-        HAL_UART_Receive_IT(ch->huart, &ch->rx_byte, 1);
+        handle_optical_mode_e_byte(ch, rx_byte);
         return;
     }
 
-    AmiHdlcStatus status = ami_dlms_hdlc_parse_byte(&ch->hdlc_ctx, ch->rx_byte, &ch->rx_frame);
+    /* Jika kanal USART2 sedang tidak mengoleksi frame HDLC (0x7E) dan menerima karakter ASCII */
+    if (ch == &s_modem_channel && ch->hdlc_ctx.collecting == 0U && rx_byte != AMI_HDLC_FLAG)
+    {
+        if (s_modem_at_active)
+        {
+            uint8_t next_at = (uint8_t)((s_modem_at_head + 1U) % MODEM_AT_RX_FIFO_SIZE);
+            if (next_at != s_modem_at_tail)
+            {
+                s_modem_at_fifo[s_modem_at_head] = rx_byte;
+                s_modem_at_head = next_at;
+            }
+        }
+        else
+        {
+            uint8_t next_head = (uint8_t)((s_cli_rx_head + 1U) % CLI_RX_FIFO_SIZE);
+            if (next_head != s_cli_rx_tail)
+            {
+                s_cli_rx_fifo[s_cli_rx_head] = rx_byte;
+                s_cli_rx_head = next_head;
+            }
+        }
+        return;
+    }
+
+    AmiHdlcStatus status = ami_dlms_hdlc_parse_byte(&ch->hdlc_ctx, rx_byte, &ch->rx_frame);
     if (status == AMI_HDLC_FRAME_READY)
     {
         if (ch->rx_frame.type == AMI_HDLC_FRAME_SNRM || ch->rx_frame.type == AMI_HDLC_FRAME_DISC)
@@ -447,22 +554,69 @@ static void process_channel_rx(DlmsChannelState *ch)
             }
         }
     }
+}
 
-    HAL_UART_Receive_IT(ch->huart, &ch->rx_byte, 1);
+static DlmsChannelState *find_channel_for_uart(const UART_HandleTypeDef *huart)
+{
+    if (huart == NULL) return NULL;
+    if (s_optical_channel.huart != NULL && huart->Instance == s_optical_channel.huart->Instance)
+    {
+        return &s_optical_channel;
+    }
+    if (s_modem_channel.huart != NULL && huart->Instance == s_modem_channel.huart->Instance)
+    {
+        return &s_modem_channel;
+    }
+    return NULL;
 }
 
 void e2_dlms_service_uart_rx_callback(UART_HandleTypeDef *huart)
 {
-    if (huart == NULL) return;
+    DlmsChannelState *ch = find_channel_for_uart(huart);
+    if (ch == NULL) return;
 
-    if (s_optical_channel.huart != NULL && huart->Instance == s_optical_channel.huart->Instance)
+    uint16_t next_head = (uint16_t)((ch->rx_head + 1U) % DLMS_UART_RX_RING_SIZE);
+    if (next_head != ch->rx_tail)
     {
-        process_channel_rx(&s_optical_channel);
+        ch->rx_ring[ch->rx_head] = ch->rx_byte;
+#if defined(EMBEDDED_HARDWARE_TARGET)
+        __DMB();
+#endif
+        ch->rx_head = next_head;
     }
-    else if (s_modem_channel.huart != NULL && huart->Instance == s_modem_channel.huart->Instance)
+    HAL_UART_Receive_IT(ch->huart, &ch->rx_byte, 1);
+}
+
+void e2_dlms_service_uart_error_callback(UART_HandleTypeDef *huart)
+{
+    DlmsChannelState *ch = find_channel_for_uart(huart);
+    if (ch == NULL) return;
+
+    __HAL_UART_CLEAR_OREFLAG(huart);
+    __HAL_UART_CLEAR_NEFLAG(huart);
+    __HAL_UART_CLEAR_FEFLAG(huart);
+    huart->ErrorCode = HAL_UART_ERROR_NONE;
+    HAL_UART_Receive_IT(ch->huart, &ch->rx_byte, 1);
+}
+
+static void poll_channel_ring(DlmsChannelState *ch)
+{
+    if (ch == NULL || ch->huart == NULL) return;
+    while (ch->rx_tail != ch->rx_head)
     {
-        process_channel_rx(&s_modem_channel);
+        uint8_t rx_byte = ch->rx_ring[ch->rx_tail];
+#if defined(EMBEDDED_HARDWARE_TARGET)
+        __DMB();
+#endif
+        ch->rx_tail = (uint16_t)((ch->rx_tail + 1U) % DLMS_UART_RX_RING_SIZE);
+        process_channel_byte(ch, rx_byte);
     }
+}
+
+void e2_dlms_service_poll(void)
+{
+    poll_channel_ring(&s_optical_channel);
+    poll_channel_ring(&s_modem_channel);
 }
 
 bool e2_dlms_send_last_gasp_push(uint32_t timestamp_epoch, uint64_t active_import_wh)
@@ -526,5 +680,38 @@ bool e2_dlms_service_pop_cli_rx_byte(uint8_t *out_byte)
     }
     *out_byte = s_cli_rx_fifo[s_cli_rx_tail];
     s_cli_rx_tail = (uint8_t)((s_cli_rx_tail + 1U) % CLI_RX_FIFO_SIZE);
+    return true;
+}
+
+void e2_dlms_service_set_modem_at_active(bool active)
+{
+    s_modem_at_active = active;
+    if (active)
+    {
+        s_modem_at_tail = s_modem_at_head;
+    }
+}
+
+bool e2_dlms_service_send_modem_at(const char *at_cmd)
+{
+    if (at_cmd == NULL || s_modem_channel.huart == NULL)
+    {
+        return false;
+    }
+    s_modem_at_tail = s_modem_at_head;
+    s_modem_at_active = true;
+    size_t len = strlen(at_cmd);
+    if (len == 0U) return false;
+    return (HAL_UART_Transmit(s_modem_channel.huart, (uint8_t *)at_cmd, (uint16_t)len, 100U) == HAL_OK);
+}
+
+bool e2_dlms_service_pop_modem_rx_byte(uint8_t *out_byte)
+{
+    if (out_byte == NULL || s_modem_at_head == s_modem_at_tail)
+    {
+        return false;
+    }
+    *out_byte = s_modem_at_fifo[s_modem_at_tail];
+    s_modem_at_tail = (uint8_t)((s_modem_at_tail + 1U) % MODEM_AT_RX_FIFO_SIZE);
     return true;
 }

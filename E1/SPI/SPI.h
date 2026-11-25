@@ -33,6 +33,7 @@ typedef enum
 
 /* Initialize SPI layer */
 void ADE9000_SPI_Init(void);
+bool ADE9000_SPI_IsHardwareActive(void);
 
 /* Build ADE9000 command header */
 uint16_t ADE9000_SPI_BuildCommand(uint16_t address,
